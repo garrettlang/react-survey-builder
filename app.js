@@ -1,12 +1,11 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import DemoBar from './demobar';
 // eslint-disable-next-line no-unused-vars
-import FormBuilder, { Registry } from './src/index';
+import SurveyBuilder, { Registry } from './src/index';
 import * as variables from './variables';
 
 // Add our stylesheets for the demo.
-require('./scss/application.scss');
+import './scss/application.scss';
 
 const url = '/api/formdata';
 const saveUrl = '/api/formdata';
@@ -43,7 +42,7 @@ const TestComponent = () => <h2>Hello</h2>;
 //     key: 'FieldSet',
 //     label:"Field Set",
 //     name:"Field Set",
-    
+
 //   },
 //   {
 //     group_name: 'Multi Column Row',
@@ -98,23 +97,21 @@ const TestComponent = () => <h2>Hello</h2>;
 // ];
 
 
-const App = () => (
-  <FormBuilder.ReactFormBuilder
-    variables={variables}
-    url={url}
-    saveUrl={saveUrl}
-    locale='en'
-    saveAlways={false}
-    // toolbarItems={items}
-  
-  />);
+const App = () => {
+	return (
+		<>
+			<DemoBar variables={variables} />
+			<SurveyBuilder.ReactSurveyBuilder
+				variables={variables}
+				url={url}
+				saveUrl={saveUrl}
+				locale='en'
+				saveAlways={false}
+			// toolbarItems={items}
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('form-builder'),
-);
+			/>
+		</>
+	);
+};
 
-ReactDOM.render(
-  <DemoBar variables={variables} />,
-  document.getElementById('demo-bar'),
-);
+export default App;

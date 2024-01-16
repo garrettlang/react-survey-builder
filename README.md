@@ -1,5 +1,5 @@
-[![npm version](https://badge.fury.io/js/react-form-builder2.svg)](//npmjs.com/package/react-form-builder2)
-[![downloads](https://img.shields.io/npm/dm/react-form-builder2.svg)](https://img.shields.io/npm/dm/react-form-builder2.svg)
+[![npm version](https://badge.fury.io/js/react-survey-builder.svg)](//npmjs.com/package/react-survey-builder)
+[![downloads](https://img.shields.io/npm/dm/react-survey-builder.svg)](https://img.shields.io/npm/dm/react-survey-builder.svg)
 # React Form Builder 2
 A complete react form builder that interfaces with a json endpoint to load and save generated forms.
 - Upgraded to React 16.8.6
@@ -9,8 +9,6 @@ A complete react form builder that interfaces with a json endpoint to load and s
 - Show posted data on readonly form
 - Multi column row
 - Custom Components
-
-[DEMO](https://kiho.github.io/react-form-builder/) Slow Loading.... back-end is running at FREE Heroku, hence it may not work if free time runs out for month.
 
 ![](screenshot.png)
 
@@ -22,11 +20,11 @@ A complete react form builder that interfaces with a json endpoint to load and s
 ```javascript
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ReactFormBuilder } from 'react-form-builder2';
-import 'react-form-builder2/dist/app.css';
+import { ReactSurveyBuilder } from 'react-survey-builder';
+import 'react-survey-builder/dist/app.css';
 
 ReactDOM.render(
-  <ReactFormBuilder />,
+  <ReactSurveyBuilder />,
   document.body
 )
 ```
@@ -49,7 +47,7 @@ var items = [{
   content: 'Placeholder Text...'
 }];
 
-<ReactFormBuilder
+<ReactSurveyBuilder
   url='path/to/GET/initial.json'
   toolbarItems={items}
   saveUrl='path/to/POST/built/form.json' />
@@ -61,11 +59,11 @@ Now that a form is built and saved, let's generate it from the saved json.
 ```javascript
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { ReactFormGenerator } from 'react-form-builder2';
-import 'react-form-builder2/dist/app.css';
+import { ReactSurveyGenerator } from 'react-survey-builder';
+import 'react-survey-builder/dist/app.css';
 
 ReactDOM.render(
-  <ReactFormGenerator
+  <ReactSurveyGenerator
     form_action="/path/to/form/submit"
     form_method="POST"
     task_id={12} // Used to submit a hidden variable with the id to the form from the database.
@@ -101,7 +99,7 @@ variables | object | Optional | Key/value object that can be used for Signature 
 
 ### Read only Signatures
 
-Read only signatures allow you to use a saved/canned signature to be placed into the form. The signature will be passed in through the `variables` property to `ReactFormGenerator` and `ReactFormBuilder`.
+Read only signatures allow you to use a saved/canned signature to be placed into the form. The signature will be passed in through the `variables` property to `ReactSurveyGenerator` and `ReactSurveyBuilder`.
 
 To use a read only signature, choose the "Read only" option and enter the key value of the variable that will be used to pass in the signature.
 
@@ -130,9 +128,9 @@ $ yarn start
 Then navigate to http://localhost:8080/ in your browser and you should be able to see the form builder in action.
 
 # Customizations
-- to customize the field edit form copy "src/form-elements-edit.jsx" to your project and pass it to the ReactFormBuilder as a prop. Here is an example
+- to customize the field edit form copy "src/form-elements-edit.jsx" to your project and pass it to the ReactSurveyBuilder as a prop. Here is an example
 ```jsx
-<ReactFormBuilder
+<ReactSurveyBuilder
     edit
     data={form}
     //toolbarItems={items}
@@ -144,10 +142,10 @@ Then navigate to http://localhost:8080/ in your browser and you should be able t
 />
 ```
 
-- to customize the ReactFormGenerator submit button use it like this
+- to customize the ReactSurveyGenerator submit button use it like this
 
 ```jsx
-<ReactFormGenerator
+<ReactSurveyGenerator
     data={form}
     toolbarItems={items}
     onSubmit={handleSubmit}
@@ -158,9 +156,9 @@ Then navigate to http://localhost:8080/ in your browser and you should be able t
 ```
 
 # Custom Components
-- Import component registry from react-form-builder2
+- Import component registry from react-survey-builder
 ```jsx
-import { ReactFormBuilder, ElementStore, Registry } from 'react-form-builder2';
+import { ReactSurveyBuilder, ElementStore, Registry } from 'react-survey-builder';
 ```
 
 - Simple Custom Component 
@@ -223,24 +221,13 @@ const items = [{
 }];
 ```
 
-- Use defined Toolbar in ReactFormBuilder
+- Use defined Toolbar in ReactSurveyBuilder
 ```jsx
-  <ReactFormBuilder
+  <ReactSurveyBuilder
     ...
     toolbarItems={items}
   />
 ```
-       
-- Find working example [here](https://github.com/Kiho/react-form-builder/blob/master/examples/custom/app.js)
-
-
-# Examples
-- [Basic](https://github.com/Kiho/react-form-builder/tree/master/examples/demo)
-- [JSON Post](https://github.com/Kiho/react-form-builder/tree/master/examples/custom)
-- [UMD](https://github.com/Kiho/react-form-builder/tree/master/examples/umd)
-- [NEXT](https://github.com/Kiho/react-form-builder/tree/master/examples/next)
-- [NEXT-Mongo](https://github.com/Kiho/react-form-builder/tree/master/examples/mongo)
-- [create-react-app](https://github.com/Kiho/react-form-builder/tree/master/examples/cra)
 
 # Tests
 ```bash
