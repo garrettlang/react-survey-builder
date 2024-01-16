@@ -7,6 +7,7 @@ import DynamicOptionList from './dynamic-option-list';
 import { get } from './stores/requests';
 import ID from './UUID';
 import IntlMessages from './language-provider/IntlMessages';
+import { FaTimes } from 'react-icons/fa';
 
 const toolbar = {
 	options: ['inline', 'list', 'textAlign', 'fontSize', 'link', 'history'],
@@ -141,7 +142,7 @@ export default class SurveyElementsEdit extends React.Component {
 			<div>
 				<div className="clearfix">
 					<h4 className="float-start">{this.props.element.text}</h4>
-					<i className="float-end fas fa-times dismiss-edit" onClick={this.props.manualEditModeOff}></i>
+					<FaTimes className="float-end dismiss-edit" onClick={this.props.manualEditModeOff} />
 				</div>
 				{this.props.element.hasOwnProperty('content') &&
 					<div className="form-group">

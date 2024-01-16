@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { DragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import ItemTypes from '../ItemTypes';
+import { FaGripVertical } from 'react-icons/fa';
 
 const style = {
 	// display: 'inline-block',
@@ -46,7 +47,7 @@ class DragHandle extends PureComponent {
 
 	render() {
 		const { connectDragSource } = this.props;
-		return connectDragSource(<div className="btn is-isolated" style={style} ><i className="is-isolated fas fa-grip-vertical"></i></div>);
+		return connectDragSource(<div className="btn is-isolated" style={style} ><FaGripVertical className="is-isolated" /></div>);
 	}
 }
 

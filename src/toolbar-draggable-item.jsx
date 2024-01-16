@@ -21,10 +21,11 @@ const cardSource = {
 class ToolbarItem extends React.Component {
 	render() {
 		const { connectDragSource, data, onClick } = this.props;
+		const IconComponent = data.icon;
 		if (!connectDragSource) return null;
 		return (
 			connectDragSource(
-				<li onClick={onClick}><i className={data.icon}></i>{data.name}</li>,
+				<li onClick={onClick}><IconComponent />{data.name}</li>,
 			)
 		);
 	}

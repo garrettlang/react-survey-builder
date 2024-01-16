@@ -114,7 +114,7 @@ export type ToolbarItem = {
   key: string;
   name: string;
   static: boolean;
-  icon: string;
+  icon: React.ReactNode;
   content: string;
 };
 

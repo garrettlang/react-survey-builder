@@ -5,6 +5,7 @@
 import React from 'react';
 import xss from 'xss';
 import IntlMessages from './language-provider/IntlMessages';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 const myxss = new xss.FilterXSS({
 	whiteList: {
@@ -56,7 +57,7 @@ export default class SurveyValidator extends React.Component {
 				{this.state.errors.length > 0 &&
 					<div className="alert alert-danger validation-error">
 						<div className="clearfix">
-							<i className="fas fa-exclamation-triangle float-start"></i>
+							<FaExclamationTriangle className="float-start" />
 							<ul className="float-start">
 								{errors}
 							</ul>
