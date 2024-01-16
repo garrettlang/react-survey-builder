@@ -2,10 +2,11 @@ var path = require('path');
 var webpack = require('webpack');
 
 module.exports = {
+	mode: 'production',
 	entry: './src/index.jsx',
 	output: {
-		path: path.resolve('./dist'),
-		filename: 'app.js',
+		path: path.resolve('dist'),
+		filename: 'index.js',
 		library: 'ReactSurveyBuilder',
 		libraryTarget: 'umd',
 		umdNamedDefine: true,

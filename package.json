@@ -2,7 +2,7 @@
   "name": "react-survey-builder",
   "version": "1.0.1",
   "description": "A complete survey builder for react.",
-  "main": "dist/app.js",
+  "main": "dist/index.js",
   "types": "types/index.d.ts",
   "license": "MIT",
   "repository": {
@@ -110,9 +110,5 @@
   "bugs": {
     "url": "https://github.com/garrettlang/react-survey-builder/issues"
   },
-  "homepage": "https://github.com/garrettlang/react-survey-builder#readme",
-  "directories": {
-    "doc": "docs",
-    "example": "examples"
-  }
+  "homepage": "https://github.com/garrettlang/react-survey-builder#readme"
 }
