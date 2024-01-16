@@ -128,6 +128,7 @@ class Toolbar extends React.Component {
 				icon: FaCaretSquareDown,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				field_name: 'dropdown_',
+				show_custom_name: true,
 				options: [],
 			},
 			{
@@ -137,6 +138,7 @@ class Toolbar extends React.Component {
 				icon: FaTags,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				field_name: 'tags_',
+				show_custom_name: true,
 				options: [],
 			},
 			{
@@ -146,6 +148,7 @@ class Toolbar extends React.Component {
 				icon: FaCheckSquare,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				field_name: 'checkboxes_',
+				show_custom_name: true,
 				options: [],
 			},
 			{
@@ -155,6 +158,7 @@ class Toolbar extends React.Component {
 				icon: FaCheckSquare,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				field_name: 'checkbox_',
+				show_custom_name: true,
 				boxLabel: 'Agree To Rules & Regs',
 			},
 			{
@@ -164,6 +168,7 @@ class Toolbar extends React.Component {
 				icon: FaRegDotCircle,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				field_name: 'radiobuttons_',
+				show_custom_name: true,
 				options: [],
 			},
 			{
@@ -173,6 +178,7 @@ class Toolbar extends React.Component {
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaFont,
 				field_name: 'text_input_',
+				show_custom_name: true,
 			},
 			{
 				key: 'EmailInput',
@@ -181,6 +187,7 @@ class Toolbar extends React.Component {
 				label: intl.formatMessage({ id: 'place-holder-email' }),
 				icon: FaEnvelope,
 				field_name: 'email_input_',
+				show_custom_name: true,
 				placeholder: '',
 			},
 			{
@@ -190,6 +197,10 @@ class Toolbar extends React.Component {
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaPlus,
 				field_name: 'number_input_',
+				show_custom_name: true,
+				step: 1,
+				min_value: 1,
+				max_value: 5,
 			},
 			{
 				key: 'PhoneNumber',
@@ -198,6 +209,7 @@ class Toolbar extends React.Component {
 				label: intl.formatMessage({ id: 'place-holder-phone-number' }),
 				icon: FaPhone,
 				field_name: 'phone_input_',
+				show_custom_name: true,
 			},
 			{
 				key: 'TextArea',
@@ -206,6 +218,7 @@ class Toolbar extends React.Component {
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaTextHeight,
 				field_name: 'text_area_',
+				show_custom_name: true,
 			},
 			{
 				key: 'FieldSet',
@@ -279,6 +292,7 @@ class Toolbar extends React.Component {
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaStar,
 				field_name: 'rating_',
+				show_custom_name: true,
 			},
 			{
 				key: 'DatePicker',
@@ -293,6 +307,7 @@ class Toolbar extends React.Component {
 				icon: FaRegCalendarAlt,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				field_name: 'date_picker_',
+				show_custom_name: true,
 			},
 			{
 				key: 'Signature',
@@ -332,6 +347,7 @@ class Toolbar extends React.Component {
 				max_value: 5,
 				min_label: intl.formatMessage({ id: 'easy' }),
 				max_label: intl.formatMessage({ id: 'difficult' }),
+				show_custom_name: true,
 			},
 			{
 				key: 'Camera',

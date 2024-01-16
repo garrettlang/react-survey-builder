@@ -209,6 +209,10 @@ class NumberInput extends React.Component {
 			props.ref = this.inputField;
 		}
 
+		props.min = this.props.data.min_value;
+		props.max = this.props.data.max_value;
+		props.step = this.props.data.step;
+
 		if (this.props.read_only) {
 			props.disabled = 'disabled';
 		}
