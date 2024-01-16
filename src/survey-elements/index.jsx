@@ -111,7 +111,7 @@ class TextInput extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					<input {...props} />
 				</div>
@@ -147,7 +147,7 @@ class EmailInput extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					<input {...props} />
 				</div>
@@ -183,7 +183,7 @@ class PhoneNumber extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					<input {...props} />
 				</div>
@@ -219,7 +219,7 @@ class NumberInput extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					<input {...props} />
 				</div>
@@ -254,7 +254,7 @@ class TextArea extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					<textarea {...props} />
 				</div>
@@ -289,7 +289,7 @@ class Dropdown extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					<select {...props}>
 						{this.props.data.options.map((option) => {
@@ -351,7 +351,7 @@ class Signature extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					{this.props.read_only === true || !!sourceDataURL
 						? (<img src={sourceDataURL} />)
@@ -415,7 +415,7 @@ class Tags extends React.Component {
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<div className="form-floating">
+				<div className="form-group">
 					<ComponentLabel {...this.props} />
 					<Select {...props} />
 				</div>
