@@ -3,7 +3,6 @@ var webpack = require('webpack');
 
 module.exports = {
 	entry: './src/index.jsx',
-
 	output: {
 		path: path.resolve('./dist'),
 		filename: 'app.js',
@@ -11,7 +10,6 @@ module.exports = {
 		libraryTarget: 'umd',
 		umdNamedDefine: true,
 	},
-
 	externals: {
 		//don't bundle the 'react' npm package with our bundle.js
 		//but get it from a global 'React' variable
@@ -32,14 +30,12 @@ module.exports = {
 		// 'jquery': 'jquery',
 		'bootstrap': 'bootstrap'
 	},
-
 	resolve: {
 		extensions: ['./mjs', '.js', '.jsx', '.scss', '.css', '.json'],
 		alias: {
 			"jquery": path.join(__dirname, "./jquery-stub.js")
 		}
 	},
-
 	module: {
 		rules: [
 			{
