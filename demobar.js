@@ -1,6 +1,6 @@
 import React from 'react';
 import store from './src/stores/store';
-import { ReactFormGenerator } from './src/index';
+import { ReactSurveyGenerator } from './src/index';
 
 const answers = {};
 // const answers = {
@@ -94,17 +94,17 @@ export default class Demobar extends React.Component {
 
     return (
       <div className="clearfix" style={{ margin: '10px', width: '70%' }}>
-        <h4 className="float-left">Preview</h4>
-        <button className="btn btn-primary float-right" style={{ marginRight: '10px' }} onClick={() => this.showPreview()}>Preview Form</button>
-        <button className="btn btn-default float-right" style={{ marginRight: '10px' }} onClick={() => this.showShortPreview()}>Alternate/Short Form</button>
-        <button className="btn btn-default float-right" style={{ marginRight: '10px' }} onClick={() => this.showRoPreview()}>Read Only Form</button>
-        <button className="btn btn-default float-right" style={{ marginRight: '10px' }} onClick={() => this.saveFormData()}>Save Form</button>
+        <h4 className="float-start">Preview</h4>
+        <button className="btn btn-primary float-end" style={{ marginRight: '10px' }} onClick={() => this.showPreview()}>Preview Form</button>
+        <button className="btn btn-default float-end" style={{ marginRight: '10px' }} onClick={() => this.showShortPreview()}>Alternate/Short Form</button>
+        <button className="btn btn-default float-end" style={{ marginRight: '10px' }} onClick={() => this.showRoPreview()}>Read Only Form</button>
+        <button className="btn btn-default float-end" style={{ marginRight: '10px' }} onClick={() => this.saveFormData()}>Save Form</button>
 
         { this.state.previewVisible &&
           <div className={modalClass} role="dialog">
             <div className="modal-dialog modal-lg" role="document">
               <div className="modal-content">
-                <ReactFormGenerator
+                <ReactSurveyGenerator
                   download_path=""
                   back_action="/"
                   back_name="Back"
@@ -130,7 +130,7 @@ export default class Demobar extends React.Component {
           <div className={roModalClass}>
             <div className="modal-dialog modal-lg">
               <div className="modal-content">
-                <ReactFormGenerator
+                <ReactSurveyGenerator
                   download_path=""
                   back_action="/"
                   back_name="Back"
@@ -156,7 +156,7 @@ export default class Demobar extends React.Component {
           <div className={shortModalClass}>
             <div className="modal-dialog modal-lg">
               <div className="modal-content border border-light p-3 mb-4">
-                <ReactFormGenerator
+                <ReactSurveyGenerator
                   download_path=""
                   back_action=""
                   answer_data={answers}

@@ -1,45 +1,45 @@
 import SortableElement from './sortable-element';
-import PlaceHolder from './form-place-holder';
-import BaseFormElements from './form-elements';
+import PlaceHolder from './survey-place-holder';
+import BaseSurveyElements from './survey-elements';
 import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
 import { FieldSet } from './fieldset';
-import CustomElement from './form-elements/custom-element';
+import CustomElement from './survey-elements/custom-element';
 
 const {
-  Header, Paragraph, Label, LineBreak, TextInput, EmailInput, PhoneNumber, NumberInput, TextArea, Dropdown, Checkboxes,
-  DatePicker, RadioButtons, Image, Rating, Tags, Signature, HyperLink, Download, Camera, Range, FileUpload, Checkbox,
-} = BaseFormElements;
+	Header, Paragraph, Label, LineBreak, TextInput, EmailInput, PhoneNumber, NumberInput, TextArea, Dropdown, Checkboxes,
+	DatePicker, RadioButtons, Image, Rating, Tags, Signature, HyperLink, Download, Camera, Range, FileUpload, Checkbox,
+} = BaseSurveyElements;
 
-const FormElements = {};
+const SurveyElements = {};
 
-FormElements.Header = SortableElement(Header);
-FormElements.Paragraph = SortableElement(Paragraph);
-FormElements.Label = SortableElement(Label);
-FormElements.LineBreak = SortableElement(LineBreak);
-FormElements.TextInput = SortableElement(TextInput);
-FormElements.EmailInput = SortableElement(EmailInput);
-FormElements.PhoneNumber = SortableElement(PhoneNumber);
-FormElements.NumberInput = SortableElement(NumberInput);
-FormElements.TextArea = SortableElement(TextArea);
-FormElements.Dropdown = SortableElement(Dropdown);
-FormElements.Signature = SortableElement(Signature);
-FormElements.Checkboxes = SortableElement(Checkboxes);
-FormElements.Checkbox = SortableElement(Checkbox);
-FormElements.DatePicker = SortableElement(DatePicker);
-FormElements.RadioButtons = SortableElement(RadioButtons);
-FormElements.Image = SortableElement(Image);
-FormElements.Rating = SortableElement(Rating);
-FormElements.Tags = SortableElement(Tags);
-FormElements.HyperLink = SortableElement(HyperLink);
-FormElements.Download = SortableElement(Download);
-FormElements.Camera = SortableElement(Camera);
-FormElements.FileUpload = SortableElement(FileUpload);
-FormElements.Range = SortableElement(Range);
-FormElements.PlaceHolder = SortableElement(PlaceHolder);
-FormElements.FieldSet = SortableElement(FieldSet);
-FormElements.TwoColumnRow = SortableElement(TwoColumnRow);
-FormElements.ThreeColumnRow = SortableElement(ThreeColumnRow);
-FormElements.MultiColumnRow = SortableElement(MultiColumnRow);
-FormElements.CustomElement = SortableElement(CustomElement);
+SurveyElements.Header = SortableElement(Header);
+SurveyElements.Paragraph = SortableElement(Paragraph);
+SurveyElements.Label = SortableElement(Label);
+SurveyElements.LineBreak = SortableElement(LineBreak);
+SurveyElements.TextInput = SortableElement(TextInput);
+SurveyElements.EmailInput = SortableElement(EmailInput);
+SurveyElements.PhoneNumber = SortableElement(PhoneNumber);
+SurveyElements.NumberInput = SortableElement(NumberInput);
+SurveyElements.TextArea = SortableElement(TextArea);
+SurveyElements.Dropdown = SortableElement(Dropdown);
+SurveyElements.Signature = SortableElement(Signature);
+SurveyElements.Checkboxes = SortableElement(Checkboxes);
+SurveyElements.Checkbox = SortableElement(Checkbox);
+SurveyElements.DatePicker = SortableElement(DatePicker);
+SurveyElements.RadioButtons = SortableElement(RadioButtons);
+SurveyElements.Image = SortableElement(Image);
+SurveyElements.Rating = SortableElement(Rating);
+SurveyElements.Tags = SortableElement(Tags);
+SurveyElements.HyperLink = SortableElement(HyperLink);
+SurveyElements.Download = SortableElement(Download);
+SurveyElements.Camera = SortableElement(Camera);
+SurveyElements.FileUpload = SortableElement(FileUpload);
+SurveyElements.Range = SortableElement(Range);
+SurveyElements.PlaceHolder = SortableElement(PlaceHolder);
+SurveyElements.FieldSet = SortableElement(FieldSet);
+SurveyElements.TwoColumnRow = SortableElement(TwoColumnRow);
+SurveyElements.ThreeColumnRow = SortableElement(ThreeColumnRow);
+SurveyElements.MultiColumnRow = SortableElement(MultiColumnRow);
+SurveyElements.CustomElement = SortableElement(CustomElement);
 
-export default FormElements;
+export default SurveyElements;

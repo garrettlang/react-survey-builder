@@ -44,7 +44,7 @@ export type StaticElement = {
   italic: boolean;
   static: true;
 };
-export type FormBuilderInput = {
+export type SurveyBuilderInput = {
   canHaveAnswer?: true;
   field_name: string;
   label: string;
@@ -57,7 +57,7 @@ export type Option = {
 };
 export type SelectableElement = {
   options: Option[];
-} & FormBuilderInput;
+} & SurveyBuilderInput;
 export type ImageElement = {
   field_name: string;
   src: string;
@@ -70,13 +70,13 @@ export type DateElement = {
   showTimeSelectOnly: boolean;
   showTimeInput: boolean;
   timeFormat: string;
-} & FormBuilderInput;
+} & SurveyBuilderInput;
 export type RangeElement = {
   max_label: string;
   max_value: number;
   min_label: string;
   min_value: number;
-} & FormBuilderInput;
+} & SurveyBuilderInput;
 export type FileElement = {
   _href: string;
   file_path: string;
@@ -87,10 +87,10 @@ export type WebsiteElement = {
 } & StaticElement;
 export type SignatureElement = {
   readOnly: boolean;
-} & FormBuilderInput;
+} & SurveyBuilderInput;
 export type TaskData = BaseElement &
   (| StaticElement
-    | FormBuilderInput
+    | SurveyBuilderInput
     | SelectableElement
     | ImageElement
     | DateElement
@@ -99,14 +99,14 @@ export type TaskData = BaseElement &
     | FileElement
     | SignatureElement
     // eslint-disable-next-line no-use-before-define
-    | FormBuilderLayout
+    | SurveyBuilderLayout
   );
-export type FormBuilderLayout = {
+export type SurveyBuilderLayout = {
   isContainer: true;
   childItems: TaskData[];
   field_name: string;
 };
-export type FormBuilderPostData = {
+export type SurveyBuilderPostData = {
   task_data: TaskData[];
 };
 
@@ -118,36 +118,36 @@ export type ToolbarItem = {
   content: string;
 };
 
-export interface FormBuilderProps {
+export interface SurveyBuilderProps {
   toolbarItems?: ToolbarItem[];
   files?: any[];
   url?: string;
   showCorrectColumn?: boolean;
   show_description?: boolean;
-  onLoad?: () => Promise<FormBuilderPostData>;
-  onPost?: (data: FormBuilderPostData) => void;
+  onLoad?: () => Promise<SurveyBuilderPostData>;
+  onPost?: (data: SurveyBuilderPostData) => void;
   saveUrl?: string;
   saveAlways?: boolean;
   editMode?: boolean;
   renderEditForm?: (props: BaseElement) => React.ReactNode;
 }
 
-export class ReactFormBuilder extends React.Component<FormBuilderProps> {}
+export class ReactSurveyBuilder extends React.Component<SurveyBuilderProps> {}
 
-export interface FormGeneratorOnSubmitParams {
+export interface SurveyGeneratorOnSubmitParams {
   id: number;
   name: string;
   custom_name: string;
   value: string | string[];
 }
 
-export interface FormGeneratorProps {
+export interface SurveyGeneratorProps {
   form_action: string;
   form_method: string;
   action_name?: string;
-  onBlur?: (info: FormGeneratorOnSubmitParams[]) => void;
-  onSubmit?: (info: FormGeneratorOnSubmitParams[]) => void;
-  onChange?: (info: FormGeneratorOnSubmitParams[]) => void;
+  onBlur?: (info: SurveyGeneratorOnSubmitParams[]) => void;
+  onSubmit?: (info: SurveyGeneratorOnSubmitParams[]) => void;
+  onChange?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   data: any[];
   back_action?: string;
   back_name?: string;
@@ -163,7 +163,7 @@ export interface FormGeneratorProps {
   submitButton?: JSX.Element;
 }
 
-export class ReactFormGenerator extends React.Component<FormGeneratorProps> {}
+export class ReactSurveyGenerator extends React.Component<SurveyGeneratorProps> {}
 
 export type ActionType = "load" | "updateOrder" | "delete";
 
