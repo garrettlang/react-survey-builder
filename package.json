@@ -2,7 +2,7 @@
   "name": "react-survey-builder",
   "version": "1.0.1",
   "description": "A complete survey builder for react.",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "types": "types/index.d.ts",
   "license": "MIT",
   "repository": {
