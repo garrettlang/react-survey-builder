@@ -16,29 +16,29 @@ import { Button, Form } from 'react-bootstrap';
 import { IMaskInput } from "react-imask";
 
 const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => (
-    <IMaskInput
-        {...otherProps}
-        mask={'{+1} (#00) 000-0000'}
-        lazy={false}
-        overwrite={true}
-        definitions={{
-            '#': /[1-9]/,
-        }}
-        unmask={true} // true|false|'typed'
-        inputRef={ref}
-        // inputRef={inputRef}  // access to nested input
-        // DO NOT USE onChange TO HANDLE CHANGES!
-        // USE onAccept INSTEAD
-        onAccept={
-            // depending on prop above first argument is
-            // `value` if `unmask=false`,
-            // `unmaskedValue` if `unmask=true`,
-            // `typedValue` if `unmask='typed'`
-            (value, mask) => {
-                onChange(value);
-            }
-        }
-    />
+	<IMaskInput
+		{...otherProps}
+		mask={'{+1} (#00) 000-0000'}
+		lazy={false}
+		overwrite={true}
+		definitions={{
+			'#': /[1-9]/,
+		}}
+		unmask={true} // true|false|'typed'
+		inputRef={ref}
+		// inputRef={inputRef}  // access to nested input
+		// DO NOT USE onChange TO HANDLE CHANGES!
+		// USE onAccept INSTEAD
+		onAccept={
+			// depending on prop above first argument is
+			// `value` if `unmask=false`,
+			// `unmaskedValue` if `unmask=true`,
+			// `typedValue` if `unmask='typed'`
+			(value, mask) => {
+				onChange(value);
+			}
+		}
+	/>
 ));
 
 const SurveyElements = {};
@@ -130,6 +130,9 @@ class TextInput extends React.Component {
 			props.ref = this.inputField;
 		}
 
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
@@ -141,10 +144,17 @@ class TextInput extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<Form.Floating>
-						<Form.Control id={props.name} {...props} />
-						<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
-					</Form.Floating>
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control id={props.name} {...props} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control id={props.name} {...props} />
+						</>
+					)}
 					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
@@ -170,6 +180,9 @@ class EmailInput extends React.Component {
 			props.ref = this.inputField;
 		}
 
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
@@ -181,10 +194,17 @@ class EmailInput extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<Form.Floating>
-						<Form.Control id={props.name} {...props} />
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-					</Form.Floating>
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control id={props.name} {...props} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control id={props.name} {...props} />
+						</>
+					)}
 					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
@@ -216,6 +236,9 @@ class PhoneNumber extends React.Component {
 			props.ref = this.inputField;
 		}
 
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
@@ -227,10 +250,17 @@ class PhoneNumber extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<Form.Floating>
-						<Form.Control id={props.name} {...props} onChange={this.handleChange} as={CustomPhoneInput} />
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-					</Form.Floating>
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control id={props.name} {...props} onChange={this.handleChange} as={CustomPhoneInput} />
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Control id={props.name} {...props} onChange={this.handleChange} as={CustomPhoneInput} />
+						</>
+					)}
 					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
@@ -259,6 +289,9 @@ class NumberInput extends React.Component {
 		props.max = this.props.data.maxValue;
 		props.step = this.props.data.step;
 
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
 		if (this.props.readOnly) {
 			props.disabled = 'disabled';
 		}
@@ -270,10 +303,17 @@ class NumberInput extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<Form.Floating>
-						<Form.Control id={props.name} {...props} />
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-					</Form.Floating>
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control id={props.name} {...props} />
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Control id={props.name} {...props} />
+						</>
+					)}
 					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
@@ -301,6 +341,9 @@ class TextArea extends React.Component {
 			props.ref = this.inputField;
 		}
 
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
@@ -308,10 +351,17 @@ class TextArea extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<Form.Floating>
-						<Form.Control as="textarea" id={props.name} {...props} />
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-					</Form.Floating>
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control as="textarea" id={props.name} {...props} />
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Control as="textarea" id={props.name} {...props} />
+						</>
+					)}
 					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
@@ -336,6 +386,9 @@ class Dropdown extends React.Component {
 			props.ref = this.inputField;
 		}
 
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
 		if (this.props.readOnly) {
 			props.disabled = 'disabled';
 		}
@@ -347,16 +400,29 @@ class Dropdown extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<Form.Floating>
-						<Form.Select id={props.name} {...props}>
-							{props.placeholder ? <option value="">{props.placeholder}</option> : null}
-							{this.props.data.options.map((option) => {
-								const thisKey = `preview_${option.key}`;
-								return <option value={option.value} key={thisKey}>{option.text}</option>;
-							})}
-						</Form.Select>
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-					</Form.Floating>
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Select id={props.name} {...props}>
+								{props.placeholder ? <option value="">{props.placeholder}</option> : null}
+								{this.props.data.options.map((option) => {
+									const thisKey = `preview_${option.key}`;
+									return <option value={option.value} key={thisKey}>{option.text}</option>;
+								})}
+							</Form.Select>
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Select id={props.name} {...props}>
+								{props.placeholder ? <option value="">{props.placeholder}</option> : null}
+								{this.props.data.options.map((option) => {
+									const thisKey = `preview_${option.key}`;
+									return <option value={option.value} key={thisKey}>{option.text}</option>;
+								})}
+							</Form.Select>
+						</>
+					)}
 					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>

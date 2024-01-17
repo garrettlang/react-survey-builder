@@ -122,6 +122,7 @@ export default class HeaderBar extends React.Component {
 							variables={this.props.variables}
 							data={this.state.data}
 							locale='en'
+							buttonClassName="d-grid gap-2"
 						/>
 					</Modal.Body>
 					<Modal.Footer className="p-0">

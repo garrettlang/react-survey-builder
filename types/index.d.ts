@@ -28,6 +28,9 @@ type BaseElement = {
     | "Range"
     | "Camera";
   showDescription?: boolean;
+  showLabelLocationPicker?: boolean;
+  showHelp?: boolean;
+	hideRequiredAlert?: boolean;
   required: boolean;
   canHaveAlternateForm: boolean;
   canHaveDisplayHorizontal: boolean;
@@ -164,6 +167,9 @@ export interface SurveyGeneratorProps {
   // eslint-disable-next-line no-undef
   variables?: Record<any, any>;
   submitButton?: JSX.Element;
+  backButton?: JSX.Element;
+  buttons?: JSX.Element;
+  buttonClassName?: string;
 }
 
 export class ReactSurveyGenerator extends React.Component<SurveyGeneratorProps> {}

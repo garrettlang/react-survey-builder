@@ -45,13 +45,12 @@ class ReactSurveyBuilder extends React.Component {
 	}
 
 	render() {
-		const toolbarProps = {
-			showDescription: this.props.showDescription,
-		};
+		const toolbarProps = { showDescription: this.props.showDescription };
 
 		const language = this.props.locale ? this.props.locale : 'en';
 		const currentAppLocale = AppLocale[language];
 		if (this.props.toolbarItems) { toolbarProps.items = this.props.toolbarItems; }
+		
 		return (
 			<DndProvider backend={HTML5Backend}>
 				<IntlProvider locale={currentAppLocale.locale} messages={currentAppLocale.messages}>
@@ -106,6 +105,4 @@ SurveyBuilders.Registry = Registry;
 
 export default SurveyBuilders;
 
-export {
-	ReactSurveyBuilder, ReactSurveyGenerator, store as ElementStore, Registry,
-};
+export { ReactSurveyBuilder, ReactSurveyGenerator, store as ElementStore, Registry };

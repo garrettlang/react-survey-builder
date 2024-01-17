@@ -375,7 +375,7 @@ class ReactSurvey extends React.Component {
 		const backName = name || 'Cancel';
 		const { backButton = false } = this.props;
 
-		return backButton || <Button variant="secondary" href={this.props.backAction} className='btn-cancel me-2'>{backName}</Button>;
+		return backButton || <Button variant="secondary" href={this.props.backAction} className='btn-cancel'>{backName}</Button>;
 	}
 
 	render() {
@@ -447,6 +447,7 @@ class ReactSurvey extends React.Component {
 		const formTokenStyle = {
 			display: 'none',
 		};
+
 		return (
 			<div>
 				<SurveyValidator emitter={this.emitter} />
@@ -460,13 +461,12 @@ class ReactSurvey extends React.Component {
 							</div>
 						}
 						{items}
-						<div className='btn-toolbar'>
-							
-							{!this.props.hideActions && this.props.backAction &&
-								this.handleRenderBack()
-							}
+						<div className={this.props.buttonClassName ? this.props.buttonClassName : 'btn-toolbar'}>
 							{!this.props.hideActions &&
 								this.handleRenderSubmit()
+							}
+							{!this.props.hideActions && this.props.backAction &&
+								this.handleRenderBack()
 							}
 						</div>
 					</form>

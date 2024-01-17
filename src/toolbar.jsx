@@ -134,7 +134,8 @@ class Toolbar extends React.Component {
 				showHelp: true,
 				options: [],
 				placeholder: 'Select One',
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
 			},
 			{
 				key: 'Tags',
@@ -199,7 +200,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				placeholder: intl.formatMessage({ id: 'place-holder-label' }),
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
 			},
 			{
 				key: 'EmailInput',
@@ -212,7 +214,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				placeholder: intl.formatMessage({ id: 'place-holder-email' }),
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
 			},
 			{
 				key: 'NumberInput',
@@ -227,7 +230,8 @@ class Toolbar extends React.Component {
 				step: 1,
 				minValue: 0,
 				maxValue: 5,
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
 			},
 			{
 				key: 'PhoneNumber',
@@ -239,7 +243,8 @@ class Toolbar extends React.Component {
 				showCustomName: true,
 				showDescription: true,
 				showHelp: true,
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
 			},
 			{
 				key: 'TextArea',
@@ -251,7 +256,8 @@ class Toolbar extends React.Component {
 				showCustomName: true,
 				showDescription: true,
 				showHelp: true,
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
 			},
 			{
 				key: 'FieldSet',
@@ -460,6 +466,9 @@ class Toolbar extends React.Component {
 		}
 		elementOptions.showCustomName = item.showCustomName;
 		elementOptions.customName = item.customName;
+
+		elementOptions.showLabelLocationPicker = item.showLabelLocationPicker;
+		elementOptions.labelLocation = item.labelLocation;
 
 		elementOptions.showHelp = item.showHelp;
 		elementOptions.help = item.help;
