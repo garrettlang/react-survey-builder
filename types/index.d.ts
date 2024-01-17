@@ -46,7 +46,7 @@ export type StaticElement = {
 };
 export type SurveyBuilderInput = {
   canHaveAnswer?: true;
-  field_name: string;
+  fieldName: string;
   label: string;
 };
 export type Option = {
@@ -59,7 +59,7 @@ export type SelectableElement = {
   options: Option[];
 } & SurveyBuilderInput;
 export type ImageElement = {
-  field_name: string;
+  fieldName: string;
   src: string;
 };
 export type DateElement = {
@@ -72,15 +72,16 @@ export type DateElement = {
   timeFormat: string;
 } & SurveyBuilderInput;
 export type RangeElement = {
-  max_label: string;
-  max_value: number;
-  min_label: string;
-  min_value: number;
+  maxLabel: string;
+  maxValue: number;
+  minLabel: string;
+  minValue: number;
+  step: number;
 } & SurveyBuilderInput;
 export type FileElement = {
   _href: string;
-  file_path: string;
-  field_name: string;
+  filePath: string;
+  fieldName: string;
 } & StaticElement;
 export type WebsiteElement = {
   href: string;
@@ -104,7 +105,7 @@ export type TaskData = BaseElement &
 export type SurveyBuilderLayout = {
   isContainer: true;
   childItems: TaskData[];
-  field_name: string;
+  fieldName: string;
 };
 export type SurveyBuilderPostData = {
   task_data: TaskData[];
@@ -123,7 +124,7 @@ export interface SurveyBuilderProps {
   files?: any[];
   url?: string;
   showCorrectColumn?: boolean;
-  show_description?: boolean;
+  showDescription?: boolean;
   onLoad?: () => Promise<SurveyBuilderPostData>;
   onPost?: (data: SurveyBuilderPostData) => void;
   saveUrl?: string;
@@ -137,27 +138,29 @@ export class ReactSurveyBuilder extends React.Component<SurveyBuilderProps> {}
 export interface SurveyGeneratorOnSubmitParams {
   id: number;
   name: string;
-  custom_name: string;
+  customName: string;
+  help: string;
   value: string | string[];
+  label: string;
 }
 
 export interface SurveyGeneratorProps {
-  form_action: string;
-  form_method: string;
-  action_name?: string;
+  formAction: string;
+  formMethod: string;
+  actionName?: string;
   onBlur?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   onSubmit?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   onChange?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   data: any[];
-  back_action?: string;
-  back_name?: string;
+  backAction?: string;
+  backName?: string;
   task_id?: number;
-  answer_data?: any[];
+  answerData?: any[];
   authenticity_token?: string;
-  hide_actions?: boolean;
-  skip_validations?: boolean;
-  display_short?: boolean;
-  read_only?: boolean;
+  hideActions?: boolean;
+  skipValidations?: boolean;
+  displayShort?: boolean;
+  readOnly?: boolean;
   // eslint-disable-next-line no-undef
   variables?: Record<any, any>;
   submitButton?: JSX.Element;

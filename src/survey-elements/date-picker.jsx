@@ -2,6 +2,7 @@ import React from 'react';
 import { format, parse } from 'date-fns';
 import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
+import { Form, InputGroup } from 'react-bootstrap';
 
 // This is the utility function that will attempt to parse a date string
 // using several different formats until it finds one that works.
@@ -123,8 +124,8 @@ class DatePicker extends React.Component {
 		const props = {};
 		props.type = 'date';
 		props.className = 'form-control';
-		props.name = this.props.data.field_name;
-		const readOnly = this.props.data.readOnly || this.props.read_only;
+		props.name = this.props.data.fieldName;
+		const readOnly = this.props.data.readOnly || this.props.readOnly;
 		this.state.formatMask.toLowerCase();
 		if (this.props.mutable) {
 			props.defaultValue = this.props.defaultValue;
@@ -137,33 +138,33 @@ class DatePicker extends React.Component {
 		return (
 			<div className={baseClasses} style={{ ...this.props.style }}>
 				<ComponentHeader {...this.props} />
-				<div className="form-group">
+				<Form.Group>
 					<ComponentLabel {...this.props} />
 					<div>
 						{readOnly &&
-							<input type="text"
+							<Form.Control type="text"
 								name={props.name}
 								ref={props.ref}
 								readOnly={readOnly}
 								placeholder={placeholder || this.state.placeholder}
 								value={this.state.value}
-								className="form-control" />
+								 />
 						}
 						{!readOnly &&
-							<div className="input-group" style={{ border: '1px solid #ced4da', borderRadius: '0.25rem', marginTop: 10 }}>
-								<input value={this.state.month} onKeyUp={(e) => e.target.value && e.target.value.length === 2 && document.getElementById('day').focus()} name="month" id="month" onChange={(e) => this.handleDateChange(e)} className="form-control" type="text" style={{ border: 'none' }} onFocus={(e) => this.handleBirthdayFocus()} placeholder={placeholder || this.state.placeholder} maxLength="2" pattern="\d*" />
+							<InputGroup style={{ border: '1px solid #ced4da', borderRadius: '0.25rem', marginTop: 10 }}>
+								<Form.Control value={this.state.month} onKeyUp={(e) => e.target.value && e.target.value.length === 2 && document.getElementById('day').focus()} name="month" id="month" onChange={(e) => this.handleDateChange(e)} type="text" style={{ border: 'none' }} onFocus={(e) => this.handleBirthdayFocus()} placeholder={placeholder || this.state.placeholder} maxLength="2" pattern="\d*" />
 								{this.state.birthdayFocused &&
 									<>
 										<span style={{ display: this.state.year || this.state.day || this.state.month ? '' : 'none', alignSelf: 'center' }}>/</span>
-										<input value={this.state.day} onKeyUp={(e) => e.target.value && e.target.value.length === 2 && document.getElementById('year').focus()} name="day" id="day" className="form-control" type="text" style={{ border: 'none' }} onChange={(e) => this.handleDateChange(e)} onFocus={(e) => this.handleBirthdayFocus()} maxLength="2" pattern="\d*" />
+										<Form.Control value={this.state.day} onKeyUp={(e) => e.target.value && e.target.value.length === 2 && document.getElementById('year').focus()} name="day" id="day" type="text" style={{ border: 'none' }} onChange={(e) => this.handleDateChange(e)} onFocus={(e) => this.handleBirthdayFocus()} maxLength="2" pattern="\d*" />
 										<span style={{ display: this.state.year || this.state.day || this.state.month ? '' : 'none', alignSelf: 'center' }}>/</span>
-										<input value={this.state.year} name="year" id="year" className="form-control" type="text" style={{ border: 'none' }} onFocus={(e) => this.handleBirthdayFocus()} maxLength="4" pattern="\d*" onChange={(e) => this.handleDateChange(e)} />
+										<Form.Control value={this.state.year} name="year" id="year" type="text" style={{ border: 'none' }} onFocus={(e) => this.handleBirthdayFocus()} maxLength="4" pattern="\d*" onChange={(e) => this.handleDateChange(e)} />
 									</>
 								}
-							</div>
+							</InputGroup>
 						}
 					</div>
-				</div>
+				</Form.Group>
 			</div>
 		);
 	}

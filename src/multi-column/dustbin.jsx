@@ -51,66 +51,58 @@ function isContainer(item) {
 			if (data.isContainer) {
 				return true;
 			}
-			if (data.field_name) {
-				return data.field_name.indexOf('_col_row') > -1;
+			if (data.fieldName) {
+				return data.fieldName.indexOf('_col_row') > -1;
 			}
 		}
 	}
 	return false;
 }
 
-const Dustbin = React.forwardRef(
-	({
-		onDropSuccess, seq, draggedItem, parentIndex, canDrop, isOver, isOverCurrent, connectDropTarget, items, col, getDataById, ...rest
-	}, ref) => {
-		const item = getDataById(items[col]);
-		React.useImperativeHandle(
-			ref,
-			() => ({
-				onDrop: (dropped) => {
-					console.log("dropped ites")
-					const { data } = dropped;
-					if (data) {
-						onDropSuccess && onDropSuccess();
-						store.dispatch('deleteLastItem');
-					}
-				},
-			}),
-			[],
-		);
+const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex, canDrop, isOver, isOverCurrent, connectDropTarget, items, col, getDataById, ...rest }, ref) => {
+	const item = getDataById(items[col]);
+	React.useImperativeHandle(
+		ref,
+		() => ({
+			onDrop: (dropped) => {
+				console.log("dropped ites")
+				const { data } = dropped;
+				if (data) {
+					onDropSuccess && onDropSuccess();
+					store.dispatch('deleteLastItem');
+				}
+			},
+		}),
+		[],
+	);
 
-		const element = getElement(item, rest);
-		const sameCard = draggedItem ? draggedItem.index === parentIndex : false;
+	const element = getElement(item, rest);
+	const sameCard = draggedItem ? draggedItem.index === parentIndex : false;
 
-		// console.log('dragIndex:',draggedItem?.index)
-		// console.log('HoverIndex:',parentIndex)
-		// console.log('SameCard:',sameCard)
+	// console.log('dragIndex:',draggedItem?.index)
+	// console.log('HoverIndex:',parentIndex)
+	// console.log('SameCard:',sameCard)
 
-		let backgroundColor = 'rgba(0, 0, 0, .03)';
+	let backgroundColor = 'rgba(0, 0, 0, .03)';
 
-		if (!sameCard && isOver && canDrop && !draggedItem.data.isContainer) {
-			backgroundColor = '#F7F589';
-		}
+	if (!sameCard && isOver && canDrop && !draggedItem.data.isContainer) {
+		backgroundColor = '#F7F589';
+	}
 
-		// console.log('sameCard, canDrop', sameCard, canDrop);
-		return connectDropTarget(
-			<div style={!sameCard ? getStyle(backgroundColor) : getStyle('rgba(0, 0, 0, .03')}>
-				{!element && <span>Drop your element here </span>}
-				{element}
-			</div>,
-		);
-	},
+	// console.log('sameCard, canDrop', sameCard, canDrop);
+	return connectDropTarget(
+		<div style={!sameCard ? getStyle(backgroundColor) : getStyle('rgba(0, 0, 0, .03')}>
+			{!element && <span>Drop your element here </span>}
+			{element}
+		</div>,
+	);
+},
 );
 
 export default DropTarget(
 	(props) => props.accepts,
 	{
-		drop(
-			props,
-			monitor,
-			component,
-		) {
-
+		drop(props, monitor, component) {
 			if (!component) {
 				return;
 			}

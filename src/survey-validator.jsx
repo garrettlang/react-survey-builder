@@ -6,6 +6,7 @@ import React from 'react';
 import xss from 'xss';
 import IntlMessages from './language-provider/IntlMessages';
 import { FaExclamationTriangle } from 'react-icons/fa';
+import { Alert, Button } from 'react-bootstrap';
 
 const myxss = new xss.FilterXSS({
 	whiteList: {
@@ -55,17 +56,17 @@ export default class SurveyValidator extends React.Component {
 		return (
 			<div>
 				{this.state.errors.length > 0 &&
-					<div className="alert alert-danger validation-error">
-						<div className="clearfix">
+					<Alert variant="danger" className="validation-error d-flex-inline justify-content-between">
+						<div>
 							<FaExclamationTriangle className="float-start" />
 							<ul className="float-start">
 								{errors}
 							</ul>
 						</div>
-						<div className="clearfix">
-							<a className="float-end btn btn-default btn-sm btn-danger" onClick={this.dismissModal.bind(this)}><IntlMessages id="dismiss" /></a>
+						<div>
+							<Button variant="danger" size="sm" className="float-end" onClick={this.dismissModal.bind(this)}><IntlMessages id="dismiss" /></Button>
 						</div>
-					</div>
+					</Alert>
 				}
 			</div>
 		);

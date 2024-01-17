@@ -16,7 +16,7 @@
 	"variable-key": "Khóa tham chiếu",
 	"variable-key-desc": "Tùy chọn này cung cấp từ khóa dùng để thay thế nội dung khi biểu mẫu hoạt động",
 	"print-options": "Tùy chọn in ấn",
-	"page-break-before-elements": "Phân trang trước thành phần điểu khiển",
+	"page-break-before-element": "Phân trang trước thành phần điểu khiển",
 	"alternate-signature-page": "Trang thay thế / ký",
 	"display-on-alternate-signature-page": "Hiển thị trên trang thay thế / ký",
 	"step": "Bước nhảy",

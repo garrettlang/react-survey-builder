@@ -11,10 +11,11 @@ import ID from './UUID';
 import store from './stores/store';
 import { groupBy } from './functions';
 import { FaArrowsAltH, FaBars, FaCalendarAlt, FaCamera, FaCaretSquareDown, FaCheckSquare, FaColumns, FaEnvelope, FaFile, FaFont, FaHeading, FaLink, FaParagraph, FaPenSquare, FaPhone, FaPlus, FaRegCalendarAlt, FaRegDotCircle, FaRegImage, FaSlidersH, FaStar, FaTags, FaTextHeight } from 'react-icons/fa';
+import { Col } from 'react-bootstrap';
 
 // function isDefaultItem(item) {
 //   const keys = Object.keys(item);
-//   return keys.filter(x => x !== 'element' && x !== 'key' && x !== 'group_name').length === 0;
+//   return keys.filter(x => x !== 'element' && x !== 'key' && x !== 'groupName').length === 0;
 // }
 
 function buildItems(items, defaultItems) {
@@ -29,8 +30,8 @@ function buildItems(items, defaultItems) {
 		if (found) {
 			if (x.inherited !== false) {
 				found = { ...found, ...x };
-			} else if (x.group_name) {
-				found.group_name = x.group_name;
+			} else if (x.groupName) {
+				found.groupName = x.groupName;
 			}
 		}
 		return found || x;
@@ -38,10 +39,10 @@ function buildItems(items, defaultItems) {
 }
 
 function buildGroupItems(allItems) {
-	const items = allItems.filter(x => !x.group_name);
-	const gItems = allItems.filter(x => !!x.group_name);
-	const grouped = groupBy(gItems, x => x.group_name);
-	const groupKeys = gItems.map(x => x.group_name)
+	const items = allItems.filter(x => !x.groupName);
+	const gItems = allItems.filter(x => !!x.groupName);
+	const grouped = groupBy(gItems, x => x.groupName);
+	const groupKeys = gItems.map(x => x.groupName)
 		.filter((v, i, self) => self.indexOf(v) === i);
 	return { items, grouped, groupKeys };
 }
@@ -78,8 +79,8 @@ class Toolbar extends React.Component {
 			case 'Checkboxes':
 				return [
 					{ value: 'place_holder_option_1', text: intl.formatMessage({ id: 'place-holder-option-1' }), key: `checkboxes_option_${ID.uuid()}` },
-					// { value: 'place_holder_option_2', text: intl.formatMessage({ id: 'place-holder-option-2' }), key: `checkboxes_option_${ID.uuid()}` },
-					// { value: 'place_holder_option_3', text: intl.formatMessage({ id: 'place-holder-option-3' }), key: `checkboxes_option_${ID.uuid()}` },
+					{ value: 'place_holder_option_2', text: intl.formatMessage({ id: 'place-holder-option-2' }), key: `checkboxes_option_${ID.uuid()}` },
+					{ value: 'place_holder_option_3', text: intl.formatMessage({ id: 'place-holder-option-3' }), key: `checkboxes_option_${ID.uuid()}` },
 				];
 			case 'RadioButtons':
 				return [
@@ -127,9 +128,13 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'dropdown' }),
 				icon: FaCaretSquareDown,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'dropdown_',
-				show_custom_name: true,
+				fieldName: 'dropdown_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
 				options: [],
+				placeholder: 'Select One',
+				hideRequiredAlert: true
 			},
 			{
 				key: 'Tags',
@@ -137,9 +142,12 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'tags' }),
 				icon: FaTags,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'tags_',
-				show_custom_name: true,
+				fieldName: 'tags_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
 				options: [],
+				hideRequiredAlert: true
 			},
 			{
 				key: 'Checkboxes',
@@ -147,9 +155,12 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'checkboxes' }),
 				icon: FaCheckSquare,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'checkboxes_',
-				show_custom_name: true,
+				fieldName: 'checkboxes_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
 				options: [],
+				hideRequiredAlert: true
 			},
 			{
 				key: 'Checkbox',
@@ -157,9 +168,12 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'checkbox' }),
 				icon: FaCheckSquare,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'checkbox_',
-				show_custom_name: true,
+				fieldName: 'checkbox_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
 				boxLabel: 'Agree To Rules & Regs',
+				hideRequiredAlert: true
 			},
 			{
 				key: 'RadioButtons',
@@ -167,9 +181,12 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'multiple-choice' }),
 				icon: FaRegDotCircle,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'radiobuttons_',
-				show_custom_name: true,
+				fieldName: 'radiobuttons_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
 				options: [],
+				hideRequiredAlert: true
 			},
 			{
 				key: 'TextInput',
@@ -177,8 +194,12 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'text-input' }),
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaFont,
-				field_name: 'text_input_',
-				show_custom_name: true,
+				fieldName: 'text_input_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				placeholder: intl.formatMessage({ id: 'place-holder-label' }),
+				hideRequiredAlert: true
 			},
 			{
 				key: 'EmailInput',
@@ -186,9 +207,12 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'email-input' }),
 				label: intl.formatMessage({ id: 'place-holder-email' }),
 				icon: FaEnvelope,
-				field_name: 'email_input_',
-				show_custom_name: true,
-				placeholder: '',
+				fieldName: 'email_input_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				placeholder: intl.formatMessage({ id: 'place-holder-email' }),
+				hideRequiredAlert: true
 			},
 			{
 				key: 'NumberInput',
@@ -196,11 +220,14 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'number-input' }),
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaPlus,
-				field_name: 'number_input_',
-				show_custom_name: true,
+				fieldName: 'number_input_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
 				step: 1,
-				min_value: 1,
-				max_value: 5,
+				minValue: 0,
+				maxValue: 5,
+				hideRequiredAlert: true
 			},
 			{
 				key: 'PhoneNumber',
@@ -208,8 +235,11 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'phone-input' }),
 				label: intl.formatMessage({ id: 'place-holder-phone-number' }),
 				icon: FaPhone,
-				field_name: 'phone_input_',
-				show_custom_name: true,
+				fieldName: 'phone_input_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				hideRequiredAlert: true
 			},
 			{
 				key: 'TextArea',
@@ -217,8 +247,11 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'multi-line-input' }),
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaTextHeight,
-				field_name: 'text_area_',
-				show_custom_name: true,
+				fieldName: 'text_area_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				hideRequiredAlert: true
 			},
 			{
 				key: 'FieldSet',
@@ -226,7 +259,7 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'fieldset' }),
 				label: intl.formatMessage({ id: 'fieldset' }),
 				icon: FaBars,
-				field_name: 'fieldset-element',
+				fieldName: 'fieldset-element',
 			},
 			{
 				key: 'TwoColumnRow',
@@ -234,7 +267,7 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'two-columns-row' }),
 				label: '',
 				icon: FaColumns,
-				field_name: 'two_col_row_',
+				fieldName: 'two_col_row_',
 			},
 			{
 				key: 'ThreeColumnRow',
@@ -242,7 +275,7 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'three-columns-row' }),
 				label: '',
 				icon: FaColumns,
-				field_name: 'three_col_row_',
+				fieldName: 'three_col_row_',
 			},
 			{
 				key: 'FourColumnRow',
@@ -251,9 +284,9 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'four-columns-row' }),
 				label: '',
 				icon: FaColumns,
-				field_name: 'four_col_row_',
-				col_count: 4,
-				class_name: 'col-md-3',
+				fieldName: 'four_col_row_',
+				colCount: 4,
+				className: 'col-md-3',
 			},
 			{
 				key: 'FiveColumnRow',
@@ -262,9 +295,9 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'five-columns-row' }),
 				label: '',
 				icon: FaColumns,
-				field_name: 'five_col_row_',
-				col_count: 5,
-				class_name: 'col',
+				fieldName: 'five_col_row_',
+				colCount: 5,
+				className: 'col',
 			},
 			{
 				key: 'SixColumnRow',
@@ -273,16 +306,16 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'six-columns-row' }),
 				label: '',
 				icon: FaColumns,
-				field_name: 'six_col_row_',
-				col_count: 6,
-				class_name: 'col-md-2',
+				fieldName: 'six_col_row_',
+				colCount: 6,
+				className: 'col-md-2',
 			},
 			{
 				key: 'Image',
 				name: intl.formatMessage({ id: 'image' }),
 				label: '',
 				icon: FaRegImage,
-				field_name: 'image_',
+				fieldName: 'image_',
 				src: '',
 			},
 			{
@@ -291,8 +324,10 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'rating' }),
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				icon: FaStar,
-				field_name: 'rating_',
-				show_custom_name: true,
+				fieldName: 'rating_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
 			},
 			{
 				key: 'DatePicker',
@@ -306,8 +341,11 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'date' }),
 				icon: FaRegCalendarAlt,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'date_picker_',
-				show_custom_name: true,
+				fieldName: 'date_picker_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				hideRequiredAlert: true
 			},
 			{
 				key: 'Signature',
@@ -315,7 +353,7 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'signature' }),
 				icon: FaPenSquare,
 				label: intl.formatMessage({ id: 'signature' }),
-				field_name: 'signature_',
+				fieldName: 'signature_',
 			},
 			{
 				key: 'HyperLink',
@@ -331,8 +369,8 @@ class Toolbar extends React.Component {
 				icon: FaFile,
 				static: true,
 				content: intl.formatMessage({ id: 'place-holder-file-name' }),
-				field_name: 'download_',
-				file_path: '',
+				fieldName: 'download_',
+				filePath: '',
 				_href: '',
 			},
 			{
@@ -340,28 +378,31 @@ class Toolbar extends React.Component {
 				name: intl.formatMessage({ id: 'range' }),
 				icon: FaSlidersH,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'range_',
+				fieldName: 'range_',
 				step: 1,
-				default_value: 3,
-				min_value: 1,
-				max_value: 5,
-				min_label: intl.formatMessage({ id: 'easy' }),
-				max_label: intl.formatMessage({ id: 'difficult' }),
-				show_custom_name: true,
+				defaultValue: 3,
+				minValue: 1,
+				maxValue: 5,
+				minLabel: intl.formatMessage({ id: 'easy' }),
+				maxLabel: intl.formatMessage({ id: 'difficult' }),
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				hideRequiredAlert: true
 			},
 			{
 				key: 'Camera',
 				name: intl.formatMessage({ id: 'camera' }),
 				icon: FaCamera,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'camera_',
+				fieldName: 'camera_',
 			},
 			{
 				key: 'FileUpload',
 				name: intl.formatMessage({ id: 'file-upload' }),
 				icon: FaFile,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
-				field_name: 'file_upload_',
+				fieldName: 'file_upload_',
 			},
 		];
 	}
@@ -371,7 +412,7 @@ class Toolbar extends React.Component {
 			const customOptions = { ...item, ...elementOptions };
 			customOptions.custom = true;
 			customOptions.component = item.component || null;
-			customOptions.custom_options = item.custom_options || [];
+			customOptions.customOptions = item.customOptions || [];
 			return customOptions;
 		}
 		return elementOptions;
@@ -385,10 +426,11 @@ class Toolbar extends React.Component {
 			id: ID.uuid(),
 			element,
 			text: item.name,
-			group_name: item.group_name,
+			groupName: item.groupName,
 			static: item.static,
 			required: false,
 			showDescription: item.showDescription,
+			hideRequiredAlert: item.hideRequiredAlert,
 		});
 
 		if (this.props.showDescription === true && !item.static) {
@@ -396,9 +438,11 @@ class Toolbar extends React.Component {
 		}
 
 		// add placeholder to form input
-		if (['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker'].indexOf(element) !== -1) {
+		if (['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown'].indexOf(element) !== -1) {
 			elementOptions.showPlaceholder = true;
 		}
+
+		elementOptions.placeholder = item.placeholder;
 
 		if (item.type === 'custom') {
 			elementOptions.key = item.key;
@@ -407,15 +451,20 @@ class Toolbar extends React.Component {
 			elementOptions.bare = item.bare;
 			elementOptions.props = item.props;
 			elementOptions.component = item.component || null;
-			elementOptions.custom_options = item.custom_options || [];
+			elementOptions.customOptions = item.customOptions || [];
 		}
 
 		if (item.static) {
 			elementOptions.bold = false;
 			elementOptions.italic = false;
 		}
-		elementOptions.show_custom_name = item.show_custom_name;
-		elementOptions.custom_name = item.custom_name;
+		elementOptions.showCustomName = item.showCustomName;
+		elementOptions.customName = item.customName;
+
+		elementOptions.showHelp = item.showHelp;
+		elementOptions.help = item.help;
+
+		elementOptions.hideRequiredAlert = item.hideRequiredAlert;
 
 		if (item.canHaveAnswer) { elementOptions.canHaveAnswer = item.canHaveAnswer; }
 
@@ -439,8 +488,8 @@ class Toolbar extends React.Component {
 		elementOptions.canHaveOptionValue = item.canHaveOptionValue !== false;
 		elementOptions.canPopulateFromApi = item.canPopulateFromApi !== false;
 
-		if (item.class_name) {
-			elementOptions.class_name = item.class_name;
+		if (item.className) {
+			elementOptions.className = item.className;
 		}
 
 		if (element === 'Image') {
@@ -457,27 +506,34 @@ class Toolbar extends React.Component {
 
 		if (element === 'Download') {
 			elementOptions._href = item._href;
-			elementOptions.file_path = item.file_path;
+			elementOptions.filePath = item.filePath;
+		}
+
+		if (element === 'NumberInput') {
+			elementOptions.step = item.step;
+			elementOptions.minValue = item.minValue;
+			elementOptions.maxValue = item.maxValue;
 		}
 
 		if (element === 'Range') {
 			elementOptions.step = item.step;
-			elementOptions.default_value = item.default_value;
-			elementOptions.min_value = item.min_value;
-			elementOptions.max_value = item.max_value;
-			elementOptions.min_label = item.min_label;
-			elementOptions.max_label = item.max_label;
+			elementOptions.defaultValue = item.defaultValue;
+			elementOptions.minValue = item.minValue;
+			elementOptions.maxValue = item.maxValue;
+			elementOptions.minLabel = item.minLabel;
+			elementOptions.maxLabel = item.maxLabel;
 		}
 
 		if (element === 'MultiColumnRow') {
-			elementOptions.col_count = item.col_count;
+			elementOptions.colCount = item.colCount;
 		}
 
 		if (item.defaultValue) { elementOptions.defaultValue = item.defaultValue; }
 
-		if (item.field_name) { elementOptions.field_name = item.field_name + ID.uuid(); }
+		if (item.fieldName) { elementOptions.fieldName = item.fieldName + ID.uuid(); }
+		if (item.customName) { elementOptions.fieldName = item.customName; }
 
-		if (item.label) { elementOptions.label = item.label; }
+		if (item.label) { elementOptions.label = item.label.trim(); }
 
 		if (item.options) {
 			if (item.options.length > 0) {
@@ -500,7 +556,7 @@ class Toolbar extends React.Component {
 	render() {
 		const { items, grouped, groupKeys } = buildGroupItems(this.state.items);
 		return (
-			<div className="col-md-3 react-survey-builder-toolbar float-end">
+			<Col md={3} className="react-survey-builder-toolbar">
 				<h4>{this.props.intl.formatMessage({ id: 'toolbox' })}</h4>
 				<ul>
 					{
@@ -510,7 +566,7 @@ class Toolbar extends React.Component {
 						groupKeys.map(k => <ToolbarGroupItem key={k} name={k} group={grouped.get(k)} renderItem={this.renderItem} />)
 					}
 				</ul>
-			</div>
+			</Col>
 		);
 	}
 }

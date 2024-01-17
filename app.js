@@ -1,5 +1,5 @@
 import React from 'react';
-import DemoBar from './demobar';
+import HeaderBar from './headerbar';
 // eslint-disable-next-line no-unused-vars
 import SurveyBuilder, { Registry } from './src/index';
 import * as variables from './variables';
@@ -45,35 +45,35 @@ const TestComponent = () => <h2>Hello</h2>;
 
 //   },
 //   {
-//     group_name: 'Multi Column Row',
+//     groupName: 'Multi Column Row',
 //     key: 'TwoColumnRow'
 //   },
 //   {
-//     group_name: 'Multi Column Row',
+//     groupName: 'Multi Column Row',
 //     key: 'ThreeColumnRow'
 //   },
 //   {
-//     group_name: 'Multi Column Row',
+//     groupName: 'Multi Column Row',
 //     key: 'FourColumnRow',
 //     element: 'MultiColumnRow',
 //   },
 //   {
-//     group_name: 'Multi Column Row',
+//     groupName: 'Multi Column Row',
 //     key: 'FiveColumnRow',
 //     element: 'MultiColumnRow',
 //   },
 //   {
-//     group_name: 'Multi Column Row',
+//     groupName: 'Multi Column Row',
 //     key: 'SixColumnRow',
 //     element: 'MultiColumnRow',
 //   },
 //   {
-//     group_name: 'Custom Element',
+//     groupName: 'Custom Element',
 //     key: 'TestComponent',
 //     element: 'CustomElement',
 //     component: TestComponent,
 //     type: 'custom',
-//     field_name: 'test_component',
+//     fieldName: 'test_component',
 //     name: 'Something You Want',
 //     icon: 'fa fa-cog',
 //     static: true,
@@ -81,14 +81,14 @@ const TestComponent = () => <h2>Hello</h2>;
 //     label: 'Label Test',
 //   },
 //   {
-//     group_name: 'Custom Element',
+//     groupName: 'Custom Element',
 //     key: 'MyInput',
 //     element: 'CustomElement',
 //     component: MyInput,
 //     type: 'custom',
 //     forwardRef: true,
 //     bare: true,
-//     field_name: 'my_input_',
+//     fieldName: 'my_input_',
 //     name: 'My Input',
 //     icon: 'fa fa-cog',
 //     props: { test: 'test_input' },
@@ -100,15 +100,18 @@ const TestComponent = () => <h2>Hello</h2>;
 const App = () => {
 	return (
 		<>
-			<DemoBar variables={variables} />
+			<HeaderBar variables={variables} />
 			<SurveyBuilder.ReactSurveyBuilder
 				variables={variables}
 				url={url}
 				saveUrl={saveUrl}
 				locale='en'
 				saveAlways={false}
-			// toolbarItems={items}
-
+				// toolbarItems={items}
+				showCorrectColumn
+				showDescription
+				editMode={true}
+				onPost={(data) => { console.log(data); }}
 			/>
 		</>
 	);

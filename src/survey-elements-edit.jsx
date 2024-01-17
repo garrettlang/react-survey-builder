@@ -8,6 +8,7 @@ import { get } from './stores/requests';
 import ID from './UUID';
 import IntlMessages from './language-provider/IntlMessages';
 import { FaTimes } from 'react-icons/fa';
+import { Button, Col, Form, Row } from 'react-bootstrap';
 
 const toolbar = {
 	options: ['inline', 'list', 'textAlign', 'fontSize', 'link', 'history'],
@@ -35,11 +36,11 @@ export default class SurveyElementsEdit extends React.Component {
 	editElementProp(elemProperty, targProperty, e) {
 		// elemProperty could be content or label
 		// targProperty could be value or checked
-		const this_element = this.state.element;
-		this_element[elemProperty] = e.target[targProperty];
+		const thisElement = this.state.element;
+		thisElement[elemProperty] = e.target[targProperty];
 
 		this.setState({
-			element: this_element,
+			element: thisElement,
 			dirty: true,
 		}, () => {
 			if (targProperty === 'checked') { this.updateElement(); }
@@ -49,7 +50,7 @@ export default class SurveyElementsEdit extends React.Component {
 	onEditorStateChange(index, property, editorContent) {
 		// const html = draftToHtml(convertToRaw(editorContent.getCurrentContent())).replace(/<p>/g, '<div>').replace(/<\/p>/g, '</div>');
 		const html = draftToHtml(convertToRaw(editorContent.getCurrentContent())).replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/&nbsp;/g, ' ')
-			.replace(/(?:\r\n|\r|\n)/g, ' ');
+			.replace(/(?:\r\n|\r|\n)/g, '');
 		const this_element = this.state.element;
 		this_element[property] = html;
 
@@ -60,10 +61,10 @@ export default class SurveyElementsEdit extends React.Component {
 	}
 
 	updateElement() {
-		const this_element = this.state.element;
+		const thisElement = this.state.element;
 		// to prevent ajax calls with no change
 		if (this.state.dirty) {
-			this.props.updateElement.call(this.props.preview, this_element);
+			this.props.updateElement.call(this.props.preview, thisElement);
 			this.setState({ dirty: false });
 		}
 	}
@@ -145,36 +146,35 @@ export default class SurveyElementsEdit extends React.Component {
 					<FaTimes className="float-end dismiss-edit" onClick={this.props.manualEditModeOff} />
 				</div>
 				{this.props.element.hasOwnProperty('content') &&
-					<div className="form-group">
-						<label className="control-label"><IntlMessages id="text-to-display" />:</label>
-
+					<Form.Group>
+						<Form.Label><IntlMessages id="text-to-display" />:</Form.Label>
 						<Editor
 							toolbar={toolbar}
 							defaultEditorState={editorState}
 							onBlur={this.updateElement.bind(this)}
 							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
 							stripPastedStyles={true} />
-					</div>
+					</Form.Group>
 				}
-				{this.props.element.hasOwnProperty('file_path') &&
-					<div className="form-group">
-						<label className="control-label" htmlFor="fileSelect"><IntlMessages id="choose-file" />:</label>
-						<select id="fileSelect" className="form-control" defaultValue={this.props.element.file_path} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'file_path', 'value')}>
+				{this.props.element.hasOwnProperty('filePath') &&
+					<Form.Group>
+						<Form.Label htmlFor="fileSelect"><IntlMessages id="choose-file" />:</Form.Label>
+						<Form.Select id="fileSelect" defaultValue={this.props.element.filePath} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'filePath', 'value')}>
 							{this_files.map((file) => {
 								const this_key = `file_${file.id}`;
 								return <option value={file.id} key={this_key}>{file.file_name}</option>;
 							})}
-						</select>
-					</div>
+						</Form.Select>
+					</Form.Group>
 				}
 				{this.props.element.hasOwnProperty('href') &&
-					<div className="form-group">
+					<Form.Group>
 						<TextAreaAutosize type="text" className="form-control" defaultValue={this.props.element.href} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'href', 'value')} />
-					</div>
+					</Form.Group>
 				}
 				{this.props.element.hasOwnProperty('label') &&
-					<div className="form-group">
-						<label><IntlMessages id="display-label" /></label>
+					<Form.Group>
+						<Form.Label><IntlMessages id="display-label" /></Form.Label>
 						<Editor
 							toolbar={toolbar}
 							defaultEditorState={editorState}
@@ -182,121 +182,72 @@ export default class SurveyElementsEdit extends React.Component {
 							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'label')}
 							stripPastedStyles={true} />
 						<br />
-						<div className="custom-control custom-checkbox">
-							<input id="is-required" className="custom-control-input" type="checkbox" checked={this_checked} value={true} onChange={this.editElementProp.bind(this, 'required', 'checked')} />
-							<label className="custom-control-label" htmlFor="is-required">
-								<IntlMessages id="required" />
-							</label>
-						</div>
+						<Form.Check id="is-required" label={<IntlMessages id="required" />} type="checkbox" checked={this_checked} value={true} onChange={this.editElementProp.bind(this, 'required', 'checked')} />
 						{this.props.element.hasOwnProperty('readOnly') &&
-							<div className="custom-control custom-checkbox">
-								<input id="is-read-only" className="custom-control-input" type="checkbox" checked={this_read_only} value={true} onChange={this.editElementProp.bind(this, 'readOnly', 'checked')} />
-								<label className="custom-control-label" htmlFor="is-read-only">
-									<IntlMessages id="read-only" />
-								</label>
-							</div>
+							<Form.Check id="is-read-only" label={<IntlMessages id="read-only" />} type="checkbox" checked={this_read_only} value={true} onChange={this.editElementProp.bind(this, 'readOnly', 'checked')} />
 						}
 						{this.props.element.hasOwnProperty('defaultToday') &&
-							<div className="custom-control custom-checkbox">
-								<input id="is-default-to-today" className="custom-control-input" type="checkbox" checked={this_default_today} value={true} onChange={this.editElementProp.bind(this, 'defaultToday', 'checked')} />
-								<label className="custom-control-label" htmlFor="is-default-to-today">
-									<IntlMessages id="default-to-today" />?
-								</label>
-							</div>
+							<Form.Check id="is-default-to-today" label={<IntlMessages id="default-to-today" />} type="checkbox" checked={this_default_today} value={true} onChange={this.editElementProp.bind(this, 'defaultToday', 'checked')} />
 						}
-						{/* { this.props.element.hasOwnProperty('showTimeSelect') && */}
-						{/*   <div className="custom-control custom-checkbox"> */}
-						{/*     <input id="show-time-select" className="custom-control-input" type="checkbox" checked={this_show_time_select} value={true} onChange={this.editElementProp.bind(this, 'showTimeSelect', 'checked')} /> */}
-						{/*     <label className="custom-control-label" htmlFor="show-time-select"> */}
-						{/*     <IntlMessages id="show-time-select" />? */}
-						{/*     </label> */}
-						{/*   </div> */}
-						{/* } */}
-						{/* { this_show_time_select && this.props.element.hasOwnProperty('showTimeSelectOnly') && */}
-						{/*   <div className="custom-control custom-checkbox"> */}
-						{/*     <input id="show-time-select-only" className="custom-control-input" type="checkbox" checked={this_show_time_select_only} value={true} onChange={this.editElementProp.bind(this, 'showTimeSelectOnly', 'checked')} /> */}
-						{/*     <label className="custom-control-label" htmlFor="show-time-select-only"> */}
-						{/*     <IntlMessages id="show-time-select-only" />? */}
-						{/*     </label> */}
-						{/*   </div> */}
-						{/* } */}
-						{/* { this.props.element.hasOwnProperty('showTimeInput') && */}
-						{/*   <div className="custom-control custom-checkbox"> */}
-						{/*     <input id="show-time-input" className="custom-control-input" type="checkbox" checked={this_show_time_input} value={true} onChange={this.editElementProp.bind(this, 'showTimeInput', 'checked')} /> */}
-						{/*     <label className="custom-control-label" htmlFor="show-time-input"> */}
-						{/*     <IntlMessages id="show-time-input" />? */}
-						{/*     </label> */}
-						{/*   </div> */}
-						{/* } */}
+						{/* {this.props.element.hasOwnProperty('showTimeSelect') &&
+							<Form.Check id="show-time-select" label={<IntlMessages id="show-time-select" />} type="checkbox" checked={this_show_time_select} value={true} onChange={this.editElementProp.bind(this, 'showTimeSelect', 'checked')} />
+						}
+						{this_show_time_select && this.props.element.hasOwnProperty('showTimeSelectOnly') &&
+							<Form.Check id="show-time-select-only" label={<IntlMessages id="show-time-select-only" />} type="checkbox" checked={this_show_time_select_only} value={true} onChange={this.editElementProp.bind(this, 'showTimeSelectOnly', 'checked')} />
+						}
+						{this.props.element.hasOwnProperty('showTimeInput') &&
+							<Form.Check id="show-time-input" label={<IntlMessages id="show-time-input" />} type="checkbox" checked={this_show_time_input} value={true} onChange={this.editElementProp.bind(this, 'showTimeInput', 'checked')} />
+						} */}
 						{(['Checkboxes', 'Checkbox'].indexOf(this.state.element.element) !== -1) &&
-							<div className="custom-control custom-checkbox">
-								<input id="display-horizontal" className="custom-control-input" type="checkbox" checked={this_default_checked} value={true} onChange={this.editElementProp.bind(this, 'defaultChecked', 'checked')} />
-								<label className="custom-control-label" htmlFor="display-horizontal">
-									<IntlMessages id="default-checked" />
-								</label>
-							</div>
+							<Form.Check id="default-checked" label={<IntlMessages id="default-checked" />} type="checkbox" checked={this_default_checked} value={true} onChange={this.editElementProp.bind(this, 'defaultChecked', 'checked')} />
 						}
 						{(this.state.element.element === 'RadioButtons' || this.state.element.element === 'Checkboxes') && canHaveDisplayHorizontal &&
-							<div className="custom-control custom-checkbox">
-								<input id="display-horizontal" className="custom-control-input" type="checkbox" checked={this_checked_inline} value={true} onChange={this.editElementProp.bind(this, 'inline', 'checked')} />
-								<label className="custom-control-label" htmlFor="display-horizontal">
-									<IntlMessages id="display-horizontal" />
-								</label>
-							</div>
+							<Form.Check id="display-horizontal" label={<IntlMessages id="display-horizontal" />} type="checkbox" checked={this_checked_inline} value={true} onChange={this.editElementProp.bind(this, 'inline', 'checked')} />
 						}
-					</div>
+					</Form.Group>
 				}
 				{this.state.element.element === 'Checkbox' &&
-					<div className="form-group">
-						<label className="control-label"><IntlMessages id="checkbox-label-text" />:</label>
-
+					<Form.Group>
+						<Form.Label><IntlMessages id="checkbox-label-text" />:</Form.Label>
 						<Editor
 							toolbar={toolbar}
 							defaultEditorState={secondaryEditorState}
 							onBlur={this.updateElement.bind(this)}
 							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'boxLabel')}
 							stripPastedStyles={true} />
-					</div>
+					</Form.Group>
 				}
 				{this.props.element.hasOwnProperty('src') &&
 					<div>
-						<div className="form-group">
-							<label className="control-label" htmlFor="srcInput"><IntlMessages id="link-to" />:</label>
-							<input id="srcInput" type="text" className="form-control" defaultValue={this.props.element.src} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'src', 'value')} />
-						</div>
+						<Form.Group>
+							<Form.Label htmlFor="srcInput"><IntlMessages id="link-to" />:</Form.Label>
+							<Form.Control id="srcInput" type="text" defaultValue={this.props.element.src} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'src', 'value')} />
+						</Form.Group>
 					</div>
 				}
 				{canHaveImageSize &&
 					<div>
-						<div className="form-group">
-							<div className="custom-control custom-checkbox">
-								<input id="do-center" className="custom-control-input" type="checkbox" checked={this_checked_center} value={true} onChange={this.editElementProp.bind(this, 'center', 'checked')} />
-								<label className="custom-control-label" htmlFor="do-center">
-									<IntlMessages id="center" />?
-								</label>
-							</div>
-						</div>
-						<div className="row">
-							<div className="col-sm-3">
-								<label className="control-label" htmlFor="elementWidth"><IntlMessages id="width" />:</label>
-								<input id="elementWidth" type="text" className="form-control" defaultValue={this.props.element.width} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'width', 'value')} />
-							</div>
-							<div className="col-sm-3">
-								<label className="control-label" htmlFor="elementHeight"><IntlMessages id="height" />:</label>
-								<input id="elementHeight" type="text" className="form-control" defaultValue={this.props.element.height} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'height', 'value')} />
-							</div>
-						</div>
+						<Form.Group>
+							<Form.Check id="do-center" label={<IntlMessages id="center" />} type="checkbox" checked={this_checked_center} value={true} onChange={this.editElementProp.bind(this, 'center', 'checked')} />
+						</Form.Group>
+						<Row>
+							<Col sm={3}>
+								<Form.Label htmlFor="elementWidth"><IntlMessages id="width" />:</Form.Label>
+								<Form.Control id="elementWidth" type="text" defaultValue={this.props.element.width} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'width', 'value')} />
+							</Col>
+							<Col sm={3}>
+								<Form.Label htmlFor="elementHeight"><IntlMessages id="height" />:</Form.Label>
+								<Form.Control id="elementHeight" type="text" defaultValue={this.props.element.height} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'height', 'value')} />
+							</Col>
+						</Row>
 					</div>
 				}
 				{this.state.element.element === 'FileUpload' && (
 					<div>
-						<div className='form-group'>
-							<label className='control-label' htmlFor='fileType'>
-								<IntlMessages id='choose-file-type' />:
-							</label>
-							<select
+						<Form.Group>
+							<Form.Label className='control-label' htmlFor='fileType'><IntlMessages id='choose-file-type' />:</Form.Label>
+							<Form.Select
 								id='fileType'
-								className="form-control"
 								onBlur={this.updateElement.bind(this)}
 								onChange={this.editElementProp.bind(this, 'fileType', 'value')}
 							>
@@ -328,134 +279,135 @@ export default class SurveyElementsEdit extends React.Component {
 										{file.typeName}
 									</option>
 								))}
-							</select>
-						</div>
+							</Form.Select>
+						</Form.Group>
 					</div>
 				)}
 				{/* {this.state.element.element === 'Signature' && this.props.element.readOnly */}
 				{/*   ? ( */}
-				{/*     <div className="form-group"> */}
-				{/*       <label className="control-label" htmlFor="variableKey"><IntlMessages id="variable-key" />:</label> */}
-				{/*       <input id="variableKey" type="text" className="form-control" defaultValue={this.props.element.variableKey} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'variableKey', 'value')} /> */}
+				{/*     <Form.Group> */}
+				{/*       <Form.Label htmlFor="variableKey"><IntlMessages id="variable-key" />:</Form.Label> */}
+				{/*       <Form.Control id="variableKey" type="text" defaultValue={this.props.element.variableKey} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'variableKey', 'value')} /> */}
 				{/*       <p className="help-block"><IntlMessages id="variable-key-desc" />.</p> */}
-				{/*     </div> */}
+				{/*     </Form.Group> */}
 				{/*   ) */}
 				{/*   : (<div/>) */}
 				{/* } */}
 
-				{/* {canHavePageBreakBefore && */}
-				{/*   <div className="form-group"> */}
-				{/*     <label className="control-label"><IntlMessages id="print-options" /></label> */}
-				{/*     <div className="custom-control custom-checkbox"> */}
-				{/*       <input id="page-break-before-element" className="custom-control-input" type="checkbox" checked={this_checked_page_break} value={true} onChange={this.editElementProp.bind(this, 'pageBreakBefore', 'checked')} /> */}
-				{/*       <label className="custom-control-label" htmlFor="page-break-before-element"> */}
-				{/*       <IntlMessages id="page-break-before-elements" />? */}
-				{/*       </label> */}
-				{/*     </div> */}
-				{/*   </div> */}
-				{/* } */}
+				{canHavePageBreakBefore &&
+					<Form.Group>
+						<Form.Label><IntlMessages id="print-options" /></Form.Label>
+						<Form.Check id="page-break-before-element" label={<IntlMessages id="page-break-before-element" />} type="checkbox" checked={this_checked_page_break} value={true} onChange={this.editElementProp.bind(this, 'pageBreakBefore', 'checked')} />
+					</Form.Group>
+				}
 
-				{/* {canHaveAlternateForm && */}
-				{/*   <div className="form-group"> */}
-				{/*     <label className="control-label"><IntlMessages id="alternate-signature-page" /></label> */}
-				{/*     <div className="custom-control custom-checkbox"> */}
-				{/*       <input id="display-on-alternate" className="custom-control-input" type="checkbox" checked={this_checked_alternate_form} value={true} onChange={this.editElementProp.bind(this, 'alternateForm', 'checked')} /> */}
-				{/*       <label className="custom-control-label" htmlFor="display-on-alternate"> */}
-				{/*       <IntlMessages id="display-on-alternate-signature-page" />? */}
-				{/*       </label> */}
-				{/*     </div> */}
-				{/*   </div> */}
-				{/* } */}
+				{canHaveAlternateForm &&
+					<Form.Group>
+						<Form.Label><IntlMessages id="alternate-signature-page" /></Form.Label>
+						<Form.Check id="display-on-alternate" label={<IntlMessages id="display-on-alternate-signature-page" />} type="checkbox" checked={this_checked_alternate_form} value={true} onChange={this.editElementProp.bind(this, 'alternateForm', 'checked')} />
+					</Form.Group>
+				}
 				{this.props.element.hasOwnProperty('step') &&
-					<div className="form-group">
+					<Form.Group>
 						<div className="form-group-range">
-							<label className="control-label" htmlFor="rangeStep"><IntlMessages id="step" /></label>
-							<input id="rangeStep" type="number" className="form-control" defaultValue={this.props.element.step} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'step', 'value')} />
+							<Form.Label htmlFor="rangeStep"><IntlMessages id="step" /></Form.Label>
+							<Form.Control id="rangeStep" type="number" defaultValue={this.props.element.step} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'step', 'value')} />
 						</div>
-					</div>
+					</Form.Group>
 				}
-				{this.props.element.hasOwnProperty('min_value') &&
-					<div className="form-group">
+				{this.props.element.hasOwnProperty('minValue') &&
+					<Form.Group>
 						<div className="form-group-range">
-							<label className="control-label" htmlFor="rangeMin"><IntlMessages id="min" /></label>
-							<input id="rangeMin" type="number" className="form-control" defaultValue={this.props.element.min_value} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'min_value', 'value')} />
-							<input type="text" className="form-control" defaultValue={this.props.element.min_label} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'min_label', 'value')} />
+							<Form.Label htmlFor="rangeMin"><IntlMessages id="min" /></Form.Label>
+							<Form.Control id="rangeMin" type="number" defaultValue={this.props.element.minValue} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'minValue', 'value')} />
 						</div>
-					</div>
+					</Form.Group>
 				}
-				{this.props.element.hasOwnProperty('max_value') &&
-					<div className="form-group">
+				{this.props.element.hasOwnProperty('minLabel') &&
+					<Form.Group>
 						<div className="form-group-range">
-							<label className="control-label" htmlFor="rangeMax"><IntlMessages id="max" /></label>
-							<input id="rangeMax" type="number" className="form-control" defaultValue={this.props.element.max_value} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'max_value', 'value')} />
-							<input type="text" className="form-control" defaultValue={this.props.element.max_label} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'max_label', 'value')} />
+							<Form.Label htmlFor="rangeMin"><IntlMessages id="min-label" /></Form.Label>
+							<Form.Control type="text" defaultValue={this.props.element.minLabel} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'minLabel', 'value')} />
 						</div>
-					</div>
+					</Form.Group>
 				}
-				{this.props.element.hasOwnProperty('default_value') &&
-					<div className="form-group">
+				{this.props.element.hasOwnProperty('maxValue') &&
+					<Form.Group>
 						<div className="form-group-range">
-							<label className="control-label" htmlFor="defaultSelected"><IntlMessages id="default-selected" /></label>
-							<input id="defaultSelected" type="number" className="form-control" defaultValue={this.props.element.default_value} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'default_value', 'value')} />
+							<Form.Label htmlFor="rangeMax"><IntlMessages id="max" /></Form.Label>
+							<Form.Control id="rangeMax" type="number" defaultValue={this.props.element.maxValue} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'maxValue', 'value')} />
 						</div>
-					</div>
+					</Form.Group>
+				}
+				{this.props.element.hasOwnProperty('maxLabel') &&
+					<Form.Group>
+						<div className="form-group-range">
+							<Form.Label htmlFor="rangeMax"><IntlMessages id="max-label" /></Form.Label>
+							<Form.Control type="text" defaultValue={this.props.element.maxLabel} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'maxLabel', 'value')} />
+						</div>
+					</Form.Group>
+				}
+				{this.props.element.hasOwnProperty('defaultValue') &&
+					<Form.Group>
+						<div className="form-group-range">
+							<Form.Label htmlFor="defaultSelected"><IntlMessages id="default-selected" /></Form.Label>
+							<Form.Control id="defaultSelected" type="number" defaultValue={this.props.element.defaultValue} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'defaultValue', 'value')} />
+						</div>
+					</Form.Group>
 				}
 				{this.props.element.hasOwnProperty('static') && this.props.element.static &&
-					<div className="form-group">
-						<label className="control-label"><IntlMessages id="text-style" /></label>
-						<div className="custom-control custom-checkbox">
-							<input id="do-bold" className="custom-control-input" type="checkbox" checked={this_checked_bold} value={true} onChange={this.editElementProp.bind(this, 'bold', 'checked')} />
-							<label className="custom-control-label" htmlFor="do-bold">
-								<IntlMessages id="bold" />
-							</label>
-						</div>
-						<div className="custom-control custom-checkbox">
-							<input id="do-italic" className="custom-control-input" type="checkbox" checked={this_checked_italic} value={true} onChange={this.editElementProp.bind(this, 'italic', 'checked')} />
-							<label className="custom-control-label" htmlFor="do-italic">
-								<IntlMessages id="italic" />
-							</label>
-						</div>
-					</div>
+					<Form.Group>
+						<Form.Label><IntlMessages id="text-style" /></Form.Label>
+						<Form.Check id="do-bold" label={<IntlMessages id="bold" />} type="checkbox" checked={this_checked_bold} value={true} onChange={this.editElementProp.bind(this, 'bold', 'checked')} />
+						<Form.Check id="do-italic" label={<IntlMessages id="italic" />} type="checkbox" checked={this_checked_italic} value={true} onChange={this.editElementProp.bind(this, 'italic', 'checked')} />
+					</Form.Group>
 				}
 
 				{this.props.element.showPlaceholder &&
-					<div className="form-group">
-						<label className="control-label" htmlFor="placeholder"><IntlMessages id="place-holder-text-label" /></label>
-						<input type="text" className="form-control" id="placeholder" defaultValue={this.props.element.placeholder} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'placeholder', 'value')} />
-					</div>
+					<Form.Group>
+						<Form.Label htmlFor="placeholder"><IntlMessages id="place-holder-text-label" /></Form.Label>
+						<Form.Control type="text" id="placeholder" defaultValue={this.props.element.placeholder} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'placeholder', 'value')} />
+					</Form.Group>
 				}
 
-				{this.props.element.show_custom_name &&
-					<div className="form-group">
-						<label className="control-label" htmlFor="custom_name"><IntlMessages id="custom-name-label" /></label>
-						<input type="text" className="form-control" id="custom_name" defaultValue={this.props.element.custom_name} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'custom_name', 'value')} />
-					</div>
+				{this.props.element.showCustomName &&
+					<Form.Group>
+						<Form.Label htmlFor="customName"><IntlMessages id="custom-name-label" /></Form.Label>
+						<Form.Control type="text" id="customName" defaultValue={this.props.element.customName} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'customName', 'value')} />
+					</Form.Group>
+				}
+
+				{this.props.element.showHelp &&
+					<Form.Group>
+						<Form.Label htmlFor="help"><IntlMessages id="help-label" /></Form.Label>
+						<TextAreaAutosize type="text" className="form-control" id="help" defaultValue={this.props.element.help} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'help', 'value')} />
+					</Form.Group>
 				}
 
 				{this.props.element.showDescription &&
-					<div className="form-group">
-						<label className="control-label" htmlFor="questionDescription"><IntlMessages id="description" /></label>
+					<Form.Group>
+						<Form.Label htmlFor="questionDescription"><IntlMessages id="description" /></Form.Label>
 						<TextAreaAutosize type="text" className="form-control" id="questionDescription" defaultValue={this.props.element.description} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'description', 'value')} />
-					</div>
+					</Form.Group>
 				}
 				{this.props.showCorrectColumn && this.props.element.canHaveAnswer && !this.props.element.hasOwnProperty('options') &&
-					<div className="form-group">
-						<label className="control-label" htmlFor="correctAnswer"><IntlMessages id="correct-answer" /></label>
-						<input id="correctAnswer" type="text" className="form-control" defaultValue={this.props.element.correct} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'correct', 'value')} />
-					</div>
+					<Form.Group>
+						<Form.Label htmlFor="correctAnswer"><IntlMessages id="correct-answer" /></Form.Label>
+						<Form.Control id="correctAnswer" type="text" defaultValue={this.props.element.correct} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'correct', 'value')} />
+					</Form.Group>
 				}
 				{this.props.element.canPopulateFromApi && this.props.element.hasOwnProperty('options') &&
-					<div className="form-group">
-						<label className="control-label" htmlFor="optionsApiUrl"><IntlMessages id="populate-options-from-api" /></label>
-						<div className="row">
-							<div className="col-sm-6">
-								<input className="form-control" style={{ width: '100%' }} type="text" id="optionsApiUrl" placeholder="http://localhost:8080/api/optionsdata" />
-							</div>
-							<div className="col-sm-6">
-								<button onClick={this.addOptions.bind(this)} className="btn btn-success"><IntlMessages id="populate" /></button>
-							</div>
-						</div>
-					</div>
+					<Form.Group>
+						<Form.Label htmlFor="optionsApiUrl"><IntlMessages id="populate-options-from-api" /></Form.Label>
+						<Row>
+							<Col sm={6}>
+								<Form.Control style={{ width: '100%' }} type="text" id="optionsApiUrl" placeholder="http://localhost:8080/api/optionsdata" />
+							</Col>
+							<Col sm={6}>
+								<Button variant="success" onClick={this.addOptions.bind(this)}><IntlMessages id="populate" /></Button>
+							</Col>
+						</Row>
+					</Form.Group>
 				}
 				{this.props.element.hasOwnProperty('options') &&
 					<DynamicOptionList showCorrectColumn={this.props.showCorrectColumn}
@@ -465,7 +417,8 @@ export default class SurveyElementsEdit extends React.Component {
 						updateElement={this.props.updateElement}
 						preview={this.props.preview}
 						element={this.props.element}
-						key={this.props.element.options.length} />
+						key={this.props.element.options.length}
+					/>
 				}
 			</div>
 		);

@@ -1,6 +1,7 @@
 import React from 'react';
 import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
+import { Form } from 'react-bootstrap';
 
 class CustomElement extends React.Component {
 	constructor(props) {
@@ -11,14 +12,14 @@ class CustomElement extends React.Component {
 	render() {
 		const { bare } = this.props.data;
 		const props = {};
-		props.name = this.props.data.field_name;
+		props.name = this.props.data.fieldName;
 		props.defaultValue = this.props.defaultValue;
 
 		if (this.props.mutable && this.props.data.forwardRef) {
 			props.ref = this.inputField;
 		}
 
-		if (this.props.read_only) {
+		if (this.props.readOnly) {
 			props.disabled = 'disabled';
 		}
 
@@ -34,10 +35,10 @@ class CustomElement extends React.Component {
 				<ComponentHeader {...this.props} />
 				{bare ?
 					<Element data={this.props.data} {...this.props.data.props} {...props} /> :
-					<div className="form-group">
+					<Form.Group>
 						<ComponentLabel className="form-label" {...this.props} />
 						<Element data={this.props.data} {...this.props.data.props} {...props} />
-					</div>
+					</Form.Group>
 				}
 			</div>
 		);

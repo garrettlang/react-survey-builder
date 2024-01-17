@@ -45,7 +45,7 @@
 						<div id="survey-generator"></div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-default" data-dismiss="modal"
+						<button type="button" class="btn btn-secondary" data-dismiss="modal"
 							id="button-close">Close</button>
 					</div>
 				</div>
@@ -56,11 +56,11 @@
 
 	<!-- Load React. -->
 	<!-- Note: when deploying, replace "development.js" with "production.min.js". -->
-	<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react@18.2.0/umd/react.development.js" crossorigin></script>
+	<script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js" crossorigin></script>
 
-  <!-- Load our React component. -->
-  <script src="/dist/app.js"></script>
+	<!-- Load our React component. -->
+	<script src="/dist/app.js"></script>
 
 	<script>
 		var form_data = '<%- data %>';
@@ -162,24 +162,23 @@
 				}
 				return e(
 					ReactSurveyGenerator, {
-					download_path: '',
-					back_action: '/',
-					back_name: 'Back',
-					answer_data: this.state.answers,
-					action_name: 'Save',
-					form_action: '/',
-					form_method: 'POST',
-					read_only: true,
+					downloadPath: '',
+					backAction: '/',
+					backName: 'Back',
+					answerData: this.state.answers,
+					actionName: 'Save',
+					formAction: '/',
+					formMethod: 'POST',
+					readOnly: true,
 					variables: this.props.variables,
-					hide_actions: true,
+					hideActions: true,
 					data: this.state.data,
 				},
 				);
 			}
 		}
-
-		ReactDOM.render(e(SurveyGenerator), formContainer);        
+		const root = createRoot(formContainer);
+		root.render(<SurveyGenerator />);     
 	</script>
 </body>
-
 </html>

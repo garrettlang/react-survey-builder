@@ -12,6 +12,7 @@ import SurveyGenerator from './form';
 import store from './stores/store';
 import Registry from './stores/registry';
 import AppLocale from './language-provider';
+import { Container, Row } from 'react-bootstrap';
 
 class ReactSurveyBuilder extends React.Component {
 	constructor(props) {
@@ -45,7 +46,7 @@ class ReactSurveyBuilder extends React.Component {
 
 	render() {
 		const toolbarProps = {
-			showDescription: this.props.show_description,
+			showDescription: this.props.showDescription,
 		};
 
 		const language = this.props.locale ? this.props.locale : 'en';
@@ -53,20 +54,10 @@ class ReactSurveyBuilder extends React.Component {
 		if (this.props.toolbarItems) { toolbarProps.items = this.props.toolbarItems; }
 		return (
 			<DndProvider backend={HTML5Backend}>
-				<IntlProvider
-					locale={currentAppLocale.locale}
-					messages={currentAppLocale.messages}>
+				<IntlProvider locale={currentAppLocale.locale} messages={currentAppLocale.messages}>
 					<div>
-						{/* <div>
-           <p>
-             It is easy to implement a sortable interface with React DnD. Just make
-             the same component both a drag source and a drop target, and reorder
-             the data in the <code>hover</code> handler.
-           </p>
-           <Container />
-         </div> */}
-						<div className="react-survey-builder clearfix">
-							<div>
+						<Container fluid className="react-survey-builder">
+							<Row>
 								<Preview
 									files={this.props.files}
 									manualEditModeOff={this.manualEditModeOff.bind(this)}
@@ -86,8 +77,8 @@ class ReactSurveyBuilder extends React.Component {
 									saveAlways={this.props.saveAlways}
 								/>
 								<Toolbar {...toolbarProps} customItems={this.props.customToolbarItems} />
-							</div>
-						</div>
+							</Row>
+						</Container>
 					</div>
 				</IntlProvider>
 			</DndProvider>

@@ -23,11 +23,7 @@ const cardSource = {
 };
 
 const cardTarget = {
-	drop(
-		props,
-		monitor,
-		component,
-	) {
+	drop(props, monitor, component) {
 		if (!component) {
 			return;
 		}

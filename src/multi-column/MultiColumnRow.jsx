@@ -1,10 +1,10 @@
 /* eslint-disable camelcase */
 import React from 'react';
-
 import ComponentHeader from '../survey-elements/component-header';
 import ComponentLabel from '../survey-elements/component-label';
 import Dustbin from './dustbin';
 import ItemTypes from '../ItemTypes';
+import { Row } from 'react-bootstrap';
 
 const accepts = [ItemTypes.BOX, ItemTypes.CARD];
 
@@ -22,7 +22,7 @@ class MultiColumnRowBase extends React.Component {
 				<ComponentHeader {...this.props} />
 				<div>
 					<ComponentLabel {...this.props} />
-					<div className="row">
+					<Row>
 						{childItems.map((x, i) => (
 							<div key={`${i}_${x || '_'}`} className={className}>{
 								controls ? controls[i] :
@@ -40,44 +40,44 @@ class MultiColumnRowBase extends React.Component {
 										seq={seq}
 									/>}
 							</div>))}
-					</div>
+					</Row>
 				</div>
 			</div>
 		);
 	}
 }
 
-const TwoColumnRow = ({ data, class_name, ...rest }) => {
-	const className = class_name || 'col-md-6';
+const TwoColumnRow = ({ data, className, ...rest }) => {
+	const classNameVal = className || 'col-md-6';
 	if (!data.childItems) {
 		// eslint-disable-next-line no-param-reassign
 		data.childItems = [null, null]; data.isContainer = true;
 	}
 	return (
-		<MultiColumnRowBase {...rest} className={className} data={data} />
+		<MultiColumnRowBase {...rest} className={classNameVal} data={data} />
 	);
 };
 
-const ThreeColumnRow = ({ data, class_name, ...rest }) => {
-	const className = class_name || 'col-md-4';
+const ThreeColumnRow = ({ data, className, ...rest }) => {
+	const classNameVal = className || 'col-md-4';
 	if (!data.childItems) {
 		// eslint-disable-next-line no-param-reassign
 		data.childItems = [null, null, null]; data.isContainer = true;
 	}
 	return (
-		<MultiColumnRowBase {...rest} className={className} data={data} />
+		<MultiColumnRowBase {...rest} className={classNameVal} data={data} />
 	);
 };
 
 const MultiColumnRow = ({ data, ...rest }) => {
-	const colCount = data.col_count || 4;
-	const className = data.class_name || (colCount === 4 ? 'col-md-3' : 'col');
+	const colCount = data.colCount || 4;
+	const classNameVal = data.className || (colCount === 4 ? 'col-md-3' : 'col');
 	if (!data.childItems) {
 		// eslint-disable-next-line no-param-reassign
 		data.childItems = Array.from({ length: colCount }, (v, i) => null);
 		data.isContainer = true;
 	}
-	return <MultiColumnRowBase {...rest} className={className} data={data} />;
+	return <MultiColumnRowBase {...rest} className={classNameVal} data={data} />;
 };
 
 export { TwoColumnRow, ThreeColumnRow, MultiColumnRow };

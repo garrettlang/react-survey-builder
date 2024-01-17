@@ -8,13 +8,14 @@ import store from './stores/store';
 import SurveyElementsEdit from './survey-dynamic-edit';
 import SortableFormElements from './sortable-form-elements';
 import CustomDragLayer from './survey-elements/component-drag-layer';
+import { Col } from 'react-bootstrap';
 
 const { PlaceHolder } = SortableFormElements;
 
 export default class Preview extends React.Component {
 	state = {
 		data: [],
-		answer_data: {},
+		answerData: {},
 	};
 
 	constructor(props) {
@@ -26,7 +27,7 @@ export default class Preview extends React.Component {
 		this.editForm = React.createRef();
 		this.state = {
 			data: props.data || [],
-			answer_data: {},
+			answerData: {},
 		};
 		this.seq = 0;
 
@@ -88,17 +89,17 @@ export default class Preview extends React.Component {
 	}
 
 	_onChange(data) {
-		const answer_data = {};
+		const answerData = {};
 
 		data.forEach((item) => {
 			if (item && item.readOnly && this.props.variables[item.variableKey]) {
-				answer_data[item.field_name] = this.props.variables[item.variableKey];
+				answerData[item.fieldName] = this.props.variables[item.variableKey];
 			}
 		});
 
 		this.setState({
 			data,
-			answer_data,
+			answerData,
 		});
 	}
 
@@ -275,14 +276,14 @@ export default class Preview extends React.Component {
 		const data = this.state.data.filter(x => !!x && !x.parentId);
 		const items = data.map((item, index) => this.getElement(item, index));
 		return (
-			<div className={classes}>
+			<Col md={9} className={classes}>
 				<div className="edit-form" ref={this.editForm}>
 					{this.props.editElement !== null && this.showEditForm()}
 				</div>
 				<div className="Sortable">{items}</div>
 				<PlaceHolder id="form-place-holder" show={items.length === 0} index={items.length} moveCard={this.cardPlaceHolder} insertCard={this.insertCard} />
 				<CustomDragLayer />
-			</div>
+			</Col>
 		);
 	}
 }
@@ -291,6 +292,6 @@ Preview.defaultProps = {
 	files: [],
 	editMode: false,
 	editElement: null,
-	className: 'col-md-9 react-survey-builder-preview float-start',
+	className: 'react-survey-builder-preview',
 	renderEditForm: props => <SurveyElementsEdit {...props} />,
 };

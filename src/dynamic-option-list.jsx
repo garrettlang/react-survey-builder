@@ -6,6 +6,7 @@ import React from 'react';
 import ID from './UUID';
 import IntlMessages from './language-provider/IntlMessages';
 import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
+import { Button, Col, Form, Row } from 'react-bootstrap';
 
 export default class DynamicOptionList extends React.Component {
 	constructor(props) {
@@ -21,59 +22,59 @@ export default class DynamicOptionList extends React.Component {
 		return text.replace(/[^A-Z0-9]+/ig, '_').toLowerCase();
 	}
 
-	editOption(option_index, e) {
-		const this_element = this.state.element;
-		const val = (this_element.options[option_index].value !== this._setValue(this_element.options[option_index].text)) ? this_element.options[option_index].value : this._setValue(e.target.value);
+	editOption(optionIndex, e) {
+		const thisElement = this.state.element;
+		const val = (thisElement.options[optionIndex].value !== this._setValue(thisElement.options[optionIndex].text)) ? thisElement.options[optionIndex].value : this._setValue(e.target.value);
 
-		this_element.options[option_index].text = e.target.value;
-		this_element.options[option_index].value = val;
+		thisElement.options[optionIndex].text = e.target.value;
+		thisElement.options[optionIndex].value = val;
 		this.setState({
-			element: this_element,
+			element: thisElement,
 			dirty: true,
 		});
 	}
 
-	editValue(option_index, e) {
-		const this_element = this.state.element;
-		const val = (e.target.value === '') ? this._setValue(this_element.options[option_index].text) : e.target.value;
-		this_element.options[option_index].value = val;
+	editValue(optionIndex, e) {
+		const thisElement = this.state.element;
+		const val = (e.target.value === '') ? this._setValue(thisElement.options[optionIndex].text) : e.target.value;
+		thisElement.options[optionIndex].value = val;
 		this.setState({
-			element: this_element,
+			element: thisElement,
 			dirty: true,
 		});
 	}
 
 	// eslint-disable-next-line no-unused-vars
-	editOptionCorrect(option_index, e) {
-		const this_element = this.state.element;
-		if (this_element.options[option_index].hasOwnProperty('correct')) {
-			delete (this_element.options[option_index].correct);
+	editOptionCorrect(optionIndex, e) {
+		const thisElement = this.state.element;
+		if (thisElement.options[optionIndex].hasOwnProperty('correct')) {
+			delete (thisElement.options[optionIndex].correct);
 		} else {
-			this_element.options[option_index].correct = true;
+			thisElement.options[optionIndex].correct = true;
 		}
-		this.setState({ element: this_element });
-		this.props.updateElement.call(this.props.preview, this_element);
+		this.setState({ element: thisElement });
+		this.props.updateElement.call(this.props.preview, thisElement);
 	}
 
 	updateOption() {
-		const this_element = this.state.element;
+		const thisElement = this.state.element;
 		// to prevent ajax calls with no change
 		if (this.state.dirty) {
-			this.props.updateElement.call(this.props.preview, this_element);
+			this.props.updateElement.call(this.props.preview, thisElement);
 			this.setState({ dirty: false });
 		}
 	}
 
 	addOption(index) {
-		const this_element = this.state.element;
-		this_element.options.splice(index + 1, 0, { value: '', text: '', key: ID.uuid() });
-		this.props.updateElement.call(this.props.preview, this_element);
+		const thisElement = this.state.element;
+		thisElement.options.splice(index + 1, 0, { value: '', text: '', key: ID.uuid() });
+		this.props.updateElement.call(this.props.preview, thisElement);
 	}
 
 	removeOption(index) {
-		const this_element = this.state.element;
-		this_element.options.splice(index, 1);
-		this.props.updateElement.call(this.props.preview, this_element);
+		const thisElement = this.state.element;
+		thisElement.options.splice(index, 1);
+		this.props.updateElement.call(this.props.preview, thisElement);
 	}
 
 	render() {
@@ -84,41 +85,41 @@ export default class DynamicOptionList extends React.Component {
 			<div className="dynamic-option-list">
 				<ul>
 					<li>
-						<div className="row">
-							<div className="col-sm-6"><b><IntlMessages id='options' /></b></div>
+						<Row>
+							<Col sm={6}><b><IntlMessages id='options' /></b></Col>
 							{this.props.canHaveOptionValue &&
-								<div className="col-sm-2"><b><IntlMessages id='value' /></b></div>}
+								<Col sm={2}><b><IntlMessages id='value' /></b></Col>}
 							{this.props.canHaveOptionValue && this.props.canHaveOptionCorrect &&
-								<div className="col-sm-4"><b><IntlMessages id='correct' /></b></div>}
-						</div>
+								<Col sm={4}><b><IntlMessages id='correct' /></b></Col>}
+						</Row>
 					</li>
 					{
 						this.props.element.options.map((option, index) => {
-							const this_key = `edit_${option.key}`;
+							const thisKey = `edit_${option.key}`;
 							const val = (option.value !== this._setValue(option.text)) ? option.value : '';
 							return (
-								<li className="clearfix" key={this_key}>
-									<div className="row">
-										<div className="col-sm-6">
-											<input tabIndex={index + 1} className="form-control" style={{ width: '100%' }} type="text" name={`text_${index}`} placeholder="Option text" value={option.text} onBlur={this.updateOption.bind(this)} onChange={this.editOption.bind(this, index)} />
-										</div>
+								<li className="clearfix" key={thisKey}>
+									<Row>
+										<Col sm={6}>
+											<Form.Control tabIndex={index + 1} style={{ width: '100%' }} type="text" name={`text_${index}`} placeholder="Option text" value={option.text} onBlur={this.updateOption.bind(this)} onChange={this.editOption.bind(this, index)} />
+										</Col>
 										{this.props.canHaveOptionValue &&
-											<div className="col-sm-2">
-												<input className="form-control" type="text" name={`value_${index}`} value={val} onChange={this.editValue.bind(this, index)} />
-											</div>}
+											<Col sm={2}>
+												<Form.Control type="text" name={`value_${index}`} value={val} onChange={this.editValue.bind(this, index)} />
+											</Col>}
 										{this.props.canHaveOptionValue && this.props.canHaveOptionCorrect &&
-											<div className="col-sm-1">
-												<input className="form-control" type="checkbox" value="1" onChange={this.editOptionCorrect.bind(this, index)} checked={option.hasOwnProperty('correct')} />
-											</div>}
-										<div className="col-sm-3">
+											<Col sm={1}>
+												<Form.Check type="checkbox" value="1" onChange={this.editOptionCorrect.bind(this, index)} checked={option.hasOwnProperty('correct')} />
+											</Col>}
+										<Col sm={3}>
 											<div className="dynamic-options-actions-buttons">
-												<button onClick={this.addOption.bind(this, index)} className="btn btn-success"><FaPlusCircle /></button>
+												<Button variant="success" onClick={this.addOption.bind(this, index)}><FaPlusCircle /></Button>
 												{index > 0
-													&& <button onClick={this.removeOption.bind(this, index)} className="btn btn-danger"><FaMinusCircle /></button>
+													&& <Button variant="danger" onClick={this.removeOption.bind(this, index)}><FaMinusCircle /></Button>
 												}
 											</div>
-										</div>
-									</div>
+										</Col>
+									</Row>
 								</li>
 							);
 						})

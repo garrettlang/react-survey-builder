@@ -4,6 +4,7 @@ import ComponentHeader from "../survey-elements/component-header";
 import ComponentLabel from "../survey-elements/component-label";
 import FieldsetDustbin from '../multi-column/dustbin';
 import ItemTypes from "../ItemTypes";
+import { Col, Row } from "react-bootstrap";
 
 const accepts = [ItemTypes.BOX, ItemTypes.CARD];
 
@@ -13,7 +14,7 @@ export default function FieldSetBase(props) {
 	const [childItems, setChildItems] = React.useState(null);
 
 	React.useEffect(() => {
-		const { data, class_name, ...rest } = props;
+		const { data, className, ...rest } = props;
 		setChildData(data);
 		let count = 1;
 		createChild(count, data);
@@ -41,7 +42,7 @@ export default function FieldSetBase(props) {
 
 	const createChild = (count, data) => {
 		const colCount = count;
-		const className = data.class_name || "col-md-12";
+		const className = data.className || "col-md-12";
 		if (!data.childItems) {
 			// eslint-disable-next-line no-param-reassign
 			data.childItems = Array.from({ length: colCount }, (v, i) => null);
@@ -49,16 +50,7 @@ export default function FieldSetBase(props) {
 		}
 		setChildItems(data.childItems);
 	};
-	const {
-		controls,
-		editModeOn,
-		getDataById,
-		setAsChild,
-		removeChild,
-		seq,
-		className,
-		index,
-	} = props;
+	const { controls, editModeOn, getDataById, setAsChild, removeChild, seq, className, index } = props;
 	const { pageBreakBefore } = childData;
 	let baseClasses = "SortableItem rfb-item";
 	if (pageBreakBefore) {
@@ -70,10 +62,10 @@ export default function FieldSetBase(props) {
 			<ComponentHeader {...props} isFieldSet={true} />
 			<div>
 				<ComponentLabel {...props} />
-				<div className="row">
+				<Row>
 					{
 						childItems?.map((x, i) => (
-							<div key={`${i}_${x || "_"}`} className={"col-md-12"}>
+							<Col key={`${i}_${x || "_"}`} md={12}>
 								{controls ? (
 									controls[i]
 								) : (
@@ -94,9 +86,9 @@ export default function FieldSetBase(props) {
 										rowNo={i}
 									/>
 								)}
-							</div>
+							</Col>
 						))}
-				</div>
+				</Row>
 			</div>
 		</div>
 	);

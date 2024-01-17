@@ -3,6 +3,7 @@
   */
 
 import React, { useState } from 'react';
+import { Button } from 'react-bootstrap';
 
 function ToolbarGroupItem(props) {
 	const { name, group, renderItem } = props;
@@ -17,9 +18,9 @@ function ToolbarGroupItem(props) {
 	return (
 		<li>
 			<div className="toolbar-group-item">
-				<button className="btn btn-link btn-block text-left" type="button" onClick={onClick}>
+				<Button variant="link" className="btn-block text-left" type="button" onClick={onClick}>
 					{name}
-				</button>
+				</Button>
 				<div className={classShow}>
 					<ul>
 						{group.map(renderItem)}

@@ -12,6 +12,7 @@ import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
 import { FieldSet } from './fieldset';
 import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
+import { Button } from 'react-bootstrap';
 
 const { Image, Checkboxes, Signature, Download, Camera, FileUpload } = SurveyElements;
 
@@ -24,7 +25,7 @@ class ReactSurvey extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.answerData = this._convert(props.answer_data);
+		this.answerData = this._convert(props.answerData);
 		this.emitter = new EventEmitter();
 		this.getDataById = this.getDataById.bind(this);
 
@@ -50,7 +51,7 @@ class ReactSurvey extends React.Component {
 	}
 
 	_getDefaultValue(item) {
-		return this.answerData[item.field_name];
+		return this.answerData[item.fieldName];
 	}
 
 	_optionsDefaultValue(item) {
@@ -95,7 +96,7 @@ class ReactSurvey extends React.Component {
 	_isIncorrect(item) {
 		let incorrect = false;
 		if (item.canHaveAnswer) {
-			const ref = this.inputs[item.field_name];
+			const ref = this.inputs[item.fieldName];
 			if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
 				item.options.forEach(option => {
 					const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
@@ -120,7 +121,7 @@ class ReactSurvey extends React.Component {
 	_isInvalid(item) {
 		let invalid = false;
 		if (item.required === true) {
-			const ref = this.inputs[item.field_name];
+			const ref = this.inputs[item.fieldName];
 			if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
 				let checked_options = 0;
 				item.options.forEach(option => {
@@ -150,11 +151,13 @@ class ReactSurvey extends React.Component {
 	_collect(item) {
 		const itemData = {
 			id: item.id,
-			name: item.field_name,
-			custom_name: item.custom_name || item.field_name,
+			name: item.fieldName,
+			customName: item.customName || item.fieldName,
+			help: item.help,
+			label: item.label !== null && item.label !== undefined && item.label !== '' ? item.label.trim() : ''
 		};
 		if (!itemData.name) return null;
-		const ref = this.inputs[item.field_name];
+		const ref = this.inputs[item.fieldName];
 		if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
 			const checked_options = [];
 			item.options.forEach(option => {
@@ -190,7 +193,7 @@ class ReactSurvey extends React.Component {
 	}
 
 	_getSignatureImg(item) {
-		const ref = this.inputs[item.field_name];
+		const ref = this.inputs[item.fieldName];
 		const $canvas_sig = ref.canvas.current;
 		if ($canvas_sig) {
 			const base64 = $canvas_sig.toDataURL().replace('data:image/png;base64,', '');
@@ -208,7 +211,7 @@ class ReactSurvey extends React.Component {
 		e.preventDefault();
 
 		let errors = [];
-		if (!this.props.skip_validations) {
+		if (!this.props.skipValidations) {
 			errors = this.validateForm();
 			// Publish errors, if any.
 			this.emitter.emit('surveyValidation', errors);
@@ -250,7 +253,7 @@ class ReactSurvey extends React.Component {
 		let data_items = this.props.data;
 		const { intl } = this.props;
 
-		if (this.props.display_short) {
+		if (this.props.displayShort) {
 			data_items = this.props.data.filter((i) => i.alternateForm === true);
 		}
 
@@ -264,7 +267,7 @@ class ReactSurvey extends React.Component {
 			}
 
 			if (item.element === 'EmailInput') {
-				const ref = this.inputs[item.field_name];
+				const ref = this.inputs[item.fieldName];
 				const emailValue = this._getItemValue(item, ref).value;
 				if (emailValue) {
 					const validateEmail = (email) => email.match(
@@ -279,7 +282,7 @@ class ReactSurvey extends React.Component {
 			}
 
 			if (item.element === 'PhoneNumber') {
-				const ref = this.inputs[item.field_name];
+				const ref = this.inputs[item.fieldName];
 				const phoneValue = this._getItemValue(item, ref).value;
 				if (phoneValue) {
 					const validatePhone = (phone) => phone.match(
@@ -313,23 +316,23 @@ class ReactSurvey extends React.Component {
 		const Input = SurveyElements[item.element];
 		return (<Input
 			handleChange={this.handleChange}
-			ref={c => this.inputs[item.field_name] = c}
+			ref={c => this.inputs[item.fieldName] = c}
 			mutable={true}
 			key={`form_${item.id}`}
 			data={item}
-			read_only={this.props.read_only}
-			hide_required_alert={this.props.hide_required_alert}
+			readOnly={this.props.readOnly}
+			hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert}
 			defaultValue={this._getDefaultValue(item)} />);
 	}
 
 	getContainerElement(item, Element) {
 		const controls = item.childItems.map(x => (x ? this.getInputElement(this.getDataById(x)) : <div>&nbsp;</div>));
-		return (<Element mutable={true} key={`form_${item.id}`} data={item} controls={controls} hide_required_alert={this.props.hide_required_alert} />);
+		return (<Element mutable={true} key={`form_${item.id}`} data={item} controls={controls} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />);
 	}
 
 	getSimpleElement(item) {
 		const Element = SurveyElements[item.element];
-		return (<Element mutable={true} key={`form_${item.id}`} data={item} hide_required_alert={this.props.hide_required_alert} />);
+		return (<Element mutable={true} key={`form_${item.id}`} data={item} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />);
 	}
 
 	getCustomElement(item) {
@@ -345,13 +348,13 @@ class ReactSurvey extends React.Component {
 		const inputProps = item.forwardRef && {
 			handleChange: this.handleChange,
 			defaultValue: this._getDefaultValue(item),
-			ref: c => this.inputs[item.field_name] = c,
+			ref: c => this.inputs[item.fieldName] = c,
 		};
 		return (
 			<CustomElement
 				mutable={true}
-				read_only={this.props.read_only}
-				hide_required_alert={this.props.hide_required_alert}
+				readOnly={this.props.readOnly}
+				hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert}
 				key={`form_${item.id}`}
 				data={item}
 				{...inputProps}
@@ -360,31 +363,31 @@ class ReactSurvey extends React.Component {
 	}
 
 	handleRenderSubmit = () => {
-		const name = this.props.action_name || this.props.actionName;
+		const name = this.props.actionName || this.props.actionName;
 		const actionName = name || 'Submit';
 		const { submitButton = false } = this.props;
 
-		return submitButton || <input type='submit' className='btn btn-big' value={actionName} />;
+		return submitButton || <Button variant="primary" type='submit'>{actionName}</Button>;
 	}
 
 	handleRenderBack = () => {
-		const name = this.props.back_name || this.props.backName;
+		const name = this.props.backName || this.props.backName;
 		const backName = name || 'Cancel';
 		const { backButton = false } = this.props;
 
-		return backButton || <a href={this.props.back_action} className='btn btn-default btn-cancel btn-big'>{backName}</a>;
+		return backButton || <Button variant="secondary" href={this.props.backAction} className='btn-cancel me-2'>{backName}</Button>;
 	}
 
 	render() {
 		let data_items = this.props.data;
 
-		if (this.props.display_short) {
+		if (this.props.displayShort) {
 			data_items = this.props.data.filter((i) => i.alternateForm === true);
 		}
 
 		data_items.forEach((item) => {
 			if (item && item.readOnly && item.variableKey && this.props.variables[item.variableKey]) {
-				this.answerData[item.field_name] = this.props.variables[item.variableKey];
+				this.answerData[item.fieldName] = this.props.variables[item.variableKey];
 			}
 		});
 
@@ -415,24 +418,24 @@ class ReactSurvey extends React.Component {
 				case 'FieldSet':
 					return this.getContainerElement(item, FieldSet);
 				case 'Signature':
-					return <Signature ref={c => this.inputs[item.field_name] = c} read_only={this.props.read_only || item.readOnly} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} />;
+					return <Signature ref={c => this.inputs[item.fieldName] = c} readOnly={this.props.readOnly || item.readOnly} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} />;
 				case 'Checkboxes':
-					return <Checkboxes ref={c => this.inputs[item.field_name] = c} read_only={this.props.read_only} handleChange={this.handleChange} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._optionsDefaultValue(item)} hide_required_alert={this.props.hide_required_alert} />;
+					return <Checkboxes ref={c => this.inputs[item.fieldName] = c} readOnly={this.props.readOnly} handleChange={this.handleChange} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._optionsDefaultValue(item)} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
 				case 'Image':
-					return <Image ref={c => this.inputs[item.field_name] = c} handleChange={this.handleChange} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} hide_required_alert={this.props.hide_required_alert} />;
+					return <Image ref={c => this.inputs[item.fieldName] = c} handleChange={this.handleChange} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
 				case 'Download':
-					return <Download download_path={this.props.download_path} mutable={true} key={`form_${item.id}`} data={item} hide_required_alert={this.props.hide_required_alert} />;
+					return <Download downloadPath={this.props.downloadPath} mutable={true} key={`form_${item.id}`} data={item} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
 				case 'Camera':
-					return <Camera ref={c => this.inputs[item.field_name] = c} read_only={this.props.read_only || item.readOnly} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} hide_required_alert={this.props.hide_required_alert} />;
+					return <Camera ref={c => this.inputs[item.fieldName] = c} readOnly={this.props.readOnly || item.readOnly} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
 				case 'FileUpload':
 					return (
 						<FileUpload
-							ref={(c) => (this.inputs[item.field_name] = c)}
-							read_only={this.props.read_only || item.readOnly}
+							ref={(c) => (this.inputs[item.fieldName] = c)}
+							readOnly={this.props.readOnly || item.readOnly}
 							mutable={true}
 							key={`form_${item.id}`}
 							data={item}
-							hide_required_alert={this.props.hide_required_alert}
+							hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert}
 							defaultValue={this._getDefaultValue(item)}
 						/>
 					);
@@ -448,7 +451,7 @@ class ReactSurvey extends React.Component {
 			<div>
 				<SurveyValidator emitter={this.emitter} />
 				<div className='react-survey-builder-form'>
-					<form encType='multipart/form-data' ref={c => this.form = c} action={this.props.form_action} onBlur={this.handleBlur} onChange={this.handleChange} onSubmit={this.handleSubmit} method={this.props.form_method}>
+					<form encType='multipart/form-data' ref={c => this.form = c} action={this.props.formAction} onBlur={this.handleBlur} onChange={this.handleChange} onSubmit={this.handleSubmit} method={this.props.formMethod}>
 						{this.props.authenticity_token &&
 							<div style={formTokenStyle}>
 								<input name='utf8' type='hidden' value='&#x2713;' />
@@ -458,11 +461,12 @@ class ReactSurvey extends React.Component {
 						}
 						{items}
 						<div className='btn-toolbar'>
-							{!this.props.hide_actions &&
-								this.handleRenderSubmit()
-							}
-							{!this.props.hide_actions && this.props.back_action &&
+							
+							{!this.props.hideActions && this.props.backAction &&
 								this.handleRenderBack()
+							}
+							{!this.props.hideActions &&
+								this.handleRenderSubmit()
 							}
 						</div>
 					</form>

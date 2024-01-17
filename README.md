@@ -64,10 +64,10 @@ import 'react-survey-builder/dist/app.css';
 
 ReactDOM.render(
   <ReactSurveyGenerator
-    form_action="/path/to/form/submit"
-    form_method="POST"
+    formAction="/path/to/form/submit"
+    formMethod="POST"
     task_id={12} // Used to submit a hidden variable with the id to the form from the database.
-    answer_data={JSON_ANSWERS} // Answer data, only used if loading a pre-existing form with values.
+    answerData={JSON_ANSWERS} // Answer data, only used if loading a pre-existing form with values.
     authenticity_token={AUTH_TOKEN} // If using Rails and need an auth token to submit form.
     data={JSON_QUESTION_DATA} // Question data
   />,
@@ -79,22 +79,22 @@ ReactDOM.render(
 
 Name | Type | Required? | Description
 --- | --- | --- | ---
-form_action | string | Required | URL path to submit the form
-form_method | string | Required | Verb used in the form submission.
-action_name | string | Optional | Defines form submit button text.  Defaults to "Submit"
+formAction | string | Required | URL path to submit the form
+formMethod | string | Required | Verb used in the form submission.
+actionName | string | Optional | Defines form submit button text.  Defaults to "Submit"
 onSubmit | function | optional | Invoke when submit data, if exists will override form post.
 onChange | function | optional | Invoke when Change data. only on generator
 onBlur | function | optional | Invoke when Blur data. only on generator
 data | array | Required | Question data retrieved from the database
-back_action | string | Optional | URL path to go back if needed.
-back_name | string | Optional | Button text for back action.  Defaults to "Cancel".
+backAction | string | Optional | URL path to go back if needed.
+backName | string | Optional | Button text for back action.  Defaults to "Cancel".
 task_id | integer | Optional | User to submit a hidden variable with id to the form on the backend database.
-answer_data | array | Optional | Answer data, only used if loading a pre-existing form with values.
+answerData | array | Optional | Answer data, only used if loading a pre-existing form with values.
 authenticity_token | string | Optional | If using Rails and need an auth token to submit form.
-hide_actions | boolean | Optional | If you would like to hide the submit / cancel buttons set to true.
-skip_validations | boolean | Optional | Suppress form validations on submit, if set to true.
-display_short | boolean | Optional | Display an optional "shorter page/form" which is common for legal documents or situations where the user will just have to sign or fill out a shorter form with only the critical elements.
-read_only | boolean | Optional | Shows a read only version which has fields disabled and removes "required" labels.
+hideActions | boolean | Optional | If you would like to hide the submit / cancel buttons set to true.
+skipValidations | boolean | Optional | Suppress form validations on submit, if set to true.
+displayShort | boolean | Optional | Display an optional "shorter page/form" which is common for legal documents or situations where the user will just have to sign or fill out a shorter form with only the critical elements.
+readOnly | boolean | Optional | Shows a read only version which has fields disabled and removes "required" labels.
 variables | object | Optional | Key/value object that can be used for Signature variable replacement.
 
 ### Read only Signatures
@@ -187,7 +187,7 @@ const items = [{
   element: 'CustomElement',
   component: TestComponent,
   type: 'custom',
-  field_name: 'test_component',
+  fieldName: 'test_component',
   name: 'Something You Want',
   icon: 'fa fa-cog',
   static: true,
@@ -199,7 +199,7 @@ const items = [{
   component: MyInput,
   type: 'custom',
   forwardRef: true,
-  field_name: 'my_input_',
+  fieldName: 'my_input_',
   name: 'My Input',
   icon: 'fa fa-cog',
   props: { test: 'test_input' },
