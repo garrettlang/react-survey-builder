@@ -87,7 +87,7 @@ class ReactSurveyBuilder extends React.Component {
 										<div>
 											<h4>{this.props.surveyName ?? 'Preview'}</h4>
 										</div>
-										<Button variant="primary" onClick={() => { this.saveFormData(); }}>Save Survey</Button>
+										<Button variant="primary" onClick={() => { this.saveFormData(); }}>{this.props.saveSurveyName ?? 'Save Survey'}</Button>
 									</div>
 
 									<Toolbar {...toolbarProps} customItems={this.props.customToolbarItems} />

@@ -124,6 +124,7 @@ export type ToolbarItem = {
 
 export interface SurveyBuilderProps {
   surveyName?: string;
+  saveSurveyName?: string;
   toolbarItems?: ToolbarItem[];
   files?: any[];
   url?: string;
