@@ -85,7 +85,7 @@ class ReactSurveyBuilder extends React.Component {
 								<Col md={3}>
 									<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
 										<div>
-											<h4>{this.props.formName ?? 'Preview'}</h4>
+											<h4>{this.props.surveyName ?? 'Preview'}</h4>
 										</div>
 										<Button variant="primary" onClick={() => { this.saveFormData(); }}>Save Survey</Button>
 									</div>

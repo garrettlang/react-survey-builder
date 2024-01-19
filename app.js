@@ -102,7 +102,7 @@ const App = () => {
 	return (
 		<>
 			<SurveyBuilder.ReactSurveyBuilder
-				formName={'Test Survey'}
+				surveyName={'Test Survey'}
 				variables={variables}
 				url={url}
 				saveUrl={saveUrl}

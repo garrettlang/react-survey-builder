@@ -123,7 +123,7 @@ export type ToolbarItem = {
 };
 
 export interface SurveyBuilderProps {
-  formName?: string;
+  surveyName?: string;
   toolbarItems?: ToolbarItem[];
   files?: any[];
   url?: string;
