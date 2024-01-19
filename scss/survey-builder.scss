@@ -37,6 +37,24 @@
 					// font-size: 0.6rem;
 				}
 			}
+
+			& .rbt-input-wrapper {
+				margin-top: 40px;
+			}
+
+			& .rbt-input {
+				height: calc(3.5rem + 2px);
+				line-height: 1.25;
+			}
+			
+			& .rbt-input {
+				padding: 1.625rem 0.75rem 0.625rem 0.75rem;
+			}
+			
+			& .rbt~label {
+				opacity: 0.65;
+				transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+			}
 		}
 
 		.bold {
@@ -92,6 +110,10 @@
 
 			textarea {
 				width: 100%;
+			}
+
+			.form-error {
+				margin-bottom: 8px !important;
 			}
 
 			.form-group {
@@ -176,6 +198,10 @@
 
 				&.SortableItem {
 					position: relative;
+
+					.form-error {
+						margin-bottom: 8px !important;
+					}
 
 					.form-group {
 						margin-bottom: 8px !important;
@@ -473,7 +499,7 @@
 
 	.m-signature-pad--footer {
 		position: relative;
-		margin-top: 10px;
+		// margin-top: 10px;
 	}
 }
 

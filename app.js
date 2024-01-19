@@ -98,10 +98,11 @@ const TestComponent = () => <h2>Hello</h2>;
 
 
 const App = () => {
+	const [data, setData] = React.useState([]);
 	return (
 		<>
-			<HeaderBar variables={variables} />
 			<SurveyBuilder.ReactSurveyBuilder
+				formName={'Test Survey'}
 				variables={variables}
 				url={url}
 				saveUrl={saveUrl}
@@ -111,8 +112,9 @@ const App = () => {
 				showCorrectColumn
 				showDescription
 				editMode={true}
-				onPost={(data) => { console.log(data); }}
+				onPost={($data) => { console.log('onPost', $data); setData($data.task_data); }}
 			/>
+			<HeaderBar variables={variables} data={data} />
 		</>
 	);
 };

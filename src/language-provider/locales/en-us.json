@@ -97,5 +97,6 @@
 	"message.was-answered-incorrectly": "was answered incorrectly",
 	"message.was-not-registered": "was not registered",
 	"message.invalid-email": "field requires valid email address",
-	"message.invalid-phone-number": "field requires a valid phone number"
+	"message.invalid-phone-number": "field requires a valid phone number",
+	"message.invalid-date": "field requires a valid date in the format MM/DD/YYYY"
 }

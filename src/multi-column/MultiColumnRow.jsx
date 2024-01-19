@@ -4,7 +4,7 @@ import ComponentHeader from '../survey-elements/component-header';
 import ComponentLabel from '../survey-elements/component-label';
 import Dustbin from './dustbin';
 import ItemTypes from '../ItemTypes';
-import { Row } from 'react-bootstrap';
+import { Container, Row } from 'react-bootstrap';
 
 const accepts = [ItemTypes.BOX, ItemTypes.CARD];
 

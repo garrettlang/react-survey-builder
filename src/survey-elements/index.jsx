@@ -5,15 +5,14 @@ import React from 'react';
 import Select from 'react-select';
 import SignaturePad from 'react-signature-canvas';
 import RangeSlider from 'react-bootstrap-range-slider';
-
 import StarRating from './star-rating';
-import DatePicker from './date-picker';
 import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
 import myxss from './myxss';
 import { FaCamera, FaDownload, FaFile, FaTimes } from 'react-icons/fa';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Image as ImageComponent } from 'react-bootstrap';
 import { IMaskInput } from "react-imask";
+import { Typeahead } from 'react-bootstrap-typeahead';
 
 const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => (
 	<IMaskInput
@@ -25,6 +24,52 @@ const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => 
 			'#': /[1-9]/,
 		}}
 		unmask={true} // true|false|'typed'
+		inputRef={ref}
+		// inputRef={inputRef}  // access to nested input
+		// DO NOT USE onChange TO HANDLE CHANGES!
+		// USE onAccept INSTEAD
+		onAccept={
+			// depending on prop above first argument is
+			// `value` if `unmask=false`,
+			// `unmaskedValue` if `unmask=true`,
+			// `typedValue` if `unmask='typed'`
+			(value, mask) => {
+				onChange(value);
+			}
+		}
+	/>
+));
+
+const CustomDateInput = React.forwardRef(({ onChange, formatMask = 'MM/DD/YYYY', ...otherProps }, ref) => (
+	<IMaskInput
+		{...otherProps}
+		mask={Date}
+		lazy={false}
+		overwrite={true}
+		pattern={formatMask}
+		format={function (date) {
+			var day = date.getDate();
+			var month = date.getMonth() + 1;
+			var year = date.getFullYear();
+
+			if (day < 10) day = "0" + day;
+			if (month < 10) month = "0" + month;
+
+			return [month, day, year].join('/');
+		}}
+		autofix={true}
+		// min={new Date(1900, 0, 1)}
+		// max={new Date()}
+		blocks={{
+			DD: { mask: IMask.MaskedRange, from: 1, to: 31, maxLength: 2, placeholderChar: 'D' },
+			MM: { mask: IMask.MaskedRange, from: 1, to: 12, maxLength: 2, placeholderChar: 'M' },
+			YYYY: { mask: IMask.MaskedRange, from: 1900, to: new Date().getFullYear() + 5, placeholderChar: 'Y' }
+		}}
+		parse={function (str) {
+			var monthDayYear = str.split('/');
+			return new Date(monthDayYear[2], monthDayYear[0] - 1, monthDayYear[1]);
+		}}
+		unmask={false} // true|false|'typed'
 		inputRef={ref}
 		// inputRef={inputRef}  // access to nested input
 		// DO NOT USE onChange TO HANDLE CHANGES!
@@ -121,24 +166,24 @@ class TextInput extends React.Component {
 	render() {
 		const props = {};
 		props.type = 'text';
-		//props.className = 'form-control';
 		props.name = this.props.data.fieldName;
-		props.help = this.props.data.help;
 		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
 		if (this.props.mutable) {
 			props.defaultValue = this.props.defaultValue;
 			props.ref = this.inputField;
 		}
 
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
+		if (this.props.value) { props.value = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
+
 		let labelLocation = 'ABOVE';
 		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
-
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -155,7 +200,7 @@ class TextInput extends React.Component {
 							<Form.Control id={props.name} {...props} />
 						</>
 					)}
-					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
 		);
@@ -171,24 +216,24 @@ class EmailInput extends React.Component {
 	render() {
 		const props = {};
 		props.type = 'text';
-		// props.className = 'form-control';
 		props.name = this.props.data.fieldName;
-		props.help = this.props.data.help;
 		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
 		if (this.props.mutable) {
 			props.defaultValue = this.props.defaultValue;
 			props.ref = this.inputField;
 		}
 
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
+		if (this.props.value) { props.value = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
+
 		let labelLocation = 'ABOVE';
 		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
-
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -205,7 +250,7 @@ class EmailInput extends React.Component {
 							<Form.Control id={props.name} {...props} />
 						</>
 					)}
-					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
 		);
@@ -216,25 +261,24 @@ class PhoneNumber extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
-		const { defaultValue, data } = props;
-		this.state = { value: defaultValue };
 	}
-
-	handleChange = (e) => {
-		this.setState({ value: e });
-	};
 
 	render() {
 		const props = {};
-		props.type = 'tel';
-		props.className = 'form-control';
+		props.type = 'text';
 		props.name = this.props.data.fieldName;
-		props.help = this.props.data.help;
 		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
 		if (this.props.mutable) {
 			props.defaultValue = this.props.defaultValue;
 			props.ref = this.inputField;
 		}
+
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e); } }
+		if (this.props.value) { props.value = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.autoComplete = "new-password";
 
 		let labelLocation = 'ABOVE';
 		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
@@ -242,9 +286,58 @@ class PhoneNumber extends React.Component {
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
+		return (
+			<div style={{ ...this.props.style }} className={baseClasses}>
+				<ComponentHeader {...this.props} />
+				<Form.Group className="form-group mb-3">
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control id={props.name} {...props} as={CustomPhoneInput} />
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Control id={props.name} {...props} as={CustomPhoneInput} />
+						</>
+					)}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+				</Form.Group>
+			</div>
+		);
+	}
+}
+
+class DatePicker extends React.Component {
+	constructor(props) {
+		super(props);
+		this.inputField = React.createRef();
+	}
+
+	render() {
+		const props = {};
+		props.type = 'text';
+		props.name = this.props.data.fieldName;
+		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
+		if (this.props.mutable) {
+			props.defaultValue = this.props.defaultValue;
+			props.ref = this.inputField;
 		}
+
+		props.formatMask = this.props.data.formatMask || 'MM/DD/YYYY';
+
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e); } }
+		if (this.props.value) { props.value = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.autoComplete = "new-password";
+
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
+		let baseClasses = 'SortableItem rfb-item';
+		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -252,16 +345,16 @@ class PhoneNumber extends React.Component {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} {...props} onChange={this.handleChange} as={CustomPhoneInput} />
+							<Form.Control id={props.name} {...props} as={CustomDateInput} />
 							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
 							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
-							<Form.Control id={props.name} {...props} onChange={this.handleChange} as={CustomPhoneInput} />
+							<Form.Control id={props.name} {...props} as={CustomDateInput} />
 						</>
 					)}
-					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
 		);
@@ -278,12 +371,17 @@ class NumberInput extends React.Component {
 		const props = {};
 		props.type = 'number';
 		props.name = this.props.data.fieldName;
-		props.help = this.props.data.help;
 		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
 		if (this.props.mutable) {
 			props.defaultValue = this.props.defaultValue;
 			props.ref = this.inputField;
 		}
+
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
+		if (this.props.value) { props.value = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
 
 		props.min = this.props.data.minValue;
 		props.max = this.props.data.maxValue;
@@ -291,10 +389,6 @@ class NumberInput extends React.Component {
 
 		let labelLocation = 'ABOVE';
 		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
-
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -314,7 +408,7 @@ class NumberInput extends React.Component {
 							<Form.Control id={props.name} {...props} />
 						</>
 					)}
-					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
 		);
@@ -330,16 +424,18 @@ class TextArea extends React.Component {
 	render() {
 		const props = {};
 		props.name = this.props.data.fieldName;
-		props.help = this.props.data.help;
 		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
 
 		if (this.props.mutable) {
 			props.defaultValue = this.props.defaultValue;
 			props.ref = this.inputField;
 		}
+
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
+		if (this.props.value) { props.value = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
 
 		let labelLocation = 'ABOVE';
 		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
@@ -362,7 +458,7 @@ class TextArea extends React.Component {
 							<Form.Control as="textarea" id={props.name} {...props} />
 						</>
 					)}
-					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
 		);
@@ -377,21 +473,21 @@ class Dropdown extends React.Component {
 
 	render() {
 		const props = {};
-		//props.className = 'form-select';
 		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder;
-		props.help = this.props.data.help;
+		props.placeholder = this.props.data.placeholder || 'Select One';
 		if (this.props.mutable) {
 			props.defaultValue = this.props.defaultValue;
 			props.ref = this.inputField;
 		}
 
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
+		if (this.props.value) { props.value = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
+
 		let labelLocation = 'ABOVE';
 		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
-
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -423,7 +519,7 @@ class Dropdown extends React.Component {
 							</Form.Select>
 						</>
 					)}
-					{props.help ? (<Form.Text muted>{props.help}</Form.Text>) : null}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
 		);
@@ -448,12 +544,36 @@ class Signature extends React.Component {
 		}
 	}
 
+	_getSignatureImg = () => {
+		const $canvas_sig = this.canvas.current;
+		if ($canvas_sig) {
+			const base64 = $canvas_sig.toDataURL().replace('data:image/png;base64,', '');
+			const isEmpty = $canvas_sig.isEmpty();
+			const $input_sig = this.inputField.current;
+			const name = this.props.data.fieldName;
+
+			if (isEmpty) {
+				$input_sig.value = '';
+				if (this.props.methods) {
+					this.props.methods.setValue(name, '');
+				}
+			} else {
+				$input_sig.value = base64;
+				if (this.props.methods) {
+					this.props.methods.setValue(name, base64);
+				}
+			}
+		}
+	}
+
 	render() {
 		const { defaultValue } = this.state;
 		let canClear = !!defaultValue;
 		const props = {};
 		props.type = 'hidden';
 		props.name = this.props.data.fieldName;
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
+		if (this.props.value) { props.value = this.props.value; }
 
 		if (this.props.mutable) {
 			props.defaultValue = defaultValue;
@@ -475,6 +595,8 @@ class Signature extends React.Component {
 			sourceDataURL = `data:image/png;base64,${defaultValue}`;
 		}
 
+		padProps.canvasProps = {};
+
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
@@ -482,23 +604,35 @@ class Signature extends React.Component {
 					<ComponentLabel {...this.props} />
 					{this.props.readOnly === true || !!sourceDataURL
 						? (<img src={sourceDataURL} />)
-						: (<SignaturePad {...padProps} />)
+						: (
+							<div className="m-signature-pad">
+								<div className="m-signature-pad--body">
+
+									<SignaturePad {...padProps} onEnd={(e) => { this._getSignatureImg(); }} />
+								</div>
+								<div className="m-signature-pad--footer clearfix">
+									{canClear && (<Button variant="default" size="sm" className='clear-signature float-end' onClick={this.clear} title="Clear Signature"><FaTimes /> clear</Button>)}
+								</div>
+							</div>
+						)
 					}
-					{canClear && (
-						<FaTimes className='clear-signature' onClick={this.clear} title="Clear Signature" />)}
-					<input {...props} />
+					{this.props.methods ? (<input {...this.props.methods.register(props.name)} {...props} />) : (<input {...props} />)}
 				</Form.Group>
 			</div>
 		);
 	}
 }
 
-class Tags extends React.Component {
+class Tags2 extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
 		const { defaultValue, data } = props;
-		this.state = { value: this.getDefaultValue(defaultValue, data.options) };
+		if (props.value) {
+			this.state = { value: props.value };
+		} else {
+			this.state = { value: defaultValue };
+		}
 	}
 
 	getDefaultValue(defaultValue, options) {
@@ -512,10 +646,12 @@ class Tags extends React.Component {
 		return [];
 	}
 
-	// state = { value: this.props.defaultValue !== undefined ? this.props.defaultValue.split(',') : [] };
-
 	handleChange = (e) => {
-		this.setState({ value: e || [] });
+		this.setState({ value: e.map(i => i.value).join(',') || null });
+
+		if (this.props.onChange) {
+			this.props.onChange(e ? e.map(i => i.value).join(',') : null);
+		}
 	};
 
 	render() {
@@ -528,23 +664,123 @@ class Tags extends React.Component {
 		props.name = this.props.data.fieldName;
 		props.onChange = this.handleChange;
 
+
+		//if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		//if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+
 		props.options = options;
 		if (!this.props.mutable) { props.value = options[0].text; } // to show a sample of what tags looks like
 		if (this.props.mutable) {
 			props.isDisabled = this.props.readOnly;
-			props.value = this.state.value;
+			props.value = this.getDefaultValue(this.state.value, options);
 			props.ref = this.inputField;
 		}
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} />
-					<Select {...props} />
+					<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+					<Select id={props.name} {...props} />
+
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+				</Form.Group>
+			</div>
+		);
+	}
+}
+
+class Tags extends React.Component {
+	constructor(props) {
+		super(props);
+		this.inputField = React.createRef();
+		const { defaultValue, data } = props;
+		if (props.value) {
+			this.state = { value: props.value };
+		} else {
+			this.state = { value: defaultValue };
+		}
+	}
+
+	getDefaultValue(defaultValue, options) {
+		console.log(defaultValue)
+		if (defaultValue) {
+			if (typeof defaultValue === 'string') {
+				const vals = defaultValue.split(',').map(x => x.trim());
+				return options.filter(x => vals.indexOf(x.value) > -1);
+			}
+			return options.filter(x => defaultValue.indexOf(x.value) > -1);
+		}
+		return [];
+	}
+
+	handleChange = (selected) => {
+		if (selected !== undefined && selected !== null && selected.length > 0) {
+			this.setState({ value: selected.map(i => i.id).join(',') });
+
+			if (this.props.onChange) {
+				this.props.onChange(selected.map(i => i.id).join(','));
+			}
+		} else {
+			this.setState({ value: [] });
+
+			if (this.props.onChange) {
+				this.props.onChange([]);
+			}
+		}
+	};
+
+	render() {
+		const options = this.props.data.options.map((option) => {
+			option.label = option.text;
+			option.id = option.value;
+			return option;
+		});
+		const props = {};
+		props.multiple = true;
+		props.name = this.props.data.fieldName;
+		props.onChange = this.handleChange;
+		props.placeholder = this.props.data.placeholder || 'Select...';
+		props.required = this.props.data.required;
+
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+
+		props.options = options;
+		if (this.props.mutable) {
+			props.disabled = this.props.readOnly;
+			props.selected = this.getDefaultValue(this.state.value, options);
+			props.ref = this.inputField;
+		}
+
+		let baseClasses = 'SortableItem rfb-item';
+		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		let labelLocation = 'ABOVE';
+		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+
+		return (
+			<div style={{ ...this.props.style }} className={baseClasses}>
+				<ComponentHeader {...this.props} />
+				<Form.Group className="form-group mb-3">
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Typeahead labelKey={(option) => option.label} id={props.name} {...props} />
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Typeahead labelKey={(option) => option.label} id={props.name} {...props} />
+						</>
+					)}
+					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
 				</Form.Group>
 			</div>
 		);
@@ -555,15 +791,26 @@ class Checkboxes extends React.Component {
 	constructor(props) {
 		super(props);
 		this.options = {};
+		this.checkedValues = [];
+	}
+
+	onCheckboxChange = (checkboxValue, event) => {
+		if (this.props.onChange) {
+			if (event.target.checked) {
+				this.props.onChange(this.checkedValues.concat(checkboxValue));
+			} else {
+				this.props.onChange(this.checkedValues.filter((v) => v !== checkboxValue));
+			}
+		}
 	}
 
 	render() {
 		const self = this;
-		let classNames = '';// 'custom-control custom-checkbox';
-		if (this.props.data.inline) { classNames += ' option-inline'; }
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.value) { this.checkedValues = this.props.value; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -575,21 +822,28 @@ class Checkboxes extends React.Component {
 						const props = {};
 						props.name = `option_${option.key}`;
 
-						props.type = 'checkbox';
+
+						if (self.props.data.inline) { props.inline = true; }
+
 						props.value = option.value;
 						if (self.props.mutable) {
 							props.defaultChecked = self.props.defaultValue !== undefined && self.props.defaultValue.indexOf(option.key) > -1;
 						}
-						if (this.props.readOnly) {
-							props.disabled = 'disabled';
-						}
+						if (self.props.readOnly) { props.disabled = 'disabled'; }
+						if (self.props.value) { props.checked = this.props.value.indexOf(option.value) > -1; }
+
 						return (
-							<Form.Check label={option.text} className={classNames} type="checkbox" key={thisKey} id={`fid_${thisKey}`}
+							<Form.Check
+								label={option.text}
+								type="checkbox"
+								key={thisKey}
+								id={`fid_${thisKey}`}
 								ref={c => {
 									if (c && self.props.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
 									}
 								}}
+								onChange={(e) => { self.onCheckboxChange(option.value, e); }}
 								{...props}
 							/>
 						);
@@ -607,9 +861,6 @@ class Checkbox extends React.Component {
 	}
 
 	render() {
-		const classNames = ''; // 'custom-control custom-checkbox';
-		// if (this.props.data.inline) { classNames += ' option-inline'; }
-
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 		const props = {};
@@ -620,9 +871,13 @@ class Checkbox extends React.Component {
 		if (this.props.mutable) {
 			props.ref = this.inputField;
 		}
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
+
+		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.checked); } }
+		if (this.props.value) { props.checked = this.props.value; }
+		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
+		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		if (this.props.data.inline) { props.inline = true; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -644,8 +899,6 @@ class RadioButtons extends React.Component {
 
 	render() {
 		const self = this;
-		let classNames = '';// 'custom-control custom-radio';
-		if (this.props.data.inline) { classNames += ' option-inline'; }
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -660,18 +913,22 @@ class RadioButtons extends React.Component {
 						const props = {};
 						props.name = self.props.data.fieldName;
 
-						props.type = 'radio';
 						props.value = option.value;
 						if (self.props.mutable) {
-							props.defaultChecked = (self.props.defaultValue !== undefined &&
-								(self.props.defaultValue.indexOf(option.key) > -1 || self.props.defaultValue.indexOf(option.value) > -1));
-						}
-						if (this.props.readOnly) {
-							props.disabled = 'disabled';
+							props.defaultChecked = (self.props.defaultValue !== undefined && self.props.defaultValue.indexOf(option.value) > -1);
 						}
 
+						if (self.props.onChange) { props.onChange = (e) => { self.props.onChange(e.target.value); } }
+						if (self.props.value) { props.checked = self.props.value === option.value; }
+						if (self.props.readOnly) { props.disabled = 'disabled'; }
+						if (self.props.data.inline) { props.inline = true; }
+
 						return (
-							<Form.Check label={option.text} className={classNames} type="radio" key={thisKey} id={`fid_${thisKey}`}
+							<Form.Check
+								label={option.text}
+								type="radio"
+								key={thisKey}
+								id={`fid_${thisKey}`}
 								ref={c => {
 									if (c && self.props.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
@@ -697,7 +954,7 @@ class Image extends React.Component {
 		return (
 			<div style={{ ...this.props.style, ...style }} className={baseClasses} >
 				<ComponentHeader {...this.props} />
-				{this.props.data.src && <img src={this.props.data.src} width={this.props.data.width} height={this.props.data.height} />}
+				{this.props.data.src && <ImageComponent src={this.props.data.src} width={this.props.data.width} height={this.props.data.height} />}
 				{!this.props.data.src && <div className="no-image">No Image</div>}
 			</div>
 		);
@@ -721,6 +978,10 @@ class Rating extends React.Component {
 			props.disabled = this.props.readOnly;
 			props.ref = this.inputField;
 		}
+
+		if (this.props.onChange) { props.onRatingClick = (e, { rating }) => { this.props.onChange(rating); } }
+		if (this.props.value) { props.rating = this.props.value; }
+		if (this.props.readOnly) { props.disabled = true; }
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -782,14 +1043,20 @@ class Camera extends React.Component {
 		const target = e.target;
 		if (target.files && target.files.length) {
 			self.setState({ img: target.files[0], previewImg: URL.createObjectURL(target.files[0]) });
+			if (this.props.onChange) {
+				this.props.onChange(target.files[0]);
+			}
 		}
 	};
 
-	clearImage = () => {
+	clearImage = (e) => {
 		this.setState({
 			img: null,
 			previewImg: null,
 		});
+		if (this.props.onChange) {
+			this.props.onChange(null);
+		}
 	};
 
 	getImageSizeProps({ width, height }) {
@@ -820,6 +1087,8 @@ class Camera extends React.Component {
 			}
 		}
 
+		if (this.props.value) { sourceDataURL = this.props.value; }
+
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
@@ -829,7 +1098,7 @@ class Camera extends React.Component {
 						this.props.defaultValue &&
 						this.props.defaultValue.length > 0 ? (
 						<div>
-							<img
+							<ImageComponent
 								style={imageStyle}
 								src={sourceDataURL}
 								{...this.getImageSizeProps(this.props.data)}
@@ -856,14 +1125,14 @@ class Camera extends React.Component {
 
 							{this.state.img && (
 								<div>
-									<img
+									<ImageComponent
 										onLoad={() => URL.revokeObjectURL(this.state.previewImg)}
 										src={this.state.previewImg}
 										height="100"
 										className="image-upload-preview"
 									/>
 									<br />
-									<Button className="btn-image-clear" onClick={this.clearImage}>
+									<Button variant="default" size="sm" className="btn-image-clear" onClick={this.clearImage}>
 										<FaTimes /> Clear Photo
 									</Button>
 								</div>
@@ -893,6 +1162,10 @@ class FileUpload extends React.Component {
 			self.setState({
 				fileUpload: file,
 			});
+
+			if (this.props.onChange) {
+				this.props.onChange(file);
+			}
 		}
 	};
 
@@ -900,6 +1173,10 @@ class FileUpload extends React.Component {
 		this.setState({
 			fileUpload: null,
 		});
+
+		if (this.props.onChange) {
+			this.props.onChange(null);
+		}
 	};
 
 	saveFile = async (e) => {
@@ -935,6 +1212,7 @@ class FileUpload extends React.Component {
 		if (this.props.data.pageBreakBefore) {
 			baseClasses += ' alwaysbreak';
 		}
+
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
@@ -983,7 +1261,7 @@ class FileUpload extends React.Component {
 										</div>
 									</div>
 									<br />
-									<Button className='btn-file-upload-clear' onClick={this.clearFileUpload}					>
+									<Button variant="default" size="sm" className='btn-file-upload-clear' onClick={this.clearFileUpload}					>
 										<FaTimes /> Clear File
 									</Button>
 								</div>
@@ -1010,6 +1288,10 @@ class Range extends React.Component {
 		this.setState({
 			value: target.value,
 		});
+
+		if (this.props.onChange) {
+			this.props.onChange(target.value);
+		}
 	}
 
 	render() {

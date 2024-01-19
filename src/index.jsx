@@ -9,10 +9,11 @@ import { IntlProvider } from 'react-intl';
 import Preview from './preview';
 import Toolbar from './toolbar';
 import SurveyGenerator from './form';
+import SurveyFieldGenerator from './form-fields';
 import store from './stores/store';
 import Registry from './stores/registry';
 import AppLocale from './language-provider';
-import { Container, Row } from 'react-bootstrap';
+import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 
 class ReactSurveyBuilder extends React.Component {
 	constructor(props) {
@@ -44,38 +45,53 @@ class ReactSurveyBuilder extends React.Component {
 		}
 	}
 
+	saveFormData() {
+		store.dispatch('post');
+	}
+
 	render() {
 		const toolbarProps = { showDescription: this.props.showDescription };
 
 		const language = this.props.locale ? this.props.locale : 'en';
 		const currentAppLocale = AppLocale[language];
 		if (this.props.toolbarItems) { toolbarProps.items = this.props.toolbarItems; }
-		
+
 		return (
 			<DndProvider backend={HTML5Backend}>
 				<IntlProvider locale={currentAppLocale.locale} messages={currentAppLocale.messages}>
 					<div>
 						<Container fluid className="react-survey-builder">
 							<Row>
-								<Preview
-									files={this.props.files}
-									manualEditModeOff={this.manualEditModeOff.bind(this)}
-									showCorrectColumn={this.props.showCorrectColumn}
-									parent={this}
-									data={this.props.data}
-									url={this.props.url}
-									saveUrl={this.props.saveUrl}
-									onLoad={this.props.onLoad}
-									onPost={this.props.onPost}
-									editModeOn={this.editModeOn}
-									editMode={this.state.editMode}
-									variables={this.props.variables}
-									registry={Registry}
-									editElement={this.state.editElement}
-									renderEditForm={this.props.renderEditForm}
-									saveAlways={this.props.saveAlways}
-								/>
-								<Toolbar {...toolbarProps} customItems={this.props.customToolbarItems} />
+								<Col md={9}>
+									<Preview
+										files={this.props.files}
+										manualEditModeOff={this.manualEditModeOff.bind(this)}
+										showCorrectColumn={this.props.showCorrectColumn}
+										parent={this}
+										data={this.props.data}
+										url={this.props.url}
+										saveUrl={this.props.saveUrl}
+										onLoad={this.props.onLoad}
+										onPost={this.props.onPost}
+										editModeOn={this.editModeOn}
+										editMode={this.state.editMode}
+										variables={this.props.variables}
+										registry={Registry}
+										editElement={this.state.editElement}
+										renderEditForm={this.props.renderEditForm}
+										saveAlways={this.props.saveAlways}
+									/>
+								</Col>
+								<Col md={3}>
+									<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
+										<div>
+											<h4>{this.props.formName ?? 'Preview'}</h4>
+										</div>
+										<Button variant="primary" onClick={() => { this.saveFormData(); }}>Save Survey</Button>
+									</div>
+
+									<Toolbar {...toolbarProps} customItems={this.props.customToolbarItems} />
+								</Col>
 							</Row>
 						</Container>
 					</div>
@@ -97,12 +113,25 @@ function ReactSurveyGenerator(props) {
 	);
 }
 
+function ReactSurveyFieldGenerator(props) {
+	const language = props.locale ? props.locale : 'en';
+	const currentAppLocale = AppLocale[language];
+	return (
+		<IntlProvider
+			locale={currentAppLocale.locale}
+			messages={currentAppLocale.messages}>
+			<SurveyFieldGenerator {...props} />
+		</IntlProvider>
+	);
+}
+
 const SurveyBuilders = {};
 SurveyBuilders.ReactSurveyBuilder = ReactSurveyBuilder;
 SurveyBuilders.ReactSurveyGenerator = ReactSurveyGenerator;
+SurveyBuilders.ReactSurveyFieldGenerator = ReactSurveyFieldGenerator;
 SurveyBuilders.ElementStore = store;
 SurveyBuilders.Registry = Registry;
 
 export default SurveyBuilders;
 
-export { ReactSurveyBuilder, ReactSurveyGenerator, store as ElementStore, Registry };
+export { ReactSurveyBuilder, ReactSurveyGenerator, ReactSurveyFieldGenerator, store as ElementStore, Registry };

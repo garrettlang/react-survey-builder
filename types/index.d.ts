@@ -123,6 +123,7 @@ export type ToolbarItem = {
 };
 
 export interface SurveyBuilderProps {
+  formName?: string;
   toolbarItems?: ToolbarItem[];
   files?: any[];
   url?: string;
@@ -170,6 +171,7 @@ export interface SurveyGeneratorProps {
   backButton?: JSX.Element;
   buttons?: JSX.Element;
   buttonClassName?: string;
+  formId?: string;
 }
 
 export class ReactSurveyGenerator extends React.Component<SurveyGeneratorProps> {}

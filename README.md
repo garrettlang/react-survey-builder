@@ -1,9 +1,11 @@
 [![npm version](https://badge.fury.io/js/react-survey-builder.svg)](//npmjs.com/package/react-survey-builder)
 [![downloads](https://img.shields.io/npm/dm/react-survey-builder.svg)](https://img.shields.io/npm/dm/react-survey-builder.svg)
-# React Form Builder 2
+# React Survey Builder (expanded off of React Form Builder 2)
 A complete react form builder that interfaces with a json endpoint to load and save generated forms.
-- Upgraded to React 16.8.6
-- Bootstrap 4.x, Font-Awesome 5.x
+- Upgraded to React 18
+- Bootstrap 5.x, React-Icons
+- Upgraded to be built on top of React Bootstrap
+- Added support to work with React Hook Form
 - Use react-dnd for Drag & Drop
 - Save form data with dummy api server
 - Show posted data on readonly form
@@ -116,8 +118,9 @@ There is a `variables.js` file that contains a sample base 64 signature. This va
 # Vendor Dependencies
 In order to make the form builder look pretty, there are a few dependencies other than React. Style sheets from `Bootstrap` and `FontAwesome` must be added to index.html. See the example code in [index.html](https://github.com/Kiho/react-form-builder/blob/master/public/index.html#L5) for more details.
 
-- Bootstrap
-- FontAwesome
+- React Bootstrap
+- React-Icon
+- React Hook Form
 
 # SASS
 All relevant styles located in css/application.css.scss.

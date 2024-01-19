@@ -305,10 +305,10 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
     value: function onEditorStateChange(index, property, editorContent) {
       // const html = draftToHtml(convertToRaw(editorContent.getCurrentContent())).replace(/<p>/g, '<div>').replace(/<\/p>/g, '</div>');
       var html = draftjs_to_html__WEBPACK_IMPORTED_MODULE_7___default()((0,draft_js__WEBPACK_IMPORTED_MODULE_6__.convertToRaw)(editorContent.getCurrentContent())).replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/&nbsp;/g, ' ').replace(/(?:\r\n|\r|\n)/g, '');
-      var this_element = this.state.element;
-      this_element[property] = html;
+      var thisElement = this.state.element;
+      thisElement[property] = html;
       this.setState({
-        element: this_element,
+        element: thisElement,
         dirty: true
       });
     }
@@ -363,19 +363,19 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
       if (this.state.dirty) {
         this.props.element.dirty = true;
       }
-      var this_checked = this.props.element.hasOwnProperty('required') ? this.props.element.required : false;
-      var this_default_checked = this.props.element.hasOwnProperty('defaultChecked') ? this.props.element.defaultChecked : false;
-      var this_read_only = this.props.element.hasOwnProperty('readOnly') ? this.props.element.readOnly : false;
-      var this_default_today = this.props.element.hasOwnProperty('defaultToday') ? this.props.element.defaultToday : false;
-      var this_show_time_select = this.props.element.hasOwnProperty('showTimeSelect') ? this.props.element.showTimeSelect : false;
-      var this_show_time_select_only = this.props.element.hasOwnProperty('showTimeSelectOnly') ? this.props.element.showTimeSelectOnly : false;
-      var this_show_time_input = this.props.element.hasOwnProperty('showTimeInput') ? this.props.element.showTimeInput : false;
-      var this_checked_inline = this.props.element.hasOwnProperty('inline') ? this.props.element.inline : false;
+      var thisChecked = this.props.element.hasOwnProperty('required') ? this.props.element.required : false;
+      var thisDefaultChecked = this.props.element.hasOwnProperty('defaultChecked') ? this.props.element.defaultChecked : false;
+      var thisReadOnly = this.props.element.hasOwnProperty('readOnly') ? this.props.element.readOnly : false;
+      var thisDefaultToday = this.props.element.hasOwnProperty('defaultToday') ? this.props.element.defaultToday : false;
+      var thisShowTimeSelect = this.props.element.hasOwnProperty('showTimeSelect') ? this.props.element.showTimeSelect : false;
+      var thisShowTimeSelectOnly = this.props.element.hasOwnProperty('showTimeSelectOnly') ? this.props.element.showTimeSelectOnly : false;
+      var thisShowTimeInput = this.props.element.hasOwnProperty('showTimeInput') ? this.props.element.showTimeInput : false;
+      var thisCheckedInline = this.props.element.hasOwnProperty('inline') ? this.props.element.inline : false;
       var this_checked_bold = this.props.element.hasOwnProperty('bold') ? this.props.element.bold : false;
-      var this_checked_italic = this.props.element.hasOwnProperty('italic') ? this.props.element.italic : false;
-      var this_checked_center = this.props.element.hasOwnProperty('center') ? this.props.element.center : false;
-      var this_checked_page_break = this.props.element.hasOwnProperty('pageBreakBefore') ? this.props.element.pageBreakBefore : false;
-      var this_checked_alternate_form = this.props.element.hasOwnProperty('alternateForm') ? this.props.element.alternateForm : false;
+      var thisCheckedItalic = this.props.element.hasOwnProperty('italic') ? this.props.element.italic : false;
+      var thisCheckedCenter = this.props.element.hasOwnProperty('center') ? this.props.element.center : false;
+      var thisCheckedPageBreak = this.props.element.hasOwnProperty('pageBreakBefore') ? this.props.element.pageBreakBefore : false;
+      var thisCheckedAlternateForm = this.props.element.hasOwnProperty('alternateForm') ? this.props.element.alternateForm : false;
       var _this$props$element = this.props.element,
         canHavePageBreakBefore = _this$props$element.canHavePageBreakBefore,
         canHaveAlternateForm = _this$props$element.canHaveAlternateForm,
@@ -383,9 +383,9 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
         canHaveOptionCorrect = _this$props$element.canHaveOptionCorrect,
         canHaveOptionValue = _this$props$element.canHaveOptionValue;
       var canHaveImageSize = this.state.element.element === 'Image' || this.state.element.element === 'Camera';
-      var this_files = this.props.files.length ? this.props.files : [];
-      if (this_files.length < 1 || this_files.length > 0 && this_files[0].id !== '') {
-        this_files.unshift({
+      var thisFiles = this.props.files.length ? this.props.files : [];
+      if (thisFiles.length < 1 || thisFiles.length > 0 && thisFiles[0].id !== '') {
+        thisFiles.unshift({
           id: '',
           file_name: ''
         });
@@ -425,11 +425,11 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
         defaultValue: this.props.element.filePath,
         onBlur: this.updateElement.bind(this),
         onChange: this.editElementProp.bind(this, 'filePath', 'value')
-      }, this_files.map(function (file) {
-        var this_key = "file_".concat(file.id);
+      }, thisFiles.map(function (file) {
+        var thisKey = "file_".concat(file.id);
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement("option", {
           value: file.id,
-          key: this_key
+          key: thisKey
         }, file.file_name);
       }))), this.props.element.hasOwnProperty('href') && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_textarea_autosize__WEBPACK_IMPORTED_MODULE_15__["default"], {
         type: "text",
@@ -451,7 +451,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "required"
         }),
         type: "checkbox",
-        checked: this_checked,
+        checked: thisChecked,
         value: true,
         onChange: this.editElementProp.bind(this, 'required', 'checked')
       }), this.props.element.hasOwnProperty('readOnly') && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Check, {
@@ -460,7 +460,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "read-only"
         }),
         type: "checkbox",
-        checked: this_read_only,
+        checked: thisReadOnly,
         value: true,
         onChange: this.editElementProp.bind(this, 'readOnly', 'checked')
       }), this.props.element.hasOwnProperty('defaultToday') && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Check, {
@@ -469,7 +469,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "default-to-today"
         }),
         type: "checkbox",
-        checked: this_default_today,
+        checked: thisDefaultToday,
         value: true,
         onChange: this.editElementProp.bind(this, 'defaultToday', 'checked')
       }), ['Checkboxes', 'Checkbox'].indexOf(this.state.element.element) !== -1 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Check, {
@@ -478,7 +478,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "default-checked"
         }),
         type: "checkbox",
-        checked: this_default_checked,
+        checked: thisDefaultChecked,
         value: true,
         onChange: this.editElementProp.bind(this, 'defaultChecked', 'checked')
       }), (this.state.element.element === 'RadioButtons' || this.state.element.element === 'Checkboxes') && canHaveDisplayHorizontal && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Check, {
@@ -487,7 +487,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "display-horizontal"
         }),
         type: "checkbox",
-        checked: this_checked_inline,
+        checked: thisCheckedInline,
         value: true,
         onChange: this.editElementProp.bind(this, 'inline', 'checked')
       })), this.state.element.element === 'Checkbox' && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Label, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_language_provider_IntlMessages__WEBPACK_IMPORTED_MODULE_12__["default"], {
@@ -514,7 +514,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "center"
         }),
         type: "checkbox",
-        checked: this_checked_center,
+        checked: thisCheckedCenter,
         value: true,
         onChange: this.editElementProp.bind(this, 'center', 'checked')
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_16__["default"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_17__["default"], {
@@ -584,7 +584,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "page-break-before-element"
         }),
         type: "checkbox",
-        checked: this_checked_page_break,
+        checked: thisCheckedPageBreak,
         value: true,
         onChange: this.editElementProp.bind(this, 'pageBreakBefore', 'checked')
       })), canHaveAlternateForm && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Label, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_language_provider_IntlMessages__WEBPACK_IMPORTED_MODULE_12__["default"], {
@@ -595,7 +595,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "display-on-alternate-signature-page"
         }),
         type: "checkbox",
-        checked: this_checked_alternate_form,
+        checked: thisCheckedAlternateForm,
         value: true,
         onChange: this.editElementProp.bind(this, 'alternateForm', 'checked')
       })), this.props.element.hasOwnProperty('step') && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement("div", {
@@ -685,7 +685,7 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
           id: "italic"
         }),
         type: "checkbox",
-        checked: this_checked_italic,
+        checked: thisCheckedItalic,
         value: true,
         onChange: this.editElementProp.bind(this, 'italic', 'checked')
       })), this.props.element.showPlaceholder && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Label, {
@@ -708,7 +708,20 @@ var SurveyElementsEdit = /*#__PURE__*/function (_React$Component) {
         defaultValue: this.props.element.customName,
         onBlur: this.updateElement.bind(this),
         onChange: this.editElementProp.bind(this, 'customName', 'value')
-      })), this.props.element.showHelp && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Label, {
+      })), this.props.element.showLabelLocationPicker && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Label, {
+        htmlFor: "labelLocation"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_language_provider_IntlMessages__WEBPACK_IMPORTED_MODULE_12__["default"], {
+        id: "choose-label-location"
+      }), ":"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Select, {
+        id: "labelLocation",
+        defaultValue: this.props.element.labelLocation,
+        onBlur: this.updateElement.bind(this),
+        onChange: this.editElementProp.bind(this, 'labelLocation', 'value')
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement("option", {
+        value: "ABOVE"
+      }, "Above Form Field"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement("option", {
+        value: "FLOATING"
+      }, "Floating Inside Form Field"))), this.props.element.showHelp && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Group, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(react_bootstrap__WEBPACK_IMPORTED_MODULE_14__["default"].Label, {
         htmlFor: "help"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_language_provider_IntlMessages__WEBPACK_IMPORTED_MODULE_12__["default"], {
         id: "help-label"

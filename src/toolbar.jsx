@@ -6,12 +6,10 @@ import React from 'react';
 import { injectIntl } from 'react-intl';
 import ToolbarItem from './toolbar-draggable-item';
 import ToolbarGroupItem from './toolbar-group-item';
-
 import ID from './UUID';
 import store from './stores/store';
 import { groupBy } from './functions';
-import { FaArrowsAltH, FaBars, FaCalendarAlt, FaCamera, FaCaretSquareDown, FaCheckSquare, FaColumns, FaEnvelope, FaFile, FaFont, FaHeading, FaLink, FaParagraph, FaPenSquare, FaPhone, FaPlus, FaRegCalendarAlt, FaRegDotCircle, FaRegImage, FaSlidersH, FaStar, FaTags, FaTextHeight } from 'react-icons/fa';
-import { Col } from 'react-bootstrap';
+import { FaArrowsAltH, FaBars, FaCamera, FaCaretSquareDown, FaCheckSquare, FaColumns, FaEnvelope, FaFile, FaFont, FaHeading, FaLink, FaParagraph, FaPenSquare, FaPhone, FaPlus, FaRegCalendarAlt, FaRegDotCircle, FaRegImage, FaSlidersH, FaStar, FaTags, FaTextHeight } from 'react-icons/fa';
 
 // function isDefaultItem(item) {
 //   const keys = Object.keys(item);
@@ -148,7 +146,9 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				options: [],
-				hideRequiredAlert: true
+				placeholder: 'Select...',
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
 			},
 			{
 				key: 'Checkboxes',
@@ -218,28 +218,31 @@ class Toolbar extends React.Component {
 				showLabelLocationPicker: true
 			},
 			{
-				key: 'NumberInput',
-				canHaveAnswer: true,
-				name: intl.formatMessage({ id: 'number-input' }),
-				label: intl.formatMessage({ id: 'place-holder-label' }),
-				icon: FaPlus,
-				fieldName: 'number_input_',
-				showCustomName: true,
-				showDescription: true,
-				showHelp: true,
-				step: 1,
-				minValue: 0,
-				maxValue: 5,
-				hideRequiredAlert: true,
-				showLabelLocationPicker: true
-			},
-			{
 				key: 'PhoneNumber',
 				canHaveAnswer: true,
 				name: intl.formatMessage({ id: 'phone-input' }),
 				label: intl.formatMessage({ id: 'place-holder-phone-number' }),
 				icon: FaPhone,
 				fieldName: 'phone_input_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
+			},
+			{
+				key: 'DatePicker',
+				canDefaultToday: true,
+				canReadOnly: true,
+				dateFormat: 'MM/DD/YYYY',
+				timeFormat: 'hh:mm aa',
+				showTimeSelect: false,
+				showTimeSelectOnly: false,
+				showTimeInput: false,
+				name: intl.formatMessage({ id: 'date' }),
+				icon: FaRegCalendarAlt,
+				label: intl.formatMessage({ id: 'place-holder-label' }),
+				fieldName: 'date_picker_',
 				showCustomName: true,
 				showDescription: true,
 				showHelp: true,
@@ -260,12 +263,109 @@ class Toolbar extends React.Component {
 				showLabelLocationPicker: true
 			},
 			{
+				key: 'NumberInput',
+				canHaveAnswer: true,
+				name: intl.formatMessage({ id: 'number-input' }),
+				label: intl.formatMessage({ id: 'place-holder-label' }),
+				icon: FaPlus,
+				fieldName: 'number_input_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				step: 1,
+				minValue: 0,
+				maxValue: 5,
+				hideRequiredAlert: true,
+				showLabelLocationPicker: true
+			},
+			{
+				key: 'Rating',
+				canHaveAnswer: true,
+				name: intl.formatMessage({ id: 'rating' }),
+				label: intl.formatMessage({ id: 'place-holder-label' }),
+				icon: FaStar,
+				fieldName: 'rating_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+			},
+			{
+				key: 'Range',
+				name: intl.formatMessage({ id: 'range' }),
+				icon: FaSlidersH,
+				label: intl.formatMessage({ id: 'place-holder-label' }),
+				fieldName: 'range_',
+				step: 1,
+				defaultValue: 3,
+				minValue: 1,
+				maxValue: 5,
+				minLabel: intl.formatMessage({ id: 'easy' }),
+				maxLabel: intl.formatMessage({ id: 'difficult' }),
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				hideRequiredAlert: true
+			},
+			{
+				key: 'Signature',
+				canReadOnly: true,
+				name: intl.formatMessage({ id: 'signature' }),
+				icon: FaPenSquare,
+				label: intl.formatMessage({ id: 'signature' }),
+				fieldName: 'signature_',
+				showCustomName: true,
+				showDescription: true,
+				showHelp: true,
+				hideRequiredAlert: true,
+			},
+			{
+				key: 'Camera',
+				name: intl.formatMessage({ id: 'camera' }),
+				icon: FaCamera,
+				label: intl.formatMessage({ id: 'place-holder-label' }),
+				fieldName: 'camera_',
+			},
+			{
+				key: 'FileUpload',
+				name: intl.formatMessage({ id: 'file-upload' }),
+				icon: FaFile,
+				label: intl.formatMessage({ id: 'place-holder-label' }),
+				fieldName: 'file_upload_',
+			},
+			{
 				key: 'FieldSet',
 				canHaveAnswer: false,
 				name: intl.formatMessage({ id: 'fieldset' }),
 				label: intl.formatMessage({ id: 'fieldset' }),
 				icon: FaBars,
 				fieldName: 'fieldset-element',
+			},
+			
+			{
+				key: 'Image',
+				name: intl.formatMessage({ id: 'image' }),
+				label: '',
+				icon: FaRegImage,
+				fieldName: 'image_',
+				src: '',
+			},
+			{
+				key: 'HyperLink',
+				name: intl.formatMessage({ id: 'website' }),
+				icon: FaLink,
+				static: true,
+				content: intl.formatMessage({ id: 'place-holder-website-link' }),
+				href: 'http://www.example.com',
+			},
+			{
+				key: 'Download',
+				name: intl.formatMessage({ id: 'file-attachment' }),
+				icon: FaFile,
+				static: true,
+				content: intl.formatMessage({ id: 'place-holder-file-name' }),
+				fieldName: 'download_',
+				filePath: '',
+				_href: '',
 			},
 			{
 				key: 'TwoColumnRow',
@@ -316,100 +416,6 @@ class Toolbar extends React.Component {
 				colCount: 6,
 				className: 'col-md-2',
 			},
-			{
-				key: 'Image',
-				name: intl.formatMessage({ id: 'image' }),
-				label: '',
-				icon: FaRegImage,
-				fieldName: 'image_',
-				src: '',
-			},
-			{
-				key: 'Rating',
-				canHaveAnswer: true,
-				name: intl.formatMessage({ id: 'rating' }),
-				label: intl.formatMessage({ id: 'place-holder-label' }),
-				icon: FaStar,
-				fieldName: 'rating_',
-				showCustomName: true,
-				showDescription: true,
-				showHelp: true,
-			},
-			{
-				key: 'DatePicker',
-				canDefaultToday: true,
-				canReadOnly: true,
-				dateFormat: 'MM/dd/yyyy',
-				timeFormat: 'hh:mm aa',
-				showTimeSelect: false,
-				showTimeSelectOnly: false,
-				showTimeInput: false,
-				name: intl.formatMessage({ id: 'date' }),
-				icon: FaRegCalendarAlt,
-				label: intl.formatMessage({ id: 'place-holder-label' }),
-				fieldName: 'date_picker_',
-				showCustomName: true,
-				showDescription: true,
-				showHelp: true,
-				hideRequiredAlert: true
-			},
-			{
-				key: 'Signature',
-				canReadOnly: true,
-				name: intl.formatMessage({ id: 'signature' }),
-				icon: FaPenSquare,
-				label: intl.formatMessage({ id: 'signature' }),
-				fieldName: 'signature_',
-			},
-			{
-				key: 'HyperLink',
-				name: intl.formatMessage({ id: 'website' }),
-				icon: FaLink,
-				static: true,
-				content: intl.formatMessage({ id: 'place-holder-website-link' }),
-				href: 'http://www.example.com',
-			},
-			{
-				key: 'Download',
-				name: intl.formatMessage({ id: 'file-attachment' }),
-				icon: FaFile,
-				static: true,
-				content: intl.formatMessage({ id: 'place-holder-file-name' }),
-				fieldName: 'download_',
-				filePath: '',
-				_href: '',
-			},
-			{
-				key: 'Range',
-				name: intl.formatMessage({ id: 'range' }),
-				icon: FaSlidersH,
-				label: intl.formatMessage({ id: 'place-holder-label' }),
-				fieldName: 'range_',
-				step: 1,
-				defaultValue: 3,
-				minValue: 1,
-				maxValue: 5,
-				minLabel: intl.formatMessage({ id: 'easy' }),
-				maxLabel: intl.formatMessage({ id: 'difficult' }),
-				showCustomName: true,
-				showDescription: true,
-				showHelp: true,
-				hideRequiredAlert: true
-			},
-			{
-				key: 'Camera',
-				name: intl.formatMessage({ id: 'camera' }),
-				icon: FaCamera,
-				label: intl.formatMessage({ id: 'place-holder-label' }),
-				fieldName: 'camera_',
-			},
-			{
-				key: 'FileUpload',
-				name: intl.formatMessage({ id: 'file-upload' }),
-				icon: FaFile,
-				label: intl.formatMessage({ id: 'place-holder-label' }),
-				fieldName: 'file_upload_',
-			},
 		];
 	}
 
@@ -444,7 +450,7 @@ class Toolbar extends React.Component {
 		}
 
 		// add placeholder to form input
-		if (['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown'].indexOf(element) !== -1) {
+		if (['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown', 'Tags'].indexOf(element) !== -1) {
 			elementOptions.showPlaceholder = true;
 		}
 
@@ -565,17 +571,15 @@ class Toolbar extends React.Component {
 	render() {
 		const { items, grouped, groupKeys } = buildGroupItems(this.state.items);
 		return (
-			<Col md={3} className="react-survey-builder-toolbar">
+			<div className="react-survey-builder-toolbar">
 				<h4>{this.props.intl.formatMessage({ id: 'toolbox' })}</h4>
 				<ul>
-					{
-						items.map(this.renderItem)
-					}
+					{items.map(this.renderItem)}
 					{
 						groupKeys.map(k => <ToolbarGroupItem key={k} name={k} group={grouped.get(k)} renderItem={this.renderItem} />)
 					}
 				</ul>
-			</Col>
+			</div>
 		);
 	}
 }

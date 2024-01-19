@@ -40,7 +40,11 @@ class ReactSurvey extends React.Component {
 			const result = {};
 			answers.forEach(x => {
 				if (x.name.indexOf('tags_') > -1) {
-					result[x.name] = x.value.map(y => y.value);
+					if (Array.isArray(x.value)) {
+						result[x.name] = x.value.map(y => y.value).join(',');
+					} else {
+						result[x.name] = x.value;
+					}
 				} else {
 					result[x.name] = x.value;
 				}
@@ -77,9 +81,9 @@ class ReactSurvey extends React.Component {
 		if (item.element === 'Rating') {
 			$item.value = ref.inputField.current.state.rating;
 		} else if (item.element === 'Tags') {
-			$item.value = ref.inputField.current.state.value;
-		} else if (item.element === 'DatePicker') {
 			$item.value = ref.state.value;
+			// } else if (item.element === 'DatePicker') {
+			// 	$item.value = ref.state.value;
 		} else if (item.element === 'Camera') {
 			$item.value = ref.state.img;
 		} else if (item.element === 'FileUpload') {
@@ -156,17 +160,27 @@ class ReactSurvey extends React.Component {
 			help: item.help,
 			label: item.label !== null && item.label !== undefined && item.label !== '' ? item.label.trim() : ''
 		};
+
 		if (!itemData.name) return null;
+
 		const ref = this.inputs[item.fieldName];
-		if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
-			const checked_options = [];
-			item.options.forEach(option => {
+		if (item.element === 'Checkboxes') {
+			const checkedOptions = [];
+			item.options.forEach((option) => {
 				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 				if ($option.checked) {
-					checked_options.push(option.key);
+					checkedOptions.push(option.value);
 				}
 			});
-			itemData.value = checked_options;
+
+			itemData.value = checkedOptions;
+		} else if (item.element === 'RadioButtons') {
+			item.options.forEach((option) => {
+				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
+				if ($option.checked) {
+					itemData.value = option.value;
+				}
+			});
 		} else if (item.element === 'Checkbox') {
 			if (!ref || !ref.inputField || !ref.inputField.current) {
 				itemData.value = false;
@@ -175,9 +189,12 @@ class ReactSurvey extends React.Component {
 			}
 		} else {
 			if (!ref) return null;
+
 			itemData.value = this._getItemValue(item, ref).value;
 		}
+
 		itemData.required = item.required || false;
+
 		return itemData;
 	}
 
@@ -367,6 +384,9 @@ class ReactSurvey extends React.Component {
 		const actionName = name || 'Submit';
 		const { submitButton = false } = this.props;
 
+		let buttonProps = {};
+		if (this.props.formId) { buttonProps.form = this.props.formId; }
+
 		return submitButton || <Button variant="primary" type='submit'>{actionName}</Button>;
 	}
 
@@ -375,23 +395,23 @@ class ReactSurvey extends React.Component {
 		const backName = name || 'Cancel';
 		const { backButton = false } = this.props;
 
-		return backButton || <Button variant="secondary" href={this.props.backAction} className='btn-cancel'>{backName}</Button>;
+		return backButton || <Button variant="secondary" onClick={this.props.backAction} className='btn-cancel'>{backName}</Button>;
 	}
 
 	render() {
-		let data_items = this.props.data;
+		let dataItems = this.props.data;
 
 		if (this.props.displayShort) {
-			data_items = this.props.data.filter((i) => i.alternateForm === true);
+			dataItems = this.props.data.filter((i) => i.alternateForm === true);
 		}
 
-		data_items.forEach((item) => {
+		dataItems.forEach((item) => {
 			if (item && item.readOnly && item.variableKey && this.props.variables[item.variableKey]) {
 				this.answerData[item.fieldName] = this.props.variables[item.variableKey];
 			}
 		});
 
-		const items = data_items.filter(x => !x.parentId).map(item => {
+		const items = dataItems.filter(x => !x.parentId).map(item => {
 			if (!item) return null;
 			switch (item.element) {
 				case 'TextInput':
@@ -448,11 +468,14 @@ class ReactSurvey extends React.Component {
 			display: 'none',
 		};
 
+		let formProps = {};
+		if (this.props.formId) { formProps.id = this.props.formId; }
+
 		return (
 			<div>
 				<SurveyValidator emitter={this.emitter} />
 				<div className='react-survey-builder-form'>
-					<form encType='multipart/form-data' ref={c => this.form = c} action={this.props.formAction} onBlur={this.handleBlur} onChange={this.handleChange} onSubmit={this.handleSubmit} method={this.props.formMethod}>
+					<form encType='multipart/form-data' ref={c => this.form = c} action={this.props.formAction} onBlur={this.handleBlur} onChange={this.handleChange} onSubmit={this.handleSubmit} method={this.props.formMethod} {...formProps}>
 						{this.props.authenticity_token &&
 							<div style={formTokenStyle}>
 								<input name='utf8' type='hidden' value='&#x2713;' />

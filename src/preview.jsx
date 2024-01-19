@@ -8,7 +8,6 @@ import store from './stores/store';
 import SurveyElementsEdit from './survey-dynamic-edit';
 import SortableFormElements from './sortable-form-elements';
 import CustomDragLayer from './survey-elements/component-drag-layer';
-import { Col } from 'react-bootstrap';
 
 const { PlaceHolder } = SortableFormElements;
 
@@ -276,17 +275,18 @@ export default class Preview extends React.Component {
 		const data = this.state.data.filter(x => !!x && !x.parentId);
 		const items = data.map((item, index) => this.getElement(item, index));
 		return (
-			<Col md={9} className={classes}>
+			<div className={classes}>
 				<div className="edit-form" ref={this.editForm}>
 					{this.props.editElement !== null && this.showEditForm()}
 				</div>
 				<div className="Sortable">{items}</div>
 				<PlaceHolder id="form-place-holder" show={items.length === 0} index={items.length} moveCard={this.cardPlaceHolder} insertCard={this.insertCard} />
 				<CustomDragLayer />
-			</Col>
+			</div>
 		);
 	}
 }
+
 Preview.defaultProps = {
 	showCorrectColumn: false,
 	files: [],
