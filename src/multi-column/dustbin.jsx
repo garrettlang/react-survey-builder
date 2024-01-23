@@ -18,7 +18,7 @@ function getCustomElement(item, props) {
 			{...props}
 			mutable={false}
 			key={`form_${item.id}`}
-			data={item}
+			item={item}
 		/>
 	);
 }
@@ -29,7 +29,7 @@ function getElement(item, props) {
 		return getCustomElement(item, props);
 	}
 	const Element = SurveyElements[item.element || item.key];
-	return <Element {...props} key={`form_${item.id}`} data={item} />;
+	return <Element {...props} key={`form_${item.id}`} item={item} />;
 }
 
 function getStyle(backgroundColor) {
@@ -44,18 +44,19 @@ function getStyle(backgroundColor) {
 	};
 }
 
-function isContainer(item) {
-	if (item.itemType !== ItemTypes.CARD) {
-		const { data } = item;
-		if (data) {
-			if (data.isContainer) {
+function isContainer($containerItem) {
+	if ($containerItem.itemType !== ItemTypes.CARD) {
+		const { item } = $containerItem;
+		if (item) {
+			if (item.isContainer) {
 				return true;
 			}
-			if (data.fieldName) {
-				return data.fieldName.indexOf('_col_row') > -1;
+			if (item.fieldName) {
+				return item.fieldName.indexOf('_col_row') > -1;
 			}
 		}
 	}
+
 	return false;
 }
 
@@ -66,8 +67,8 @@ const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex
 		() => ({
 			onDrop: (dropped) => {
 				console.log("dropped ites")
-				const { data } = dropped;
-				if (data) {
+				const { item } = dropped;
+				if (item) {
 					onDropSuccess && onDropSuccess();
 					store.dispatch('deleteLastItem');
 				}
@@ -85,7 +86,7 @@ const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex
 
 	let backgroundColor = 'rgba(0, 0, 0, .03)';
 
-	if (!sameCard && isOver && canDrop && !draggedItem.data.isContainer) {
+	if (!sameCard && isOver && canDrop && !draggedItem.item.isContainer) {
 		backgroundColor = '#F7F589';
 	}
 
@@ -125,10 +126,10 @@ export default DropTarget(
 			if (!isContainer(item)) {
 				(component).onDrop(item);
 				console.log("calling on Drop from 137", item)
-				if (item.data && typeof props.setAsChild === 'function') {
-					const isNew = !item.data.id;
-					const data = isNew ? item.onCreate(item.data) : item.data;
-					props.setAsChild(props.data, data, props.col, isBusy);
+				if (item.item && typeof props.setAsChild === 'function') {
+					const isNew = !item.item.id;
+					const $dataItem = isNew ? item.onCreate(item.item) : item.item;
+					props.setAsChild(props.item, $dataItem, props.col, isBusy);
 				}
 			}
 		},

@@ -68,11 +68,12 @@ input[type="date"]:before {
 		}
 
 		.form-error {
-			margin-bottom: 8px !important;
+			margin-top: 8px;
+			margin-bottom: 0px;
 		}
 
 		.form-group {
-			margin-bottom: 8px !important;
+			margin-bottom: 8px;
 
 			.option-inline {
 				display: inline-block !important;

@@ -133,7 +133,8 @@ class Toolbar extends React.Component {
 				options: [],
 				placeholder: 'Select One',
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'ARRAY'
 			},
 			{
 				key: 'Tags',
@@ -148,7 +149,8 @@ class Toolbar extends React.Component {
 				options: [],
 				placeholder: 'Select...',
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'ARRAY'
 			},
 			{
 				key: 'Checkboxes',
@@ -161,7 +163,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				options: [],
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				answerType: 'ARRAY'
 			},
 			{
 				key: 'Checkbox',
@@ -174,7 +177,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				boxLabel: 'Agree To Rules & Regs',
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				answerType: 'BOOLEAN'
 			},
 			{
 				key: 'RadioButtons',
@@ -187,7 +191,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				options: [],
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				answerType: 'STRING'
 			},
 			{
 				key: 'TextInput',
@@ -201,7 +206,8 @@ class Toolbar extends React.Component {
 				showHelp: true,
 				placeholder: intl.formatMessage({ id: 'place-holder-label' }),
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'STRING'
 			},
 			{
 				key: 'EmailInput',
@@ -215,7 +221,8 @@ class Toolbar extends React.Component {
 				showHelp: true,
 				placeholder: intl.formatMessage({ id: 'place-holder-email' }),
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'STRING'
 			},
 			{
 				key: 'PhoneNumber',
@@ -228,7 +235,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'STRING'
 			},
 			{
 				key: 'DatePicker',
@@ -247,7 +255,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'STRING'
 			},
 			{
 				key: 'TextArea',
@@ -260,7 +269,8 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'STRING'
 			},
 			{
 				key: 'NumberInput',
@@ -276,7 +286,8 @@ class Toolbar extends React.Component {
 				minValue: 0,
 				maxValue: 5,
 				hideRequiredAlert: true,
-				showLabelLocationPicker: true
+				showLabelLocationPicker: true,
+				answerType: 'NUMBER'
 			},
 			{
 				key: 'Rating',
@@ -288,6 +299,7 @@ class Toolbar extends React.Component {
 				showCustomName: true,
 				showDescription: true,
 				showHelp: true,
+				answerType: 'NUMBER'
 			},
 			{
 				key: 'Range',
@@ -304,7 +316,8 @@ class Toolbar extends React.Component {
 				showCustomName: true,
 				showDescription: true,
 				showHelp: true,
-				hideRequiredAlert: true
+				hideRequiredAlert: true,
+				answerType: 'NUMBER'
 			},
 			{
 				key: 'Signature',
@@ -317,6 +330,7 @@ class Toolbar extends React.Component {
 				showDescription: true,
 				showHelp: true,
 				hideRequiredAlert: true,
+				answerType: 'IMAGE'
 			},
 			{
 				key: 'Camera',
@@ -324,6 +338,7 @@ class Toolbar extends React.Component {
 				icon: FaCamera,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				fieldName: 'camera_',
+				answerType: 'IMAGE'
 			},
 			{
 				key: 'FileUpload',
@@ -331,6 +346,7 @@ class Toolbar extends React.Component {
 				icon: FaFile,
 				label: intl.formatMessage({ id: 'place-holder-label' }),
 				fieldName: 'file_upload_',
+				answerType: 'FILE'
 			},
 			{
 				key: 'FieldSet',
@@ -566,7 +582,7 @@ class Toolbar extends React.Component {
 		store.dispatch('create', this.create(item));
 	}
 
-	renderItem = (item) => (<ToolbarItem data={item} key={item.key} onClick={this._onClick.bind(this, item)} onCreate={this.create} />)
+	renderItem = (item) => (<ToolbarItem item={item} key={item.key} onClick={this._onClick.bind(this, item)} onCreate={this.create} />)
 
 	render() {
 		const { items, grouped, groupKeys } = buildGroupItems(this.state.items);

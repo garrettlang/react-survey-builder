@@ -7,44 +7,44 @@ let _onLoad;
 
 const store = new Store({
 	actions: {
-		setData(context, data, saveData) {
-			context.commit('setData', data);
-			if (saveData) this.save(data);
+		setData(context, items, saveData) {
+			context.commit('setData', items);
+			if (saveData) this.save(items);
 		},
 
-		load(context, { loadUrl, saveUrl, data, saveAlways }) {
+		load(context, { loadUrl, saveUrl, items, saveAlways }) {
 			_saveUrl = saveUrl;
 			const saveA = saveAlways || saveAlways === undefined;
 			context.commit('setSaveAlways', saveA);
 			if (_onLoad) {
 				_onLoad().then(x => {
-					if (data && data.length > 0 && x.length === 0) {
-						data.forEach(y => x.push(y));
+					if (items && items.length > 0 && x.length === 0) {
+						items.forEach(y => x.push(y));
 					}
 					this.setData(context, x);
 				});
 			} else if (loadUrl) {
 				get(loadUrl).then(x => {
-					if (data && data.length > 0 && x.length === 0) {
-						data.forEach(y => x.push(y));
+					if (items && items.length > 0 && x.length === 0) {
+						items.forEach(y => x.push(y));
 					}
 					this.setData(context, x);
 				});
 			} else {
-				this.setData(context, data);
+				this.setData(context, items);
 			}
 		},
 
 		create(context, element) {
-			const { data, saveAlways } = context.state;
-			data.push(element);
-			this.setData(context, data, saveAlways);
+			const { items, saveAlways } = context.state;
+			items.push(element);
+			this.setData(context, items, saveAlways);
 		},
 
 		delete(context, element) {
-			const { data, saveAlways } = context.state;
-			data.splice(data.indexOf(element), 1);
-			this.setData(context, data, saveAlways);
+			const { items, saveAlways } = context.state;
+			items.splice(items.indexOf(element), 1);
+			this.setData(context, items, saveAlways);
 		},
 
 		deleteLastItem(context) {
@@ -64,8 +64,8 @@ const store = new Store({
 		},
 
 		post(context) {
-			const { data } = context.state;
-			this.setData(context, data, true);
+			const { items } = context.state;
+			this.setData(context, items, true);
 		},
 
 		updateOrder(context, elements) {
@@ -80,11 +80,11 @@ const store = new Store({
 			context.commit('setLastItem', item.isContainer ? null : item);
 		},
 
-		save(data) {
+		save(items) {
 			if (_onPost) {
-				_onPost({ task_data: data });
+				_onPost({ task_data: items });
 			} else if (_saveUrl) {
-				post(_saveUrl, { task_data: data });
+				post(_saveUrl, { task_data: items });
 			}
 		},
 	},
@@ -92,7 +92,7 @@ const store = new Store({
 	mutations: {
 		setData(state, payload) {
 			// eslint-disable-next-line no-param-reassign
-			state.data = payload;
+			state.items = payload;
 			return state;
 		},
 		setSaveAlways(state, payload) {
@@ -109,7 +109,7 @@ const store = new Store({
 	},
 
 	initialState: {
-		data: [],
+		items: [],
 		saveAlways: true,
 		lastItem: null,
 	},

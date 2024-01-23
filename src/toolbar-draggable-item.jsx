@@ -12,7 +12,7 @@ const cardSource = {
 		return {
 			id: ID.uuid(),
 			index: -1,
-			data: props.data,
+			item: props.item,
 			onCreate: props.onCreate,
 		};
 	},
@@ -20,12 +20,12 @@ const cardSource = {
 
 class ToolbarItem extends React.Component {
 	render() {
-		const { connectDragSource, data, onClick } = this.props;
-		const IconComponent = data.icon;
+		const { connectDragSource, item, onClick } = this.props;
+		const IconComponent = item.icon;
 		if (!connectDragSource) return null;
 		return (
 			connectDragSource(
-				<li onClick={onClick}><IconComponent />{data.name}</li>,
+				<li onClick={onClick}><IconComponent />{item.name}</li>,
 			)
 		);
 	}

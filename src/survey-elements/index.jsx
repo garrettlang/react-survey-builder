@@ -2,7 +2,6 @@
 import fetch from 'isomorphic-fetch';
 import { saveAs } from 'file-saver';
 import React from 'react';
-import Select from 'react-select';
 import SignaturePad from 'react-signature-canvas';
 import RangeSlider from 'react-bootstrap-range-slider';
 import StarRating from './star-rating';
@@ -10,9 +9,12 @@ import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
 import myxss from './myxss';
 import { FaCamera, FaDownload, FaFile, FaTimes } from 'react-icons/fa';
-import { Button, Form, Image as ImageComponent } from 'react-bootstrap';
+import { Button, Col, Container, Form, Image as ImageComponent, Row } from 'react-bootstrap';
 import { IMaskInput } from "react-imask";
 import { Typeahead } from 'react-bootstrap-typeahead';
+import ComponentErrorMessage from './component-error-message';
+import { getIPAddress } from '../utils/ipUtils';
+import moment from 'moment-timezone';
 
 const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => (
 	<IMaskInput
@@ -90,18 +92,17 @@ const SurveyElements = {};
 
 class Header extends React.Component {
 	render() {
-		// const headerClasses = `dynamic-input ${this.props.data.element}-input`;
 		let classNames = 'static';
-		if (this.props.data.bold) { classNames += ' bold'; }
-		if (this.props.data.italic) { classNames += ' italic'; }
+		if (this.props.item.bold) { classNames += ' bold'; }
+		if (this.props.item.italic) { classNames += ' italic'; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<h3 className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.data.content) }} />
+				<h3 className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
 			</div>
 		);
 	}
@@ -110,16 +111,16 @@ class Header extends React.Component {
 class Paragraph extends React.Component {
 	render() {
 		let classNames = 'static';
-		if (this.props.data.bold) { classNames += ' bold'; }
-		if (this.props.data.italic) { classNames += ' italic'; }
+		if (this.props.item.bold) { classNames += ' bold'; }
+		if (this.props.item.italic) { classNames += ' italic'; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<p className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.data.content) }} />
+				<p className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
 			</div>
 		);
 	}
@@ -128,16 +129,16 @@ class Paragraph extends React.Component {
 class Label extends React.Component {
 	render() {
 		let classNames = 'static';
-		if (this.props.data.bold) { classNames += ' bold'; }
-		if (this.props.data.italic) { classNames += ' italic'; }
+		if (this.props.item.bold) { classNames += ' bold'; }
+		if (this.props.item.italic) { classNames += ' italic'; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
-				<label className={`${classNames} form-label`} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.data.content) }} />
+				<label className={`${classNames} form-label`} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
 			</div>
 		);
 	}
@@ -146,7 +147,7 @@ class Label extends React.Component {
 class LineBreak extends React.Component {
 	render() {
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -165,25 +166,32 @@ class TextInput extends React.Component {
 
 	render() {
 		const props = {};
-		props.type = 'text';
-		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
-		if (this.props.mutable) {
-			props.defaultValue = this.props.defaultValue;
-			props.ref = this.inputField;
-		}
-
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
-		if (this.props.value) { props.value = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder;
+		props.onChange = (event) => { this.props.onChange(event.target.value); };
+		props.value = this.props.value;
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{props.value}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -191,16 +199,17 @@ class TextInput extends React.Component {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} {...props} />
+							<Form.Control id={props.name} type='text' {...props} />
 							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
 							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control id={props.name} {...props} />
+							<Form.Control id={props.name} type='text' {...props} />
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -215,25 +224,32 @@ class EmailInput extends React.Component {
 
 	render() {
 		const props = {};
-		props.type = 'text';
-		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
-		if (this.props.mutable) {
-			props.defaultValue = this.props.defaultValue;
-			props.ref = this.inputField;
-		}
-
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
-		if (this.props.value) { props.value = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder;
+		props.onChange = (event) => { this.props.onChange(event.target.value); };
+		props.value = this.props.value;
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.value ?? this.props.defaultValue}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -241,16 +257,17 @@ class EmailInput extends React.Component {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} {...props} />
+							<Form.Control id={props.name} type='text' {...props} />
 							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
 							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control id={props.name} {...props} />
+							<Form.Control id={props.name} type='text' {...props} />
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -265,26 +282,32 @@ class PhoneNumber extends React.Component {
 
 	render() {
 		const props = {};
-		props.type = 'text';
-		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
-		if (this.props.mutable) {
-			props.defaultValue = this.props.defaultValue;
-			props.ref = this.inputField;
-		}
-
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e); } }
-		if (this.props.value) { props.value = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder;
+		props.onChange = (val) => { this.props.onChange(val); };
+		props.value = this.props.value;
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
 		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.value ?? this.props.defaultValue}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -292,16 +315,17 @@ class PhoneNumber extends React.Component {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} {...props} as={CustomPhoneInput} />
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Control id={props.name} type='text' {...props} as={CustomPhoneInput} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
-							<Form.Control id={props.name} {...props} as={CustomPhoneInput} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control id={props.name} type='text' {...props} as={CustomPhoneInput} />
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -316,28 +340,34 @@ class DatePicker extends React.Component {
 
 	render() {
 		const props = {};
-		props.type = 'text';
-		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
-		if (this.props.mutable) {
-			props.defaultValue = this.props.defaultValue;
-			props.ref = this.inputField;
-		}
-
-		props.formatMask = this.props.data.formatMask || 'MM/DD/YYYY';
-
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e); } }
-		if (this.props.value) { props.value = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder;
+		props.onChange = (val) => { this.props.onChange(val); };
+		props.value = this.props.value;
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
 		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
+
+		props.formatMask = this.props.item.formatMask || 'MM/DD/YYYY';
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.value ?? this.props.defaultValue}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -345,16 +375,17 @@ class DatePicker extends React.Component {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} {...props} as={CustomDateInput} />
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Control id={props.name} type='text' {...props} as={CustomDateInput} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
-							<Form.Control id={props.name} {...props} as={CustomDateInput} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control id={props.name} type='text' {...props} as={CustomDateInput} />
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -369,29 +400,36 @@ class NumberInput extends React.Component {
 
 	render() {
 		const props = {};
-		props.type = 'number';
-		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
-		if (this.props.mutable) {
-			props.defaultValue = this.props.defaultValue;
-			props.ref = this.inputField;
-		}
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder;
+		props.onChange = (event) => { this.props.onChange(event.target.value); };
+		props.value = this.props.value;
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
-		if (this.props.value) { props.value = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
-
-		props.min = this.props.data.minValue;
-		props.max = this.props.data.maxValue;
-		props.step = this.props.data.step;
+		props.min = this.props.item.minValue;
+		props.max = this.props.item.maxValue;
+		props.step = this.props.item.step;
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.value ?? this.props.defaultValue}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -399,16 +437,17 @@ class NumberInput extends React.Component {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} {...props} />
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<Form.Control id={props.name} type='number' {...props} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
-							<Form.Control id={props.name} {...props} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control id={props.name} type='number' {...props} />
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -423,25 +462,32 @@ class TextArea extends React.Component {
 
 	render() {
 		const props = {};
-		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder ?? myxss.process(this.props.data.label);
-
-		if (this.props.mutable) {
-			props.defaultValue = this.props.defaultValue;
-			props.ref = this.inputField;
-		}
-
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
-		if (this.props.value) { props.value = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder;
+		props.onChange = (event) => { this.props.onChange(event.target.value); };
+		props.value = this.props.value;
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.value ?? this.props.defaultValue}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -450,15 +496,16 @@ class TextArea extends React.Component {
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Form.Control as="textarea" id={props.name} {...props} />
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 							<Form.Control as="textarea" id={props.name} {...props} />
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -473,24 +520,32 @@ class Dropdown extends React.Component {
 
 	render() {
 		const props = {};
-		props.name = this.props.data.fieldName;
-		props.placeholder = this.props.data.placeholder || 'Select One';
-		if (this.props.mutable) {
-			props.defaultValue = this.props.defaultValue;
-			props.ref = this.inputField;
-		}
-
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
-		if (this.props.value) { props.value = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder || 'Select One';
+		props.onChange = (event) => { this.props.onChange(event.target.value); };
+		props.value = this.props.value;
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.item.options.filter((selectedOption) => selectedOption.value === (this.props.value ?? this.props.defaultValue))?.label}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -500,26 +555,27 @@ class Dropdown extends React.Component {
 						<Form.Floating>
 							<Form.Select id={props.name} {...props}>
 								{props.placeholder ? <option value="">{props.placeholder}</option> : null}
-								{this.props.data.options.map((option) => {
+								{this.props.item.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
 									return <option value={option.value} key={thisKey}>{option.text}</option>;
 								})}
 							</Form.Select>
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 							<Form.Select id={props.name} {...props}>
 								{props.placeholder ? <option value="">{props.placeholder}</option> : null}
-								{this.props.data.options.map((option) => {
+								{this.props.item.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
 									return <option value={option.value} key={thisKey}>{option.text}</option>;
 								})}
 							</Form.Select>
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -529,167 +585,154 @@ class Dropdown extends React.Component {
 class Signature extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			defaultValue: props.defaultValue,
-		};
+		this.state = { value: props.value };
 		this.inputField = React.createRef();
 		this.canvas = React.createRef();
 	}
 
 	clear = () => {
-		if (this.state.defaultValue) {
-			this.setState({ defaultValue: '' });
-		} else if (this.canvas.current) {
-			this.canvas.current.clear();
+		const $canvas_sig = this.canvas.current;
+		if (this.props.value) {
+			const $input_sig = this.inputField.current;
+
+			let signature = {
+				...this.props.value,
+				signature: ''
+			};
+
+			$input_sig.value = signature;
+			if (this.props.methods) {
+				this.props.methods.setValue(this.props.name, signature);
+			}
+			this.setState({ value: signature });
+		} else if ($canvas_sig) {
+			$canvas_sig.clear();
 		}
 	}
 
-	_getSignatureImg = () => {
+	_getSignatureImg = async () => {
 		const $canvas_sig = this.canvas.current;
 		if ($canvas_sig) {
-			const base64 = $canvas_sig.toDataURL().replace('data:image/png;base64,', '');
+			const base64 = $canvas_sig.getTrimmedCanvas().toDataURL("image/png");
 			const isEmpty = $canvas_sig.isEmpty();
 			const $input_sig = this.inputField.current;
-			const name = this.props.data.fieldName;
 
-			if (isEmpty) {
-				$input_sig.value = '';
-				if (this.props.methods) {
-					this.props.methods.setValue(name, '');
-				}
-			} else {
-				$input_sig.value = base64;
-				if (this.props.methods) {
-					this.props.methods.setValue(name, base64);
-				}
+			let value = isEmpty ? '' : base64;
+			let ipAddress = await getIPAddress();
+			let date = moment().toISOString();
+
+			let signature = {
+				...this.props.value,
+				signature: value,
+				ipAddress: ipAddress,
+				date: date
+			};
+
+			$input_sig.value = signature;
+			if (this.props.methods) {
+				this.props.methods.setValue(this.props.name, signature);
 			}
+			this.setState({ value: signature });
 		}
+	}
+
+	onChangeName = (event) => {
+		const $input_sig = this.inputField.current;
+
+		let signature = {
+			...this.props.value,
+			name: event.target.value
+		};
+
+		$input_sig.value = signature;
+		if (this.props.methods) {
+			this.props.methods.setValue(this.props.name, signature);
+		}
+		this.setState({ value: signature });
 	}
 
 	render() {
-		const { defaultValue } = this.state;
-		let canClear = !!defaultValue;
+		let canClear = !!this.state.value;
 		const props = {};
-		props.type = 'hidden';
-		props.name = this.props.data.fieldName;
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.value); } }
-		if (this.props.value) { props.value = this.props.value; }
+		props.name = this.props.name;
+		// props.onChange = (event) => { console.log('onChangeSignature', event.target.value); this.props.onChange(event.target.value); };
+		props.value = this.props.value;
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
-		if (this.props.mutable) {
-			props.defaultValue = defaultValue;
-			props.ref = this.inputField;
-		}
 		const padProps = {};
 		// umd requires canvasProps={{ width: 400, height: 150 }}
-		if (this.props.mutable) {
-			padProps.defaultValue = defaultValue;
+		if (this.props.item.mutable) {
+			padProps.defaultValue = this.props.value?.signature;
 			padProps.ref = this.canvas;
-			canClear = !this.props.readOnly;
+			padProps.willReadFrequently = true;
+			canClear = !this.props.item.readOnly;
 		}
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		let sourceDataURL;
-		if (defaultValue && defaultValue.length > 0) {
-			sourceDataURL = `data:image/png;base64,${defaultValue}`;
+		if (this.state.value?.signature && this.state.value?.signature.length > 0) {
+			sourceDataURL = this.state.value?.signature;
 		}
 
 		padProps.canvasProps = {};
+
+		if (this.props.item.print === true && !!sourceDataURL) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={this.props.name} />
+						<div>
+							<ImageComponent src={sourceDataURL} />
+							<hr style={{ borderStyle: 'dashed' }} />
+							<div><strong>Electronic Signature</strong> at {this.props.value?.date ? moment(this.props.value?.date).format('dddd  MMMM D, YYYY hh:mm A') : moment().format('dddd  MMMM D, YYYY hh:mm A')} by {this.props.value?.name} via IP Address {this.props.value?.ipAddress}</div>
+							<hr />
+						</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} />
-					{this.props.readOnly === true || !!sourceDataURL
-						? (<img src={sourceDataURL} />)
-						: (
+					<ComponentLabel {...this.props} htmlFor={this.props.name} />
+					{this.props.readOnly === true ? (!!sourceDataURL ? (
+						<div>
+							<ImageComponent src={sourceDataURL} />
+							<hr style={{ borderStyle: 'dashed' }} />
+							<div><strong>Electronic Signature</strong> at {this.props.value?.date ? moment(this.props.value?.date).format('dddd  MMMM D, YYYY hh:mm A') : moment().format('dddd  MMMM D, YYYY hh:mm A')} by {this.props.value?.name} via IP Address {this.props.value?.ipAddress}</div>
+							<hr />
+						</div>
+					) : null
+					) : (
+						<div>
 							<div className="m-signature-pad">
 								<div className="m-signature-pad--body">
-
 									<SignaturePad {...padProps} onEnd={(e) => { this._getSignatureImg(); }} />
 								</div>
 								<div className="m-signature-pad--footer clearfix">
 									{canClear && (<Button variant="default" size="sm" className='clear-signature float-end' onClick={this.clear} title="Clear Signature"><FaTimes /> clear</Button>)}
 								</div>
 							</div>
-						)
-					}
-					{this.props.methods ? (<input {...this.props.methods.register(props.name)} {...props} />) : (<input {...props} />)}
-				</Form.Group>
-			</div>
-		);
-	}
-}
 
-class Tags2 extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
-		const { defaultValue, data } = props;
-		if (props.value) {
-			this.state = { value: props.value };
-		} else {
-			this.state = { value: defaultValue };
-		}
-	}
+							<Form.Label>Please print your full legal name and today's date.</Form.Label>
+							<Container>
+								<Row>
+									<Col sm={6}><Form.Control value={this.props.value?.name ?? ''} type="text" required placeholder='Full Legal Name' onChange={this.onChangeName} /></Col>
+									<Col sm={6}>Today's Date: {moment().format('MM/DD/YYYY')}</Col>
+								</Row>
+							</Container>
+						</div>
+					)}
 
-	getDefaultValue(defaultValue, options) {
-		if (defaultValue) {
-			if (typeof defaultValue === 'string') {
-				const vals = defaultValue.split(',').map(x => x.trim());
-				return options.filter(x => vals.indexOf(x.value) > -1);
-			}
-			return options.filter(x => defaultValue.indexOf(x.value) > -1);
-		}
-		return [];
-	}
-
-	handleChange = (e) => {
-		this.setState({ value: e.map(i => i.value).join(',') || null });
-
-		if (this.props.onChange) {
-			this.props.onChange(e ? e.map(i => i.value).join(',') : null);
-		}
-	};
-
-	render() {
-		const options = this.props.data.options.map(option => {
-			option.label = option.text;
-			return option;
-		});
-		const props = {};
-		props.isMulti = true;
-		props.name = this.props.data.fieldName;
-		props.onChange = this.handleChange;
-
-
-		//if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		//if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-
-		props.options = options;
-		if (!this.props.mutable) { props.value = options[0].text; } // to show a sample of what tags looks like
-		if (this.props.mutable) {
-			props.isDisabled = this.props.readOnly;
-			props.value = this.getDefaultValue(this.state.value, options);
-			props.ref = this.inputField;
-		}
-
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
-
-		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
-
-		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
-				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
-					<Select id={props.name} {...props} />
-
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={this.props.name} />
+					{this.props.methods ? (<input {...this.props.methods.register(this.props.name)} {...props} type='hidden' />) : (<input {...props} type='hidden' />)}
+					{/* {this.props.methods ? (<input {...this.props.methods.register(`${this.props.name}_date`)} type='hidden' />) : (<input name={`${this.props.name}_date`} type='hidden' />)}
+					{this.props.methods ? (<input {...this.props.methods.register(`${this.props.name}_ip_address`)} type='hidden' />) : (<input name={`${this.props.name}_ip_address`} type='hidden' />)} */}
 				</Form.Group>
 			</div>
 		);
@@ -700,70 +743,56 @@ class Tags extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
-		const { defaultValue, data } = props;
-		if (props.value) {
-			this.state = { value: props.value };
-		} else {
-			this.state = { value: defaultValue };
-		}
 	}
 
-	getDefaultValue(defaultValue, options) {
-		console.log(defaultValue)
-		if (defaultValue) {
-			if (typeof defaultValue === 'string') {
-				const vals = defaultValue.split(',').map(x => x.trim());
-				return options.filter(x => vals.indexOf(x.value) > -1);
-			}
-			return options.filter(x => defaultValue.indexOf(x.value) > -1);
+	getDefaultValue(val, options) {
+		if (val) {
+			return options.filter((option) => val.indexOf(option.value) > -1);
 		}
+
 		return [];
 	}
 
-	handleChange = (selected) => {
-		if (selected !== undefined && selected !== null && selected.length > 0) {
-			this.setState({ value: selected.map(i => i.id).join(',') });
-
-			if (this.props.onChange) {
-				this.props.onChange(selected.map(i => i.id).join(','));
-			}
-		} else {
-			this.setState({ value: [] });
-
-			if (this.props.onChange) {
-				this.props.onChange([]);
-			}
-		}
-	};
-
 	render() {
-		const options = this.props.data.options.map((option) => {
-			option.label = option.text;
-			option.id = option.value;
-			return option;
+		const options = this.props.item.options.map((option) => {
+			return {
+				value: option.value,
+				label: option.text,
+				key: option.value
+			};
 		});
+
 		const props = {};
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder || 'Select...';
+		props.onChange = (val) => { this.props.onChange(val !== undefined && val !== null && val.length > 0 ? val.map((i) => i.value) : []); };
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
+
 		props.multiple = true;
-		props.name = this.props.data.fieldName;
-		props.onChange = this.handleChange;
-		props.placeholder = this.props.data.placeholder || 'Select...';
-		props.required = this.props.data.required;
-
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-
+		props.selected = this.getDefaultValue(this.props.value, options);
 		props.options = options;
-		if (this.props.mutable) {
-			props.disabled = this.props.readOnly;
-			props.selected = this.getDefaultValue(this.state.value, options);
-			props.ref = this.inputField;
-		}
+		// props.required = this.props.item.required;
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		let labelLocation = 'ABOVE';
-		if (this.props.data.labelLocation) { labelLocation = this.props.data.labelLocation; }
+		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{props.selected.map((selectedOption) => selectedOption.label).join(', ')}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
@@ -772,15 +801,16 @@ class Tags extends React.Component {
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Typeahead labelKey={(option) => option.label} id={props.name} {...props} />
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} name={props.name} htmlFor={props.name} />
+							<ComponentLabel {...this.props} htmlFor={props.name} />
 							<Typeahead labelKey={(option) => option.label} id={props.name} {...props} />
 						</>
 					)}
-					{this.props.data.help ? (<Form.Text muted>{this.props.data.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -791,15 +821,15 @@ class Checkboxes extends React.Component {
 	constructor(props) {
 		super(props);
 		this.options = {};
-		this.checkedValues = [];
 	}
 
 	onCheckboxChange = (checkboxValue, event) => {
+		let checkedValues = this.props.value;
 		if (this.props.onChange) {
 			if (event.target.checked) {
-				this.props.onChange(this.checkedValues.concat(checkboxValue));
+				this.props.onChange(checkedValues.concat(checkboxValue));
 			} else {
-				this.props.onChange(this.checkedValues.filter((v) => v !== checkboxValue));
+				this.props.onChange(checkedValues.filter((v) => v !== checkboxValue));
 			}
 		}
 	}
@@ -808,38 +838,40 @@ class Checkboxes extends React.Component {
 		const self = this;
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		if (this.props.value) { this.checkedValues = this.props.value; }
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.item.options.filter((option) => this.props.value.includes(option.value)).map((option) => option.label).join(', ')}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} />
-					{this.props.data.options.map((option) => {
-						const thisKey = `preview_${option.key}`;
+					<ComponentLabel {...this.props} htmlFor={this.props.name} />
+					{this.props.item.options.map((option) => {
 						const props = {};
 						props.name = `option_${option.key}`;
-
-
-						if (self.props.data.inline) { props.inline = true; }
-
 						props.value = option.value;
-						if (self.props.mutable) {
-							props.defaultChecked = self.props.defaultValue !== undefined && self.props.defaultValue.indexOf(option.key) > -1;
-						}
-						if (self.props.readOnly) { props.disabled = 'disabled'; }
-						if (self.props.value) { props.checked = this.props.value.indexOf(option.value) > -1; }
+						props.checked = self.props.value ? self.props.value.indexOf(option.value) > -1 : false;
+						props.inline = self.props.item.inline ?? false;
+						if (self.props.item.disabled) { props.disabled = 'disabled'; }
 
 						return (
 							<Form.Check
 								label={option.text}
 								type="checkbox"
-								key={thisKey}
-								id={`fid_${thisKey}`}
+								key={`preview_${option.key}`}
+								id={`fid_preview_${option.key}`}
 								ref={c => {
-									if (c && self.props.mutable) {
+									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
 									}
 								}}
@@ -848,6 +880,8 @@ class Checkboxes extends React.Component {
 							/>
 						);
 					})}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={this.props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -862,29 +896,39 @@ class Checkbox extends React.Component {
 
 	render() {
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 		const props = {};
 		// eslint-disable-next-line no-undef
-		props.name = this.props.data.fieldName;
-		props.type = 'checkbox';
-		props.defaultChecked = this.props.data.defaultChecked;
-		if (this.props.mutable) {
-			props.ref = this.inputField;
-		}
+		props.name = this.props.name;
+		props.onChange = (event) => { this.props.onChange(event.target.checked); };
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		props.autoComplete = "new-password";
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
-		if (this.props.onChange) { props.onChange = (e) => { this.props.onChange(e.target.checked); } }
-		if (this.props.value) { props.checked = this.props.value; }
-		if (this.props.isInvalid) { props.isInvalid = this.props.isInvalid; }
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		if (this.props.readOnly) { props.disabled = 'disabled'; }
-		if (this.props.data.inline) { props.inline = true; }
+		props.checked = this.props.value;
+		props.inline = this.props.item.inline ?? false;
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.value === true ? 'Yes' : 'No'}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel className="form-label" {...this.props} />
-					<Form.Check label={<span dangerouslySetInnerHTML={{ __html: this.props.data.boxLabel }} />} type="checkbox" id={this.props.data.fieldName} {...props} />
+					<Form.Check label={<span dangerouslySetInnerHTML={{ __html: this.props.item.boxLabel }} />} type="checkbox" id={props.name} {...props} />
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -901,36 +945,41 @@ class RadioButtons extends React.Component {
 		const self = this;
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.item.options.filter((option) => this.props.value === option.value).map((option) => option.label).join(', ')}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...this.props} />
-					{this.props.data.options.map((option) => {
-						const thisKey = `preview_${option.key}`;
+					{this.props.item.options.map((option) => {
 						const props = {};
-						props.name = self.props.data.fieldName;
-
+						props.name = self.props.name;
 						props.value = option.value;
-						if (self.props.mutable) {
-							props.defaultChecked = (self.props.defaultValue !== undefined && self.props.defaultValue.indexOf(option.value) > -1);
-						}
-
-						if (self.props.onChange) { props.onChange = (e) => { self.props.onChange(e.target.value); } }
-						if (self.props.value) { props.checked = self.props.value === option.value; }
-						if (self.props.readOnly) { props.disabled = 'disabled'; }
-						if (self.props.data.inline) { props.inline = true; }
+						props.checked = self.props.value === option.value;
+						props.onChange = (event) => { self.props.onChange(event.target.value); };
+						if (self.props.item.disabled) { props.disabled = 'disabled'; }
+						props.inline = self.props.item.inline ?? false;
 
 						return (
 							<Form.Check
 								label={option.text}
 								type="radio"
-								key={thisKey}
-								id={`fid_${thisKey}`}
+								key={`preview_${option.key}`}
+								id={`fid_preview_${option.key}`}
 								ref={c => {
-									if (c && self.props.mutable) {
+									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
 									}
 								}}
@@ -938,6 +987,8 @@ class RadioButtons extends React.Component {
 							/>
 						);
 					})}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={this.props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -946,16 +997,16 @@ class RadioButtons extends React.Component {
 
 class Image extends React.Component {
 	render() {
-		const style = (this.props.data.center) ? { textAlign: 'center' } : null;
+		const style = (this.props.item.center) ? { textAlign: 'center' } : null;
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style, ...style }} className={baseClasses} >
 				<ComponentHeader {...this.props} />
-				{this.props.data.src && <ImageComponent src={this.props.data.src} width={this.props.data.width} height={this.props.data.height} />}
-				{!this.props.data.src && <div className="no-image">No Image</div>}
+				{this.props.item.src && <ImageComponent src={this.props.item.src} width={this.props.item.width} height={this.props.item.height} />}
+				{!this.props.item.src && <div className="no-image">No Image</div>}
 			</div>
 		);
 	}
@@ -969,29 +1020,40 @@ class Rating extends React.Component {
 
 	render() {
 		const props = {};
-		props.name = this.props.data.fieldName;
+		props.name = this.props.name;
 		props.ratingAmount = 5;
+		props.rating = this.props.value !== undefined && this.props.value !== null && this.props.value !== '' ? parseFloat(this.props.value, 10) : 0;
+		props.disabled = this.props.item.readOnly;
+		if (this.props.item.disabled) { props.disabled = true; }
+		props.onRatingClick = (event, { rating }) => { this.props.onChange(rating); };
 
-		if (this.props.mutable) {
-			props.rating = (this.props.defaultValue !== undefined) ? parseFloat(this.props.defaultValue, 10) : 0;
+		if (this.props.item.mutable) {
 			props.editing = true;
-			props.disabled = this.props.readOnly;
 			props.ref = this.inputField;
 		}
 
-		if (this.props.onChange) { props.onRatingClick = (e, { rating }) => { this.props.onChange(rating); } }
-		if (this.props.value) { props.rating = this.props.value; }
-		if (this.props.readOnly) { props.disabled = true; }
-
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<div>{this.props.value}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} />
+					<ComponentLabel {...this.props} htmlFor={props.name} />
 					<StarRating {...props} />
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -1001,14 +1063,14 @@ class Rating extends React.Component {
 class HyperLink extends React.Component {
 	render() {
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<Form.Label>
-						<a target="_blank" href={this.props.data.href} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.data.content) }} />
+						<a target="_blank" href={this.props.item.href} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
 					</Form.Label>
 				</Form.Group>
 			</div>
@@ -1019,13 +1081,13 @@ class HyperLink extends React.Component {
 class Download extends React.Component {
 	render() {
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<a href={`${this.props.downloadPath}?id=${this.props.data.filePath}`}>{this.props.data.content}</a>
+					<a href={`${this.props.downloadPath}?id=${this.props.item.filePath}`}>{this.props.item.content}</a>
 				</Form.Group>
 			</div>
 		);
@@ -1035,25 +1097,23 @@ class Download extends React.Component {
 class Camera extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { img: null, previewImg: null };
+		this.inputField = React.createRef();
+		this.state = { img: props.value };
 	}
 
-	displayImage = (e) => {
-		const self = this;
-		const target = e.target;
-		if (target.files && target.files.length) {
-			self.setState({ img: target.files[0], previewImg: URL.createObjectURL(target.files[0]) });
+	handleChange = (event) => {
+		if (event.target.files && event.target.files.length > 0) {
+			this.setState({ img: event.target.files[0] });
+
 			if (this.props.onChange) {
-				this.props.onChange(target.files[0]);
+				this.props.onChange(event.target.files[0]);
 			}
 		}
 	};
 
-	clearImage = (e) => {
-		this.setState({
-			img: null,
-			previewImg: null,
-		});
+	clearImage = () => {
+		this.setState({ img: null });
+
 		if (this.props.onChange) {
 			this.props.onChange(null);
 		}
@@ -1061,84 +1121,97 @@ class Camera extends React.Component {
 
 	getImageSizeProps({ width, height }) {
 		const imgProps = { width: '100%' };
+
 		if (width) {
 			imgProps.width = width < window.innerWidth
 				? width
 				: 0.9 * window.innerWidth;
 		}
+
 		if (height) {
 			imgProps.height = height;
 		}
+
 		return imgProps;
 	}
 
 	render() {
-		const imageStyle = { objectFit: 'scale-down', objectPosition: (this.props.data.center) ? 'center' : 'left' };
-		let baseClasses = 'SortableItem rfb-item';
-		const name = this.props.data.fieldName;
+		const imageStyle = { objectFit: 'scale-down', objectPosition: (this.props.item.center) ? 'center' : 'left' };
 		const fileInputStyle = this.state.img ? { display: 'none' } : null;
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		const props = {};
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder || 'Select an image from your computer or device.';
+		props.onChange = this.handleChange;
+		props.onClick = (event) => { event.target.value = null; };
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
+
+		let baseClasses = 'SortableItem rfb-item';
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
 		let sourceDataURL;
-		if (this.props.readOnly === true && this.props.defaultValue && this.props.defaultValue.length > 0) {
-			if (this.props.defaultValue.indexOf(name > -1)) {
-				sourceDataURL = this.props.defaultValue;
+		if (this.props.item.readOnly === true && this.props.value && this.props.value.length > 0) {
+			console.log(this.props.value)
+			if (this.props.value.indexOf(this.props.name > -1)) {
+				sourceDataURL = this.props.value;
 			} else {
-				sourceDataURL = `data:image/png;base64,${this.props.defaultValue}`;
+				sourceDataURL = `data:image/png;base64,${this.props.value}`;
 			}
 		}
-
-		if (this.props.value) { sourceDataURL = this.props.value; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...this.props} />
-					{this.props.readOnly === true &&
-						this.props.defaultValue &&
-						this.props.defaultValue.length > 0 ? (
+					{this.props.item.readOnly === true && this.props.value && this.props.value.length > 0 ? (
 						<div>
 							<ImageComponent
 								style={imageStyle}
 								src={sourceDataURL}
-								{...this.getImageSizeProps(this.props.data)}
+								{...this.getImageSizeProps(this.props.item)}
 							/>
 						</div>
 					) : (
 						<div className="image-upload-container">
 							<div style={fileInputStyle}>
-								<input
-									name={name}
+								<Form.Control
 									type="file"
 									accept="image/*"
 									capture="camera"
 									className="image-upload"
-									onChange={this.displayImage}
+									{...props}
 								/>
 								<div className="image-upload-control">
 									<Button variant="light">
 										<FaCamera /> Upload Photo
 									</Button>
-									<p>Select an image from your computer or device.</p>
+									<span>Select an image from your computer or device.</span>
 								</div>
 							</div>
 
-							{this.state.img && (
+							{this.props.value && (
 								<div>
-									<ImageComponent
-										onLoad={() => URL.revokeObjectURL(this.state.previewImg)}
-										src={this.state.previewImg}
-										height="100"
-										className="image-upload-preview"
-									/>
-									<br />
-									<Button variant="default" size="sm" className="btn-image-clear" onClick={this.clearImage}>
+									<div className="clearfix">
+										<ImageComponent
+											// onLoad={() => URL.revokeObjectURL(this.state.previewImg)}
+											src={URL.createObjectURL(this.props.value)}
+											height="100"
+											className="image-upload-preview"
+										/>
+									</div>
+									<Button variant="default" size="sm" onClick={this.clearImage}>
 										<FaTimes /> Clear Photo
 									</Button>
 								</div>
 							)}
 						</div>
 					)}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={this.props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -1148,31 +1221,22 @@ class Camera extends React.Component {
 class FileUpload extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = { fileUpload: null };
+		this.inputField = React.createRef();
+		this.state = { fileUpload: props.value };
 	}
 
-	displayFileUpload = (e) => {
-		const self = this;
-		const target = e.target;
-		let file;
-
-		if (target.files && target.files.length > 0) {
-			file = target.files[0];
-
-			self.setState({
-				fileUpload: file,
-			});
+	handleChange = (event) => {
+		if (event.target.files && event.target.files.length > 0) {
+			this.setState({ fileUpload: event.target.files[0] });
 
 			if (this.props.onChange) {
-				this.props.onChange(file);
+				this.props.onChange(event.target.files[0]);
 			}
 		}
 	};
 
 	clearFileUpload = () => {
-		this.setState({
-			fileUpload: null,
-		});
+		this.setState({ fileUpload: null });
 
 		if (this.props.onChange) {
 			this.props.onChange(null);
@@ -1181,7 +1245,7 @@ class FileUpload extends React.Component {
 
 	saveFile = async (e) => {
 		e.preventDefault();
-		const sourceUrl = this.props.defaultValue;
+		const sourceUrl = this.props.value;
 		const response = await fetch(sourceUrl, {
 			method: 'GET',
 			headers: {
@@ -1194,7 +1258,7 @@ class FileUpload extends React.Component {
 		const resBlob = await response.blob();
 		// eslint-disable-next-line no-undef
 		const blob = new Blob([resBlob], {
-			type: this.props.data.fileType || response.headers.get('Content-Type'),
+			type: this.props.item.fileType || response.headers.get('Content-Type'),
 		});
 		if (dispositionHeader && dispositionHeader.indexOf(';filename=') > -1) {
 			const fileName = dispositionHeader.split(';filename=')[1];
@@ -1206,21 +1270,27 @@ class FileUpload extends React.Component {
 	};
 
 	render() {
-		let baseClasses = 'SortableItem rfb-item';
-		const name = this.props.data.fieldName;
 		const fileInputStyle = this.state.fileUpload ? { display: 'none' } : null;
-		if (this.props.data.pageBreakBefore) {
-			baseClasses += ' alwaysbreak';
-		}
+
+		const props = {};
+		props.name = this.props.name;
+		props.placeholder = this.props.item.placeholder || 'Select a file from your computer or device.';
+		props.onChange = this.handleChange;
+		props.onClick = (event) => { event.target.value = null; };
+		props.isInvalid = this.props.isInvalid;
+		props.onBlur = this.props.onBlur;
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
+
+		let baseClasses = 'SortableItem rfb-item';
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...this.props} />
-					{this.props.readOnly === true &&
-						this.props.defaultValue &&
-						this.props.defaultValue.length > 0 ? (
+					{this.props.item.readOnly === true && this.props.value && this.props.value.length > 0 ? (
 						<div>
 							<Button variant="default" onClick={this.saveFile}>
 								<FaDownload /> Download File
@@ -1229,38 +1299,38 @@ class FileUpload extends React.Component {
 					) : (
 						<div className='image-upload-container'>
 							<div style={fileInputStyle}>
-								<input
-									name={name}
-									type='file'
-									accept={this.props.data.fileType || '*'}
-									className='image-upload'
-									onChange={this.displayFileUpload}
+								<Form.Control
+									type="file"
+									accept={this.props.item.fileType || '*'}
+									className="image-upload"
+									{...props}
 								/>
 								<div className='image-upload-control'>
 									<Button variant="light">
 										<FaFile /> Upload File
 									</Button>
-									<p>Select a file from your computer or device.</p>
+									<span>Select a file from your computer or device.</span>
 								</div>
 							</div>
 
 							{this.state.fileUpload && (
 								<div>
-									<div className='file-upload-preview'>
-										<div style={{ display: 'inline-block', marginRight: '5px' }}					>
-											{`Name: ${this.state.fileUpload.name}`}
-										</div>
-										<div style={{ display: 'inline-block', marginLeft: '5px' }}>
-											{this.state.fileUpload.size.length > 6
-												? `Size:  ${Math.ceil(
-													this.state.fileUpload.size / (1024 * 1024)
-												)} mb`
-												: `Size:  ${Math.ceil(
-													this.state.fileUpload.size / 1024
-												)} kb`}
+									<div className="clearfix">
+										<div className='file-upload-preview'>
+											<div style={{ display: 'inline-block', marginRight: '5px' }}					>
+												{`Name: ${this.state.fileUpload.name}`}
+											</div>
+											<div style={{ display: 'inline-block', marginLeft: '5px' }}>
+												{this.state.fileUpload.size.length > 6
+													? `Size:  ${Math.ceil(
+														this.state.fileUpload.size / (1024 * 1024)
+													)} mb`
+													: `Size:  ${Math.ceil(
+														this.state.fileUpload.size / 1024
+													)} kb`}
+											</div>
 										</div>
 									</div>
-									<br />
 									<Button variant="default" size="sm" className='btn-file-upload-clear' onClick={this.clearFileUpload}					>
 										<FaTimes /> Clear File
 									</Button>
@@ -1268,6 +1338,8 @@ class FileUpload extends React.Component {
 							)}
 						</div>
 					)}
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={this.props.name} />
 				</Form.Group>
 			</div>
 		);
@@ -1278,38 +1350,22 @@ class Range extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
-		this.state = {
-			value: props.defaultValue !== undefined ? parseInt(props.defaultValue, 10) : parseInt(props.data.defaultValue, 10),
-		};
-	}
-
-	changeValue = (e) => {
-		const { target } = e;
-		this.setState({
-			value: target.value,
-		});
-
-		if (this.props.onChange) {
-			this.props.onChange(target.value);
-		}
 	}
 
 	render() {
 		const props = {};
-		const name = this.props.data.fieldName;
+		const name = this.props.name;
+		props.name = this.props.name;
+		props.value = this.props.value;
+		props.onChange = (event) => { this.props.onChange(event.target.value); };
+		if (this.props.item.disabled) { props.disabled = true; }
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 
 		props.type = 'range';
 		props.list = `tickmarks_${name}`;
-		props.min = this.props.data.minValue;
-		props.max = this.props.data.maxValue;
-		props.step = this.props.data.step;
-
-		props.value = this.state.value;
-		props.onChange = this.changeValue;
-
-		if (this.props.mutable) {
-			props.ref = this.inputField;
-		}
+		props.min = this.props.item.minValue;
+		props.max = this.props.item.maxValue;
+		props.step = this.props.item.step;
 
 		const datalist = [];
 		for (let i = parseInt(props.min, 10); i <= parseInt(props.max, 10); i += parseInt(props.step, 10)) {
@@ -1320,42 +1376,50 @@ class Range extends React.Component {
 
 		const _datalist = datalist.map((d, idx) => <option key={`${props.list}_${idx}`}>{d}</option>);
 
-		const visible_marks = datalist.map((d, idx) => {
-			const option_props = {};
+		const visibleMarks = datalist.map((d, idx) => {
+			const optionProps = {};
 			let w = oneBig;
 			if (idx === 0 || idx === datalist.length - 1) { w = oneBig / 2; }
-			option_props.key = `${props.list}_label_${idx}`;
-			option_props.style = { width: `${w}%` };
-			if (idx === datalist.length - 1) { option_props.style = { width: `${w}%`, textAlign: 'right' }; }
-			return <label {...option_props}>{d}</label>;
+			optionProps.key = `${props.list}_label_${idx}`;
+			optionProps.style = { width: `${w}%` };
+			if (idx === datalist.length - 1) { optionProps.style = { width: `${w}%`, textAlign: 'right' }; }
+			return <label {...optionProps}>{d}</label>;
 		});
 
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
-
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={name} />
+						<div>{this.props.value}</div>
+					</Form.Group>
+				</div>
+			);
+		}
 
 		return (
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} />
+					<ComponentLabel {...this.props} htmlFor={name} />
 					<div className="range">
 						<div className="clearfix">
-							<span className="float-start">{this.props.data.minLabel}</span>
-							<span className="float-end">{this.props.data.maxLabel}</span>
+							<span className="float-start">{this.props.item.minLabel}</span>
+							<span className="float-end">{this.props.item.maxLabel}</span>
 						</div>
 						<RangeSlider {...props} />
 					</div>
 					<div className="visible_marks">
-						{visible_marks}
+						{visibleMarks}
 					</div>
-					<input name={name} value={this.state.value} type="hidden" />
 					<datalist id={props.list}>
 						{_datalist}
 					</datalist>
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);

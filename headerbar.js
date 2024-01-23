@@ -1,9 +1,9 @@
 import React from 'react';
 import { ReactSurveyFieldGenerator, ReactSurveyGenerator } from './src/index';
 import { Button, Container, Modal, Navbar } from 'react-bootstrap';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 
-const HeaderBar = ({ variables, data, ...props }) => {
+const HeaderBar = ({ variables, data }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -76,25 +76,24 @@ const HeaderBar = ({ variables, data, ...props }) => {
 				centered
 			>
 				<Modal.Body className="p-2">
-					<FormProvider  {...methods}>
-						<ReactSurveyFieldGenerator
-							downloadPath=""
-							backAction={closePreview}
-							backName="Cancel"
-							answers={answers}
-							actionName="Save"
-							formAction="/api/form"
-							formMethod="POST"
-							// skipValidations={true}
-							onSubmit={_onSubmit}
-							onChange={_onChange}
-							variables={variables}
-							data={data}
-							locale='en'
-							buttonClassName="d-grid gap-2"
-							formId="test-form"
-						/>
-					</FormProvider>
+					<ReactSurveyFieldGenerator
+						downloadPath=""
+						backAction={closePreview}
+						backName="Cancel"
+						answers={answers}
+						actionName="Save"
+						formAction="/api/form"
+						formMethod="POST"
+						// skipValidations={true}
+						onSubmit={_onSubmit}
+						onChange={_onChange}
+						variables={variables}
+						items={data}
+						locale='en'
+						buttonClassName="d-grid gap-2"
+						formId="test-form"
+						methods={methods}
+					/>
 				</Modal.Body>
 				<Modal.Footer className="p-0">
 					<Button variant="secondary" data-dismiss="modal" onClick={closePreview}>Close</Button>
@@ -116,14 +115,13 @@ const HeaderBar = ({ variables, data, ...props }) => {
 						downloadPath=""
 						backAction={closePreview}
 						backName="Cancel"
-						answerData={answers}
+						answers={answers}
 						actionName="Save"
 						formAction="/api/form"
 						formMethod="POST"
 						// skipValidations={true}
 						onSubmit={_onSubmit}
-						variables={variables}
-						data={data}
+						items={data}
 						locale='en'
 						buttonClassName="d-grid gap-2"
 					/>
@@ -148,15 +146,16 @@ const HeaderBar = ({ variables, data, ...props }) => {
 						downloadPath=""
 						backAction={closePreview}
 						backName="Back"
-						answerData={answers}
+						answers={answers}
 						actionName="Save"
 						formAction="/"
 						formMethod="POST"
 						readOnly={true}
 						variables={variables}
 						hideActions={true}
-						data={data}
+						items={data}
 						locale='en'
+						print={true}
 					/>
 				</Modal.Body>
 				<Modal.Footer className="p-0">
@@ -178,10 +177,10 @@ const HeaderBar = ({ variables, data, ...props }) => {
 					<ReactSurveyGenerator
 						downloadPath=""
 						backAction={closePreview}
-						answerData={answers}
+						answers={answers}
 						formAction="/"
 						formMethod="POST"
-						data={data}
+						items={data}
 						displayShort={true}
 						variables={variables}
 						hideActions={false}

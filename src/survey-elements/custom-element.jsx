@@ -2,6 +2,7 @@ import React from 'react';
 import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
 import { Form } from 'react-bootstrap';
+import ComponentErrorMessage from './component-error-message';
 
 class CustomElement extends React.Component {
 	constructor(props) {
@@ -10,36 +11,34 @@ class CustomElement extends React.Component {
 	}
 
 	render() {
-		const { bare } = this.props.data;
+		const { bare } = this.props.item;
 		const props = {};
-		props.name = this.props.data.fieldName;
+		props.name = this.props.item.fieldName;
 		props.defaultValue = this.props.defaultValue;
 
-		if (this.props.mutable && this.props.data.forwardRef) {
-			props.ref = this.inputField;
-		}
-
-		if (this.props.readOnly) {
-			props.disabled = 'disabled';
-		}
+		if (this.props.item.forwardRef) { props.ref = this.inputField; }
+		if (this.props.item.disabled) { props.disabled = 'disabled'; }
 
 		// Return if component is invalid.
-		if (!this.props.data.component) return null;
-		const Element = this.props.data.component;
+		if (!this.props.item.component) return null;
+		const Element = this.props.item.component;
 
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.data.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
 			<div className={baseClasses} style={{ ...this.props.style }}>
 				<ComponentHeader {...this.props} />
-				{bare ?
-					<Element data={this.props.data} {...this.props.data.props} {...props} /> :
-					<Form.Group>
-						<ComponentLabel className="form-label" {...this.props} />
-						<Element data={this.props.data} {...this.props.data.props} {...props} />
-					</Form.Group>
-				}
+				{bare ? (
+					<Element id={props.name} item={this.props.item} {...this.props.item.props} {...props} />
+					) : (
+						<Form.Group className="form-group mb-3">
+							<ComponentLabel className="form-label" {...this.props} htmlFor={props.name} />
+							<Element id={props.name} item={this.props.item} {...this.props.item.props} {...props} />
+							{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+							<ComponentErrorMessage name={props.name} />
+						</Form.Group>
+					)}
 			</div>
 		);
 	}

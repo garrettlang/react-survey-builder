@@ -99,6 +99,7 @@ const TestComponent = () => <h2>Hello</h2>;
 
 const App = () => {
 	const [data, setData] = React.useState([]);
+	
 	return (
 		<>
 			<SurveyBuilder.ReactSurveyBuilder

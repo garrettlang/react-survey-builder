@@ -13,7 +13,7 @@ const { PlaceHolder } = SortableFormElements;
 
 export default class Preview extends React.Component {
 	state = {
-		data: [],
+		items: [],
 		answerData: {},
 	};
 
@@ -25,7 +25,7 @@ export default class Preview extends React.Component {
 
 		this.editForm = React.createRef();
 		this.state = {
-			data: props.data || [],
+			items: props.items || [],
 			answerData: {},
 		};
 		this.seq = 0;
@@ -40,9 +40,9 @@ export default class Preview extends React.Component {
 	}
 
 	componentDidMount() {
-		const { data, url, saveUrl, saveAlways } = this.props;
-		store.subscribe(state => this._onUpdate(state.data));
-		store.dispatch('load', { loadUrl: url, saveUrl, data: data || [], saveAlways });
+		const { items, url, saveUrl, saveAlways } = this.props;
+		store.subscribe(state => this._onUpdate(state.items));
+		store.dispatch('load', { loadUrl: url, saveUrl, items: items || [], saveAlways });
 		document.addEventListener('mousedown', this.editModeOff);
 	}
 
@@ -70,12 +70,12 @@ export default class Preview extends React.Component {
 	}
 
 	updateElement(element) {
-		const { data } = this.state;
+		const { items } = this.state;
 		let found = false;
 
-		for (let i = 0, len = data.length; i < len; i++) {
-			if (element.id === data[i].id) {
-				data[i] = element;
+		for (let i = 0, len = items.length; i < len; i++) {
+			if (element.id === items[i].id) {
+				items[i] = element;
 				found = true;
 				break;
 			}
@@ -83,21 +83,21 @@ export default class Preview extends React.Component {
 
 		if (found) {
 			this.seq = this.seq > 100000 ? 0 : this.seq + 1;
-			store.dispatch('updateOrder', data);
+			store.dispatch('updateOrder', items);
 		}
 	}
 
-	_onChange(data) {
+	_onChange($dataItems) {
 		const answerData = {};
 
-		data.forEach((item) => {
+		$dataItems.forEach((item) => {
 			if (item && item.readOnly && this.props.variables[item.variableKey]) {
 				answerData[item.fieldName] = this.props.variables[item.variableKey];
 			}
 		});
 
 		this.setState({
-			data,
+			items: $dataItems,
 			answerData,
 		});
 	}
@@ -115,11 +115,11 @@ export default class Preview extends React.Component {
 	}
 
 	getDataById(id) {
-		const { data } = this.state;
-		return data.find(x => x && x.id === id);
+		const { items } = this.state;
+		return items.find(x => x && x.id === id);
 	}
 
-	swapChildren(data, item, child, col) {
+	swapChildren($dataItems, item, child, col) {
 		if (child.col !== undefined && item.id !== child.parentId) {
 			return false;
 		}
@@ -134,13 +134,13 @@ export default class Preview extends React.Component {
 		item.childItems[oldCol] = oldId; oldItem.col = oldCol;
 		// eslint-disable-next-line no-param-reassign
 		item.childItems[col] = child.id; child.col = col;
-		store.dispatch('updateOrder', data);
+		store.dispatch('updateOrder', $dataItems);
 		return true;
 	}
 
 	setAsChild(item, child, col, isBusy) {
-		const { data } = this.state;
-		if (this.swapChildren(data, item, child, col)) {
+		const { items } = this.state;
+		if (this.swapChildren(items, item, child, col)) {
 			return;
 		} if (isBusy) {
 			return;
@@ -152,16 +152,16 @@ export default class Preview extends React.Component {
 		// eslint-disable-next-line no-param-reassign
 		child.parentId = item.id;
 		// eslint-disable-next-line no-param-reassign
-		child.parentIndex = data.indexOf(item);
+		child.parentIndex = items.indexOf(item);
 		if (oldParent) {
 			oldParent.childItems[oldCol] = null;
 		}
-		const list = data.filter(x => x && x.parentId === item.id);
+		const list = items.filter(x => x && x.parentId === item.id);
 		const toRemove = list.filter(x => item.childItems.indexOf(x.id) === -1);
-		let newData = data;
+		let newData = items;
 		if (toRemove.length) {
 			// console.log('toRemove', toRemove);
-			newData = data.filter(x => toRemove.indexOf(x) === -1);
+			newData = items.filter(x => toRemove.indexOf(x) === -1);
 		}
 		if (!this.getDataById(child.id)) {
 			newData.push(child);
@@ -170,27 +170,27 @@ export default class Preview extends React.Component {
 	}
 
 	removeChild(item, col) {
-		const { data } = this.state;
+		const { items } = this.state;
 		const oldId = item.childItems[col];
 		const oldItem = this.getDataById(oldId);
 		if (oldItem) {
-			const newData = data.filter(x => x !== oldItem);
+			const newData = items.filter(x => x !== oldItem);
 			// eslint-disable-next-line no-param-reassign
 			item.childItems[col] = null;
 			// delete oldItem.parentId;
 			this.seq = this.seq > 100000 ? 0 : this.seq + 1;
 			store.dispatch('updateOrder', newData);
-			this.setState({ data: newData });
+			this.setState({ items: newData });
 		}
 	}
 
 	restoreCard(item, id) {
-		const { data } = this.state;
-		const parent = this.getDataById(item.data.parentId);
+		const { items } = this.state;
+		const parent = this.getDataById(item.item.parentId);
 		const oldItem = this.getDataById(id);
 		if (parent && oldItem) {
-			const newIndex = data.indexOf(oldItem);
-			const newData = [...data]; // data.filter(x => x !== oldItem);
+			const newIndex = items.indexOf(oldItem);
+			const newData = [...items]; // items.filter(x => x !== oldItem);
 			// eslint-disable-next-line no-param-reassign
 			parent.childItems[oldItem.col] = null;
 			delete oldItem.parentId;
@@ -202,24 +202,24 @@ export default class Preview extends React.Component {
 			item.index = newIndex;
 			this.seq = this.seq > 100000 ? 0 : this.seq + 1;
 			store.dispatch('updateOrder', newData);
-			this.setState({ data: newData });
+			this.setState({ items: newData });
 		}
 	}
 
 	insertCard(item, hoverIndex, id) {
-		const { data } = this.state;
+		const { items } = this.state;
 		if (id) {
 			this.restoreCard(item, id);
 		} else {
-			data.splice(hoverIndex, 0, item);
+			items.splice(hoverIndex, 0, item);
 			this.saveData(item, hoverIndex, hoverIndex);
 			store.dispatch('insertItem', item);
 		}
 	}
 
 	moveCard(dragIndex, hoverIndex) {
-		const { data } = this.state;
-		const dragCard = data[dragIndex];
+		const { items } = this.state;
+		const dragCard = items[dragIndex];
 		this.saveData(dragCard, dragIndex, hoverIndex);
 	}
 
@@ -230,12 +230,12 @@ export default class Preview extends React.Component {
 
 	saveData(dragCard, dragIndex, hoverIndex) {
 		const newData = update(this.state, {
-			data: {
+			items: {
 				$splice: [[dragIndex, 1], [hoverIndex, 0, dragCard]],
 			},
 		});
 		this.setState(newData);
-		store.dispatch('updateOrder', newData.data);
+		store.dispatch('updateOrder', newData.items);
 	}
 
 	getElement(item, index) {
@@ -250,7 +250,7 @@ export default class Preview extends React.Component {
 		if (SortableFormElement === null) {
 			return null;
 		}
-		return <SortableFormElement id={item.id} seq={this.seq} index={index} moveCard={this.moveCard} insertCard={this.insertCard} mutable={false} parent={this.props.parent} editModeOn={this.props.editModeOn} isDraggable={true} key={item.id} sortData={item.id} data={item} getDataById={this.getDataById} setAsChild={this.setAsChild} removeChild={this.removeChild} _onDestroy={this._onDestroy} />;
+		return <SortableFormElement id={item.id} name={item.fieldName} seq={this.seq} index={index} moveCard={this.moveCard} insertCard={this.insertCard} mutable={false} parent={this.props.parent} editModeOn={this.props.editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={item} getDataById={this.getDataById} setAsChild={this.setAsChild} removeChild={this.removeChild} _onDestroy={this._onDestroy} />;
 	}
 
 	showEditForm() {
@@ -272,8 +272,9 @@ export default class Preview extends React.Component {
 	render() {
 		let classes = this.props.className;
 		if (this.props.editMode) { classes += ' is-editing'; }
-		const data = this.state.data.filter(x => !!x && !x.parentId);
-		const items = data.map((item, index) => this.getElement(item, index));
+		const $dataItems = this.state.items.filter(x => !!x && !x.parentId);
+		const items = $dataItems.map((item, index) => this.getElement(item, index));
+
 		return (
 			<div className={classes}>
 				<div className="edit-form" ref={this.editForm}>

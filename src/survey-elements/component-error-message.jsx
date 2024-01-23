@@ -24,7 +24,8 @@ export const getError = (errors, name) => {
 
 const ComponentErrorMessage = ({ name }) => {
     const methods = useFormContext();
-
+    if (!methods) return null;
+    
     if (getError(methods.formState.errors, name) !== undefined) {
         return (
             <ErrorMessage

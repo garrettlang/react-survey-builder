@@ -32,11 +32,11 @@ const cardTarget = {
 		const hoverIndex = props.index;
 		const dragIndex = item.index;
 
-		if ((props.data && props.data.isContainer) || item.itemType === ItemTypes.CARD) {
+		if ((props.item && props.item.isContainer) || item.itemType === ItemTypes.CARD) {
 			// console.log('cardTarget -  Drop', item.itemType);
 			return;
 		}
-		if (item.data && typeof item.setAsChild === 'function') {
+		if (item.item && typeof item.setAsChild === 'function') {
 			// console.log('BOX', item);
 			if (dragIndex === -1) {
 				props.insertCard(item, hoverIndex, item.id);
@@ -49,7 +49,7 @@ const cardTarget = {
 		if (item.itemType === ItemTypes.BOX && item.index === -1) return;
 
 		// Don't replace multi-column component unless both drag & hover are multi-column
-		if (props.data?.isContainer && !item.data?.isContainer) return;
+		if (props.item?.isContainer && !item.item?.isContainer) return;
 
 		const dragIndex = item.index;
 		const hoverIndex = props.index;
@@ -60,12 +60,12 @@ const cardTarget = {
 		}
 
 		if (dragIndex === -1) {
-			if (props.data && props.data.isContainer) {
+			if (props.item && props.item.isContainer) {
 				return;
 			}
 			// console.log('CARD', item);
 			item.index = hoverIndex;
-			props.insertCard(item.onCreate(item.data), hoverIndex);
+			props.insertCard(item.onCreate(item.item), hoverIndex);
 		}
 
 		// Determine rectangle on screen

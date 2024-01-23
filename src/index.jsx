@@ -26,13 +26,13 @@ class ReactSurveyBuilder extends React.Component {
 		this.editModeOn = this.editModeOn.bind(this);
 	}
 
-	editModeOn(data, e) {
+	editModeOn($dataItem, e) {
 		e.preventDefault();
 		e.stopPropagation();
 		if (this.state.editMode) {
 			this.setState({ editMode: !this.state.editMode, editElement: null });
 		} else {
-			this.setState({ editMode: !this.state.editMode, editElement: data });
+			this.setState({ editMode: !this.state.editMode, editElement: $dataItem });
 		}
 	}
 
@@ -68,7 +68,7 @@ class ReactSurveyBuilder extends React.Component {
 										manualEditModeOff={this.manualEditModeOff.bind(this)}
 										showCorrectColumn={this.props.showCorrectColumn}
 										parent={this}
-										data={this.props.data}
+										items={this.props.items}
 										url={this.props.url}
 										saveUrl={this.props.saveUrl}
 										onLoad={this.props.onLoad}

@@ -6,7 +6,6 @@ const boxStyles = {
 	cursor: 'move',
 };
 
-
 const styles = {
 	display: 'inline-block',
 	transform: 'rotate(-7deg)',
@@ -15,13 +14,16 @@ const styles = {
 
 const Box = ({ title, color }) => {
 	const backgroundColor = color ? '#059862' : 'white';
-	return <div style={{ ...boxStyles, backgroundColor }}>{title}</div>;
+	
+	return (
+		<div style={{ ...boxStyles, backgroundColor }}>{title}</div>
+	);
 };
 
 export const BoxDragPreview = ({ item }) => {
 	const [tickTock, setTickTock] = React.useState(false);
 
-	const text = item.data.content ? item.data.content : (item.data.label ? item.data.label : item.data.text)
+	const text = item.item.content ? item.item.content : (item.item.label ? item.item.label : item.item.text)
 	const isLongText = text.length > 20;
 	const previewText = isLongText ? `${text.slice(0, 20)}...` : text
 
@@ -32,7 +34,9 @@ export const BoxDragPreview = ({ item }) => {
 	//     return () => clearInterval(interval);
 	// }, [tickTock]);
 
-	return (<div style={styles} role="BoxPreview">
-		<Box title={previewText} color={tickTock} />
-	</div>);
+	return (
+		<div style={styles} role="BoxPreview">
+			<Box title={previewText} color={tickTock} />
+		</div>
+	);
 };

@@ -13,7 +13,7 @@ export default class DynamicOptionList extends React.Component {
 		super(props);
 		this.state = {
 			element: this.props.element,
-			data: this.props.data,
+			item: this.props.item,
 			dirty: false,
 		};
 	}

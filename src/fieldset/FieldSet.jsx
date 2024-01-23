@@ -14,21 +14,21 @@ export default function FieldSetBase(props) {
 	const [childItems, setChildItems] = React.useState(null);
 
 	React.useEffect(() => {
-		const { data, className, ...rest } = props;
-		setChildData(data);
+		const { item, className, ...rest } = props;
+		setChildData(item);
 		let count = 1;
-		createChild(count, data);
+		createChild(count, item);
 
 	}, [props]);
 
 
 	const addNewChild = () => {
-		let data = props.data;
-		let colCount = data.childItems.length + 1;
-		let oldChilds = data.childItems;
-		data.childItems = Array.from({ length: colCount }, (v, i) => { return oldChilds[i] ? oldChilds[i] : null });
+		let $dataItem = props.item;
+		let colCount = $dataItem.childItems.length + 1;
+		let oldChilds = $dataItem.childItems;
+		$dataItem.childItems = Array.from({ length: colCount }, (v, i) => { return oldChilds[i] ? oldChilds[i] : null });
 
-		setChildItems(data.childItems)
+		setChildItems($dataItem.childItems)
 	}
 
 	const onDropSuccess = (droppedIndex) => {
@@ -40,17 +40,16 @@ export default function FieldSetBase(props) {
 		}
 	}
 
-	const createChild = (count, data) => {
+	const createChild = (count, $dataItem) => {
 		const colCount = count;
-		const className = data.className || "col-md-12";
-		if (!data.childItems) {
+		if (!$dataItem.childItems) {
 			// eslint-disable-next-line no-param-reassign
-			data.childItems = Array.from({ length: colCount }, (v, i) => null);
-			data.isContainer = true;
+			$dataItem.childItems = Array.from({ length: colCount }, (v, i) => null);
+			$dataItem.isContainer = true;
 		}
-		setChildItems(data.childItems);
+		setChildItems($dataItem.childItems);
 	};
-	const { controls, editModeOn, getDataById, setAsChild, removeChild, seq, className, index } = props;
+	const { controls, editModeOn, getDataById, setAsChild, removeChild, seq, index } = props;
 	const { pageBreakBefore } = childData;
 	let baseClasses = "SortableItem rfb-item";
 	if (pageBreakBefore) {
@@ -71,7 +70,7 @@ export default function FieldSetBase(props) {
 								) : (
 									<FieldsetDustbin
 										style={{ width: "100%" }}
-										data={childData}
+										item={childData}
 										accepts={accepts}
 										items={childItems}
 										key={i}

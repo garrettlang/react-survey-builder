@@ -11,64 +11,71 @@ import { FieldSet } from './fieldset';
 import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
 import { Button, Form } from 'react-bootstrap';
-import { Controller, useFormContext } from "react-hook-form";
-import ComponentErrorMessage from "./survey-elements/component-error-message";
+import { Controller, FormProvider } from "react-hook-form";
 import { isEmpty } from 'lodash';
 import moment from 'moment-timezone';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 
 const { Image, Checkboxes, Signature, Download, Camera, FileUpload } = SurveyElements;
 
-const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations = false, displayShort = false, hideRequiredAlert = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, data, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, formId }) => {
-	const methods = useFormContext();
+const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations = false, displayShort = false, hideRequiredAlert = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, items, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, formId, methods, print = false }) => {
+	if (!methods) return null;
 
 	//#region helper functions
 
-	const _convert = (answers) => {
-		if (Array.isArray(answers)) {
+	const _convert = ($dataAnswers) => {
+		if (Array.isArray($dataAnswers)) {
 			const result = {};
-			answers.forEach(x => {
-				if (x.name.indexOf('tags_') > -1) {
-					if (Array.isArray(x.value)) {
-						result[x.name] = x.value.map(y => y.value).join(',');
-					} else {
-						result[x.name] = x.value;
-					}
-				} else {
-					result[x.name] = x.value;
-				}
+			$dataAnswers.forEach((answer) => {
+				result[answer.name] = answer.value;
 			});
 
 			return result;
 		}
 
-		return answers || {};
+		return $dataAnswers || {};
 	};
 
 	const form = React.useRef();
 	const inputs = React.useRef({});
 	const answerData = React.useRef(_convert(answers));
 
-	const _getDefaultValue = (item) => {
-		let defaultValue = answerData.current[item.fieldName];
-		if (item.element === 'DatePicker') {
-			const defaultToday = item.defaultToday ?? false;
-			const formatMask = item.formatMask || 'MM/DD/YYYY';
+	const _getDefaultValue = ($dataItem) => {
+		let defaultValue = answerData.current[$dataItem.fieldName];
+		if ($dataItem.element === 'DatePicker') {
+			const defaultToday = $dataItem.defaultToday ?? false;
+			const formatMask = $dataItem.formatMask || 'MM/DD/YYYY';
 			if (defaultToday && (defaultValue === '' || defaultValue === undefined)) {
 				defaultValue = moment().format(formatMask);
+			}
+		}
+
+		if ($dataItem.element === 'Checkbox') {
+			const defaultChecked = $dataItem.defaultChecked ?? false;
+			if (defaultChecked === true) {
+				defaultValue = true;
+			}
+		}
+
+		if (defaultValue === undefined) {
+			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'Tags') {
+				defaultValue = [];
+			} else {
+				defaultValue = '';
 			}
 		}
 
 		return defaultValue;
 	};
 
-	const _optionsDefaultValue = (item) => {
-		const defaultValue = _getDefaultValue(item);
+	const _optionsDefaultValue = ($dataItem) => {
+		const defaultValue = _getDefaultValue($dataItem);
 		if (defaultValue) {
 			return defaultValue;
 		}
 
 		const defaultChecked = [];
-		item.options.forEach(option => {
+		$dataItem.options.forEach(option => {
 			if (answerData.current[`option_${option.key}`]) {
 				defaultChecked.push(option.key);
 			}
@@ -77,21 +84,23 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		return defaultChecked;
 	};
 
-	const _getItemValue = (item, ref) => {
+	const _getItemValue = ($dataItem, ref) => {
 		let $item = {
-			element: item.element,
+			element: $dataItem.element,
 			value: '',
 		};
-		if (item.element === 'Rating') {
+		if ($dataItem.element === 'Rating') {
 			$item.value = ref.inputField.current.state.rating;
-		} else if (item.element === 'Tags') {
-			$item.value = ref.state.value;
+		} else if ($dataItem.element === 'Tags') {
+			$item.value = ref.props.value;
 			// } else if (item.element === 'DatePicker') {
 			// 	$item.value = ref.state.value;
-		} else if (item.element === 'Camera') {
+		} else if ($dataItem.element === 'Camera') {
 			$item.value = ref.state.img;
-		} else if (item.element === 'FileUpload') {
+		} else if ($dataItem.element === 'FileUpload') {
 			$item.value = ref.state.fileUpload;
+		} else if ($dataItem.element === 'Signature') {
+			$item.value = ref.state.value;
 		} else if (ref && ref.inputField && ref.inputField.current) {
 			$item = ReactDOM.findDOMNode(ref.inputField.current);
 			if ($item && typeof $item.value === 'string') {
@@ -102,24 +111,24 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		return $item;
 	};
 
-	const _isIncorrect = (item) => {
+	const _isIncorrect = ($dataItem) => {
 		let incorrect = false;
-		if (item.canHaveAnswer) {
-			const ref = inputs.current[item.fieldName];
-			if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
-				item.options.forEach((option) => {
+		if ($dataItem.canHaveAnswer) {
+			const ref = inputs.current[$dataItem.fieldName];
+			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'RadioButtons') {
+				$dataItem.options.forEach((option) => {
 					const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 					if ((option.hasOwnProperty('correct') && !$option.checked) || (!option.hasOwnProperty('correct') && $option.checked)) {
 						incorrect = true;
 					}
 				});
 			} else {
-				const $item = _getItemValue(item, ref);
-				if (item.element === 'Rating') {
-					if ($item.value.toString() !== item.correct) {
+				const $item = _getItemValue($dataItem, ref);
+				if ($dataItem.element === 'Rating') {
+					if ($item.value.toString() !== $dataItem.correct) {
 						incorrect = true;
 					}
-				} else if ($item.value.toLowerCase() !== item.correct.trim().toLowerCase()) {
+				} else if ($item.value.toLowerCase() !== $dataItem.correct.trim().toLowerCase()) {
 					incorrect = true;
 				}
 			}
@@ -128,13 +137,13 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		return incorrect;
 	};
 
-	const _isInvalid = (item) => {
+	const _isInvalid = ($dataItem) => {
 		let invalid = false;
-		if (item.required === true) {
-			const ref = inputs.current[item.fieldName];
-			if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
+		if ($dataItem.required === true) {
+			const ref = inputs.current[$dataItem.fieldName];
+			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'RadioButtons') {
 				let checked_options = 0;
-				item.options.forEach((option) => {
+				$dataItem.options.forEach((option) => {
 					const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 					if ($option.checked) {
 						checked_options += 1;
@@ -145,8 +154,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 					invalid = true;
 				}
 			} else {
-				const $item = _getItemValue(item, ref);
-				if (item.element === 'Rating') {
+				const $item = _getItemValue($dataItem, ref);
+				if ($dataItem.element === 'Rating') {
 					if ($item.value === 0) {
 						invalid = true;
 					}
@@ -159,21 +168,20 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		return invalid;
 	};
 
-	const _collect = (item) => {
+	const _collect = ($dataItem) => {
 		const itemData = {
-			id: item.id,
-			name: item.fieldName,
-			customName: item.customName || item.fieldName,
-			help: item.help,
-			label: item.label !== null && item.label !== undefined && item.label !== '' ? item.label.trim() : ''
+			id: $dataItem.id,
+			name: $dataItem.fieldName,
+			customName: $dataItem.customName || $dataItem.fieldName,
+			label: $dataItem.label !== null && $dataItem.label !== undefined && $dataItem.label !== '' ? $dataItem.label.trim() : ''
 		};
 
 		if (!itemData.name) return null;
 
-		const ref = inputs.current[item.fieldName];
-		if (item.element === 'Checkboxes') {
+		const ref = inputs.current[$dataItem.fieldName];
+		if ($dataItem.element === 'Checkboxes') {
 			const checkedOptions = [];
-			item.options.forEach((option) => {
+			$dataItem.options.forEach((option) => {
 				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 				if ($option.checked) {
 					checkedOptions.push(option.value);
@@ -181,14 +189,14 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 			});
 
 			itemData.value = checkedOptions;
-		} else if (item.element === 'RadioButtons') {
-			item.options.forEach((option) => {
+		} else if ($dataItem.element === 'RadioButtons') {
+			$dataItem.options.forEach((option) => {
 				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 				if ($option.checked) {
 					itemData.value = option.value;
 				}
 			});
-		} else if (item.element === 'Checkbox') {
+		} else if ($dataItem.element === 'Checkbox') {
 			if (!ref || !ref.inputField || !ref.inputField.current) {
 				itemData.value = false;
 			} else {
@@ -197,17 +205,17 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		} else {
 			if (!ref) return null;
 
-			itemData.value = _getItemValue(item, ref).value;
+			itemData.value = _getItemValue($dataItem, ref).value;
 		}
 
-		itemData.required = item.required || false;
+		itemData.required = $dataItem.required || false;
 
 		return itemData;
 	};
 
-	const _collectFormData = ($data) => {
+	const _collectFormData = ($dataItems) => {
 		const formData = [];
-		$data.forEach((item) => {
+		$dataItems.forEach((item) => {
 			const itemData = _collect(item);
 			if (itemData) {
 				formData.push(itemData);
@@ -217,21 +225,21 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		return formData;
 	};
 
-	const _getSignatureImg = (item) => {
-		const ref = inputs.current[item.fieldName];
-		const $canvas_sig = ref.canvas.current;
-		if ($canvas_sig) {
-			const base64 = $canvas_sig.toDataURL().replace('data:image/png;base64,', '');
-			const isEmpty = $canvas_sig.isEmpty();
-			const $input_sig = ReactDOM.findDOMNode(ref.inputField.current);
-			if (isEmpty) {
-				$input_sig.value = '';
-				methods.setValue(item.fieldName, '');
-			} else {
-				$input_sig.value = base64;
-				methods.setValue(item.fieldName, base64);
-			}
-		}
+	const _getSignatureImg = ($dataItem) => {
+		// const ref = inputs.current[$dataItem.fieldName];
+		// const $canvas_sig = ref.canvas.current;
+		// if ($canvas_sig) {
+		// 	const base64 = $canvas_sig.toDataURL().replace('data:image/png;base64,', '');
+		// 	const isEmpty = $canvas_sig.isEmpty();
+		// 	const $input_sig = ReactDOM.findDOMNode(ref.inputField.current);
+		// 	if (isEmpty) {
+		// 		$input_sig.value = '';
+		// 		methods.setValue($dataItem.fieldName, '');
+		// 	} else {
+		// 		$input_sig.value = base64;
+		// 		methods.setValue($dataItem.fieldName, base64);
+		// 	}
+		// }
 	};
 
 	//#endregion
@@ -252,7 +260,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		// Only submit if there are no errors.
 		if (errors.length < 1) {
 			if (onSubmit) {
-				const $data = _collectFormData(data);
+				const $data = _collectFormData(items);
 				onSubmit($data);
 			} else {
 				const $form = ReactDOM.findDOMNode(form.current);
@@ -265,17 +273,17 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		// console.log('handleChange');
 		// Call submit function on change
 		if (onChange) {
-			const $data = _collectFormData(data);
+			const $data = _collectFormData(items);
 			onChange($data);
 		}
 	}
 
 	const validateForm = () => {
 		const errors = [];
-		let dataItems = data;
+		let dataItems = items;
 
 		if (displayShort) {
-			dataItems = data.filter((i) => i.alternateForm === true);
+			dataItems = items.filter((i) => i.alternateForm === true);
 		}
 
 		dataItems.forEach((item) => {
@@ -323,10 +331,30 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	);
 
-	const validatePhone = (phone) => phone.match(
-		// eslint-disable-next-line no-useless-escape
-		/^[+]?(1\-|1\s|1|\d{3}\-|\d{3}\s|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/g
-	);
+	const toE164PhoneNumber = (phoneNumberValue) => {
+		if (phoneNumberValue !== undefined && phoneNumberValue !== null) {
+			//Filter only numbers from the input
+			let cleaned = ('' + phoneNumberValue).replace(/\D/g, '');
+
+			//Check if the input is of correct
+			let match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
+
+			if (match) {
+				//Remove the matched extension code
+				//Change this to format for any country code.
+				let intlCode = (match[1] ? '+1' : '+1')
+				return [intlCode, match[2], match[3], match[4]].join('');
+			}
+
+			return '';
+		} else {
+			return '';
+		}
+	};
+
+	const validatePhone = (phone) => {
+		return isValidPhoneNumber(toE164PhoneNumber(phone), 'US');
+	};
 
 	const validateDate = (dateString) => {
 		if (dateString !== undefined && dateString !== null && dateString !== "") {
@@ -381,11 +409,26 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		return true;
 	};
 
-	const getDataById = (id) => {
-		return data.find(x => x.id === id);
+	const getDataItemById = (id) => {
+		let $dataItem = items.find(x => x.id === id);
+		if ($dataItem !== undefined) {
+			return {
+				...$dataItem,
+				fieldRules: getFieldRules($dataItem),
+				print: print ?? false,
+				hideRequiredAlert: hideRequiredAlert || $dataItem.hideRequiredAlert,
+				readOnly: readOnly || $dataItem.readOnly,
+				disabled: $dataItem.readOnly,
+				mutable: true
+			};
+		}
+
+		return null;
 	};
 
 	const getInputElement = (item) => {
+		if (!item) return null;
+
 		if (item.custom) {
 			return getCustomElement(item);
 		}
@@ -393,49 +436,56 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		const Input = SurveyElements[item.element];
 
 		return (
-			<React.Fragment key={`form_fragment_${item.id}`}>
-				<Controller
-					key={`form_${item.id}`}
-					control={methods.control}
-					name={item.fieldName}
-					rules={item.fieldRules}
-					defaultValue={_getDefaultValue(item)}
-					disabled={readOnly || item.readOnly}
-					required={item.required}
-					render={({
-						field: { onChange, onBlur, value, name, ref },
-						fieldState: { invalid, isTouched, isDirty, error },
-						formState,
-					}) => (
-						<Input
-							onBlur={onBlur}
-							onChange={onChange}
-							value={value}
-							name={name}
-							ref={c => inputs.current[item.fieldName] = c}
-							isInvalid={invalid}
-							handleChange={handleChange}
-							mutable={true}
-							data={item}
-							readOnly={readOnly || item.readOnly}
-							hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert}
-						/>
-					)}
-				/>
-
-				<ComponentErrorMessage name={item.fieldName} />
-			</React.Fragment>
+			<Controller
+				key={`form_${item.id}`}
+				control={methods.control}
+				name={item.fieldName}
+				rules={item.fieldRules}
+				defaultValue={_getDefaultValue(item)}
+				disabled={item.disabled}
+				required={item.required}
+				render={({
+					field: { onChange, onBlur, value, name, ref },
+					fieldState: { invalid, isTouched, isDirty, error },
+					formState,
+				}) => (
+					<Input
+						onBlur={onBlur}
+						onChange={(e) => { onChange(e); handleChange(e); }}
+						value={value}
+						name={name}
+						ref={c => inputs.current[item.fieldName] = c}
+						isInvalid={invalid}
+						item={item}
+					/>
+				)}
+			/>
 		);
 	}
 
 	const getContainerElement = (item, Element) => {
-		const controls = item.childItems.map(x => (x ? getInputElement(getDataById(x)) : <div>&nbsp;</div>));
-		return (<Element mutable={true} key={`form_${item.id}`} data={item} controls={controls} hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert} />);
+		const controls = item.childItems.map((childItem) => (childItem ? getInputElement(getDataItemById(childItem)) : <div>&nbsp;</div>));
+
+		return (
+			<Element
+				mutable={true}
+				key={`form_${item.id}`}
+				item={item}
+				controls={controls}
+			/>
+		);
 	};
 
 	const getSimpleElement = (item) => {
 		const Element = SurveyElements[item.element];
-		return (<Element mutable={true} key={`form_${item.id}`} data={item} hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert} />);
+
+		return (
+			<Element
+				mutable={true}
+				key={`form_${item.id}`}
+				item={item}
+			/>
+		);
 	};
 
 	const getCustomElement = (item) => {
@@ -446,45 +496,31 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 			}
 		}
 
-		const inputProps = item.forwardRef && {
-			handleChange: handleChange,
-			defaultValue: _getDefaultValue(item),
-			ref: (c) => inputs.current[item.fieldName] = c,
-		};
-
 		return (
-			<React.Fragment key={`form_fragment_${item.id}`}>
-				<Controller
-					key={`form_${item.id}`}
-					control={methods.control}
-					name={item.fieldName}
-					rules={item.fieldRules}
-					defaultValue={_getDefaultValue(item)}
-					disabled={readOnly || item.readOnly}
-					required={item.required}
-					render={({
-						field: { onChange, onBlur, value, name, ref },
-						fieldState: { invalid, isTouched, isDirty, error },
-						formState,
-					}) => (
-						<CustomElement
-							onBlur={onBlur}
-							onChange={onChange}
-							value={value}
-							name={name}
-							ref={c => inputs.current[item.fieldName] = c}
-							isInvalid={invalid}
-							handleChange={handleChange}
-							mutable={true}
-							data={item}
-							readOnly={readOnly || item.readOnly}
-							hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert}
-							{...inputProps}
-						/>
-					)}
-				/>
-				<ComponentErrorMessage name={item.fieldName} />
-			</React.Fragment>
+			<Controller
+				key={`form_${item.id}`}
+				control={methods.control}
+				name={item.fieldName}
+				rules={item.fieldRules}
+				defaultValue={_getDefaultValue(item)}
+				disabled={item.disabled}
+				required={item.required}
+				render={({
+					field: { onChange, onBlur, value, name, ref },
+					fieldState: { invalid, isTouched, isDirty, error },
+					formState,
+				}) => (
+					<CustomElement
+						onBlur={onBlur}
+						onChange={(e) => { onChange(e); handleChange(e); }}
+						value={value}
+						name={name}
+						ref={c => inputs.current[item.fieldName] = c}
+						isInvalid={invalid}
+						item={item}
+					/>
+				)}
+			/>
 		);
 	};
 
@@ -506,10 +542,13 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 					message: `${item.label} must be at least 4 characters long`
 				};
 				fieldRules.validate = (value) => validateEmail(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-email' })}`;
+				break;
 			case 'PhoneNumber':
 				fieldRules.validate = (value) => validatePhone(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-phone-number' })}`;
+				break;
 			case 'DatePicker':
 				fieldRules.validate = (value) => validateDate(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-date' })}`;
+				break;
 			default:
 				break;
 		}
@@ -533,10 +572,10 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 
 	//#endregion
 
-	let dataItems = data;
+	let dataItems = items;
 
 	if (displayShort) {
-		dataItems = data.filter((i) => i.alternateForm === true);
+		dataItems = items.filter((i) => i.alternateForm === true);
 	}
 
 	dataItems.forEach((item) => {
@@ -545,10 +584,15 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		}
 	});
 
-	const items = dataItems.filter(x => !x.parentId).map((item) => {
+	const fieldItems = dataItems.filter(x => !x.parentId).map((item) => {
 		if (!item) return null;
 
 		item.fieldRules = getFieldRules(item);
+		item.print = print ?? false;
+		item.hideRequiredAlert = hideRequiredAlert || item.hideRequiredAlert;
+		item.readOnly = readOnly || item.readOnly;
+		item.disabled = item.readOnly;
+		item.mutable = true;
 
 		switch (item.element) {
 			case 'TextInput':
@@ -576,145 +620,119 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 				return getContainerElement(item, FieldSet);
 			case 'Signature':
 				return (
-					<React.Fragment key={`form_fragment_${item.id}`}>
-						<Controller
-							key={`form_${item.id}`}
-							control={methods.control}
-							name={item.fieldName}
-							rules={item.fieldRules}
-							defaultValue={_getDefaultValue(item)}
-							disabled={readOnly || item.readOnly}
-							required={item.required}
-							render={({
-								field: { onChange, onBlur, value, name, ref },
-								fieldState: { invalid, isTouched, isDirty, error },
-								formState,
-							}) => (
-								<Signature
-									methods={methods}
-									onBlur={onBlur}
-									onChange={onChange}
-									value={value}
-									name={name}
-									ref={c => inputs.current[item.fieldName] = c}
-									handleChange={handleChange}
-									mutable={true}
-									data={item}
-									readOnly={readOnly || item.readOnly}
-									hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert}
-								/>
-							)}
-						/>
-						<ComponentErrorMessage name={item.fieldName} />
-					</React.Fragment>
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_getDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<Signature
+								methods={methods}
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								item={item}
+							/>
+						)}
+					/>
 				);
 			case 'Checkboxes':
 				return (
-					<React.Fragment key={`form_fragment_${item.id}`}>
-						<Controller
-							key={`form_${item.id}`}
-							control={methods.control}
-							name={item.fieldName}
-							rules={item.fieldRules}
-							defaultValue={_optionsDefaultValue(item)}
-							disabled={readOnly || item.readOnly}
-							required={item.required}
-							render={({
-								field: { onChange, onBlur, value, name, ref },
-								fieldState: { invalid, isTouched, isDirty, error },
-								formState,
-							}) => (
-								<Checkboxes
-									onBlur={onBlur}
-									onChange={onChange}
-									value={value}
-									name={name}
-									ref={c => inputs.current[item.fieldName] = c}
-									isInvalid={invalid}
-									handleChange={handleChange}
-									mutable={true}
-									data={item}
-									readOnly={readOnly || item.readOnly}
-									hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert}
-								/>
-							)}
-						/>
-						<ComponentErrorMessage name={item.fieldName} />
-					</React.Fragment>
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_optionsDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<Checkboxes
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								isInvalid={invalid}
+								item={item}
+							/>
+						)}
+					/>
 				);
 			case 'Image':
-				return <Image ref={c => inputs.current[item.fieldName] = c} handleChange={handleChange} mutable={true} key={`form_${item.id}`} data={item} defaultValue={_getDefaultValue(item)} hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert} />;;
+				return (
+					<Image ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} />
+				);
 			case 'Download':
-				return <Download downloadPath={downloadPath} mutable={true} key={`form_${item.id}`} data={item} hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert} />;
+				return (
+					<Download downloadPath={downloadPath} key={`form_${item.id}`} item={item} />
+				);
 			case 'Camera':
 				return (
-					<React.Fragment key={`form_fragment_${item.id}`}>
-						<Controller
-							key={`form_${item.id}`}
-							control={methods.control}
-							name={item.fieldName}
-							rules={item.fieldRules}
-							defaultValue={_getDefaultValue(item)}
-							disabled={readOnly || item.readOnly}
-							required={item.required}
-							render={({
-								field: { onChange, onBlur, value, name, ref },
-								fieldState: { invalid, isTouched, isDirty, error },
-								formState,
-							}) => (
-								<Camera
-									onBlur={onBlur}
-									onChange={onChange}
-									value={value}
-									name={name}
-									ref={c => inputs.current[item.fieldName] = c}
-									isInvalid={invalid}
-									defaultValue={_getDefaultValue(item)}
-									handleChange={handleChange}
-									mutable={true}
-									data={item}
-									readOnly={readOnly || item.readOnly}
-									hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert}
-								/>
-							)}
-						/>
-						<ComponentErrorMessage name={item.fieldName} />
-					</React.Fragment>
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_getDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<Camera
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								isInvalid={invalid}
+								item={item}
+							/>
+						)}
+					/>
 				);
 			case 'FileUpload':
 				return (
-					<React.Fragment key={`form_fragment_${item.id}`}>
-						<Controller
-							key={`form_${item.id}`}
-							control={methods.control}
-							name={item.fieldName}
-							rules={item.fieldRules}
-							defaultValue={_getDefaultValue(item)}
-							disabled={readOnly || item.readOnly}
-							required={item.required}
-							render={({
-								field: { onChange, onBlur, value, name, ref },
-								fieldState: { invalid, isTouched, isDirty, error },
-								formState,
-							}) => (
-								<FileUpload
-									onBlur={onBlur}
-									onChange={onChange}
-									value={value}
-									name={name}
-									ref={c => inputs.current[item.fieldName] = c}
-									isInvalid={invalid}
-									defaultValue={_getDefaultValue(item)}
-									handleChange={handleChange}
-									mutable={true}
-									data={item}
-									readOnly={readOnly || item.readOnly}
-									hideRequiredAlert={hideRequiredAlert || item.hideRequiredAlert}
-								/>
-							)}
-						/>
-						<ComponentErrorMessage name={item.fieldName} />
-					</React.Fragment>
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_getDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<FileUpload
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								isInvalid={invalid}
+								item={item}
+							/>
+						)}
+					/>
 				);
 			default:
 				return getSimpleElement(item);
@@ -727,17 +745,18 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 	return (
 		<div>
 			<div className='react-survey-builder-form'>
-				<Form onSubmit={methods.handleSubmit(handleSubmit)} {...formProps}>
-					{items}
-					<div className={buttonClassName ? buttonClassName : 'btn-toolbar'}>
-						{!hideActions && handleRenderSubmit()}
-						{!hideActions && backAction && handleRenderBack()}
-					</div>
-				</Form>
+				<FormProvider {...methods}>
+					<Form onSubmit={methods.handleSubmit(handleSubmit)} {...formProps}>
+						{fieldItems}
+						<div className={buttonClassName ? buttonClassName : 'btn-toolbar'}>
+							{!hideActions && handleRenderSubmit()}
+							{!hideActions && backAction && handleRenderBack()}
+						</div>
+					</Form>
+				</FormProvider>
 			</div>
 		</div>
 	);
-
 };
 
 export default injectIntl(ReactSurveyFormFields);

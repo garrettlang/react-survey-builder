@@ -14,17 +14,17 @@ const style = {
 
 const dragHandleSource = {
 	beginDrag(props) {
-		const { data, index, onDestroy, setAsChild, getDataById } = props;
+		const { item, index, onDestroy, setAsChild, getDataById } = props;
 		return {
 			itemType: ItemTypes.BOX,
-			index: data.parentId ? -1 : index,
-			parentIndex: data.parentIndex,
-			id: data.id,
-			col: data.col,
+			index: item.parentId ? -1 : index,
+			parentIndex: item.parentIndex,
+			id: item.id,
+			col: item.col,
 			onDestroy,
 			setAsChild,
 			getDataById,
-			data,
+			data: item,
 		};
 	},
 };

@@ -1,134 +1,152 @@
 /**
-  * <Form />
+  * <FormFields />
   */
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { EventEmitter } from 'fbemitter';
 import { injectIntl } from 'react-intl';
-import SurveyValidator from './survey-validator';
 import SurveyElements from './survey-elements';
 import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
 import { FieldSet } from './fieldset';
 import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
-import { Button } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
+import { Controller, FormProvider, useForm } from "react-hook-form";
+import { isEmpty } from 'lodash';
+import moment from 'moment-timezone';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 
 const { Image, Checkboxes, Signature, Download, Camera, FileUpload } = SurveyElements;
 
-class ReactSurvey extends React.Component {
-	form;
+const ReactSurvey = ({ validateForCorrectness = false, skipValidations = false, displayShort = false, hideRequiredAlert = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, items, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, formId, print = false }) => {
+	//#region useForms
 
-	inputs = {};
+	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
 
-	answerData;
+	//#endregion
+	//#region helper functions
 
-	constructor(props) {
-		super(props);
-		this.answerData = this._convert(props.answerData);
-		this.emitter = new EventEmitter();
-		this.getDataById = this.getDataById.bind(this);
-
-		// Bind handleBlur and handleChange methods
-		this.handleBlur = this.handleBlur.bind(this);
-		this.handleChange = this.handleChange.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-	}
-
-	_convert(answers) {
-		if (Array.isArray(answers)) {
+	const _convert = ($dataAnswers) => {
+		if (Array.isArray($dataAnswers)) {
 			const result = {};
-			answers.forEach(x => {
-				if (x.name.indexOf('tags_') > -1) {
-					if (Array.isArray(x.value)) {
-						result[x.name] = x.value.map(y => y.value).join(',');
-					} else {
-						result[x.name] = x.value;
-					}
-				} else {
-					result[x.name] = x.value;
-				}
+			$dataAnswers.forEach((answer) => {
+				result[answer.name] = answer.value;
 			});
+
 			return result;
 		}
-		return answers || {};
-	}
 
-	_getDefaultValue(item) {
-		return this.answerData[item.fieldName];
-	}
+		return $dataAnswers || {};
+	};
 
-	_optionsDefaultValue(item) {
-		const defaultValue = this._getDefaultValue(item);
+	const form = React.useRef();
+	const inputs = React.useRef({});
+	const answerData = React.useRef(_convert(answers));
+
+	const _getDefaultValue = ($dataItem) => {
+		let defaultValue = answerData.current[$dataItem.fieldName];
+		if ($dataItem.element === 'DatePicker') {
+			const defaultToday = $dataItem.defaultToday ?? false;
+			const formatMask = $dataItem.formatMask || 'MM/DD/YYYY';
+			if (defaultToday && (defaultValue === '' || defaultValue === undefined)) {
+				defaultValue = moment().format(formatMask);
+			}
+		}
+
+		if ($dataItem.element === 'Checkbox') {
+			const defaultChecked = $dataItem.defaultChecked ?? false;
+			if (defaultChecked === true) {
+				defaultValue = true;
+			}
+		}
+
+		if (defaultValue === undefined) {
+			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'Tags') {
+				defaultValue = [];
+			} else {
+				defaultValue = '';
+			}
+		}
+
+		return defaultValue;
+	};
+
+	const _optionsDefaultValue = ($dataItem) => {
+		const defaultValue = _getDefaultValue($dataItem);
 		if (defaultValue) {
 			return defaultValue;
 		}
 
 		const defaultChecked = [];
-		item.options.forEach(option => {
-			if (this.answerData[`option_${option.key}`]) {
+		$dataItem.options.forEach(option => {
+			if (answerData.current[`option_${option.key}`]) {
 				defaultChecked.push(option.key);
 			}
 		});
-		return defaultChecked;
-	}
 
-	_getItemValue(item, ref) {
+		return defaultChecked;
+	};
+
+	const _getItemValue = ($dataItem, ref) => {
 		let $item = {
-			element: item.element,
+			element: $dataItem.element,
 			value: '',
 		};
-		if (item.element === 'Rating') {
+		if ($dataItem.element === 'Rating') {
 			$item.value = ref.inputField.current.state.rating;
-		} else if (item.element === 'Tags') {
-			$item.value = ref.state.value;
+		} else if ($dataItem.element === 'Tags') {
+			$item.value = ref.props.value;
 			// } else if (item.element === 'DatePicker') {
 			// 	$item.value = ref.state.value;
-		} else if (item.element === 'Camera') {
+		} else if ($dataItem.element === 'Camera') {
 			$item.value = ref.state.img;
-		} else if (item.element === 'FileUpload') {
+		} else if ($dataItem.element === 'FileUpload') {
 			$item.value = ref.state.fileUpload;
+		} else if ($dataItem.element === 'Signature') {
+			$item.value = ref.state.value;
 		} else if (ref && ref.inputField && ref.inputField.current) {
 			$item = ReactDOM.findDOMNode(ref.inputField.current);
 			if ($item && typeof $item.value === 'string') {
 				$item.value = $item.value.trim();
 			}
 		}
-		return $item;
-	}
 
-	_isIncorrect(item) {
+		return $item;
+	};
+
+	const _isIncorrect = ($dataItem) => {
 		let incorrect = false;
-		if (item.canHaveAnswer) {
-			const ref = this.inputs[item.fieldName];
-			if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
-				item.options.forEach(option => {
+		if ($dataItem.canHaveAnswer) {
+			const ref = inputs.current[$dataItem.fieldName];
+			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'RadioButtons') {
+				$dataItem.options.forEach((option) => {
 					const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 					if ((option.hasOwnProperty('correct') && !$option.checked) || (!option.hasOwnProperty('correct') && $option.checked)) {
 						incorrect = true;
 					}
 				});
 			} else {
-				const $item = this._getItemValue(item, ref);
-				if (item.element === 'Rating') {
-					if ($item.value.toString() !== item.correct) {
+				const $item = _getItemValue($dataItem, ref);
+				if ($dataItem.element === 'Rating') {
+					if ($item.value.toString() !== $dataItem.correct) {
 						incorrect = true;
 					}
-				} else if ($item.value.toLowerCase() !== item.correct.trim().toLowerCase()) {
+				} else if ($item.value.toLowerCase() !== $dataItem.correct.trim().toLowerCase()) {
 					incorrect = true;
 				}
 			}
 		}
-		return incorrect;
-	}
 
-	_isInvalid(item) {
+		return incorrect;
+	};
+
+	const _isInvalid = ($dataItem) => {
 		let invalid = false;
-		if (item.required === true) {
-			const ref = this.inputs[item.fieldName];
-			if (item.element === 'Checkboxes' || item.element === 'RadioButtons') {
+		if ($dataItem.required === true) {
+			const ref = inputs.current[$dataItem.fieldName];
+			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'RadioButtons') {
 				let checked_options = 0;
-				item.options.forEach(option => {
+				$dataItem.options.forEach((option) => {
 					const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 					if ($option.checked) {
 						checked_options += 1;
@@ -139,8 +157,8 @@ class ReactSurvey extends React.Component {
 					invalid = true;
 				}
 			} else {
-				const $item = this._getItemValue(item, ref);
-				if (item.element === 'Rating') {
+				const $item = _getItemValue($dataItem, ref);
+				if ($dataItem.element === 'Rating') {
 					if ($item.value === 0) {
 						invalid = true;
 					}
@@ -149,24 +167,24 @@ class ReactSurvey extends React.Component {
 				}
 			}
 		}
-		return invalid;
-	}
 
-	_collect(item) {
+		return invalid;
+	};
+
+	const _collect = ($dataItem) => {
 		const itemData = {
-			id: item.id,
-			name: item.fieldName,
-			customName: item.customName || item.fieldName,
-			help: item.help,
-			label: item.label !== null && item.label !== undefined && item.label !== '' ? item.label.trim() : ''
+			id: $dataItem.id,
+			name: $dataItem.fieldName,
+			customName: $dataItem.customName || $dataItem.fieldName,
+			label: $dataItem.label !== null && $dataItem.label !== undefined && $dataItem.label !== '' ? $dataItem.label.trim() : ''
 		};
 
 		if (!itemData.name) return null;
 
-		const ref = this.inputs[item.fieldName];
-		if (item.element === 'Checkboxes') {
+		const ref = inputs.current[$dataItem.fieldName];
+		if ($dataItem.element === 'Checkboxes') {
 			const checkedOptions = [];
-			item.options.forEach((option) => {
+			$dataItem.options.forEach((option) => {
 				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 				if ($option.checked) {
 					checkedOptions.push(option.value);
@@ -174,14 +192,14 @@ class ReactSurvey extends React.Component {
 			});
 
 			itemData.value = checkedOptions;
-		} else if (item.element === 'RadioButtons') {
-			item.options.forEach((option) => {
+		} else if ($dataItem.element === 'RadioButtons') {
+			$dataItem.options.forEach((option) => {
 				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
 				if ($option.checked) {
 					itemData.value = option.value;
 				}
 			});
-		} else if (item.element === 'Checkbox') {
+		} else if ($dataItem.element === 'Checkbox') {
 			if (!ref || !ref.inputField || !ref.inputField.current) {
 				itemData.value = false;
 			} else {
@@ -190,27 +208,28 @@ class ReactSurvey extends React.Component {
 		} else {
 			if (!ref) return null;
 
-			itemData.value = this._getItemValue(item, ref).value;
+			itemData.value = _getItemValue($dataItem, ref).value;
 		}
 
-		itemData.required = item.required || false;
+		itemData.required = $dataItem.required || false;
 
 		return itemData;
-	}
+	};
 
-	_collectFormData(data) {
+	const _collectFormData = ($dataItems) => {
 		const formData = [];
-		data.forEach(item => {
-			const item_data = this._collect(item);
-			if (item_data) {
-				formData.push(item_data);
+		$dataItems.forEach((item) => {
+			const itemData = _collect(item);
+			if (itemData) {
+				formData.push(itemData);
 			}
 		});
-		return formData;
-	}
 
-	_getSignatureImg(item) {
-		const ref = this.inputs[item.fieldName];
+		return formData;
+	};
+
+	const _getSignatureImg = ($dataItem) => {
+		const ref = inputs.current[$dataItem.fieldName];
 		const $canvas_sig = ref.canvas.current;
 		if ($canvas_sig) {
 			const base64 = $canvas_sig.toDataURL().replace('data:image/png;base64,', '');
@@ -218,79 +237,71 @@ class ReactSurvey extends React.Component {
 			const $input_sig = ReactDOM.findDOMNode(ref.inputField.current);
 			if (isEmpty) {
 				$input_sig.value = '';
+				methods.setValue($dataItem.fieldName, '');
 			} else {
 				$input_sig.value = base64;
+				methods.setValue($dataItem.fieldName, base64);
 			}
 		}
-	}
+	};
 
-	handleSubmit(e) {
-		e.preventDefault();
+	//#endregion
+	//#region form methods
+
+	const handleSubmit = ($formData, event) => {
+		event.preventDefault();
+
+		console.log('handleSubmit', $formData);
 
 		let errors = [];
-		if (!this.props.skipValidations) {
-			errors = this.validateForm();
+		if (!skipValidations) {
+			errors = validateForm();
 			// Publish errors, if any.
-			this.emitter.emit('surveyValidation', errors);
+			//emitter.emit('surveyValidation', errors);
 		}
 
 		// Only submit if there are no errors.
 		if (errors.length < 1) {
-			const { onSubmit } = this.props;
 			if (onSubmit) {
-				const data = this._collectFormData(this.props.data);
-				onSubmit(data);
+				const $data = _collectFormData(items);
+				onSubmit($data);
 			} else {
-				const $form = ReactDOM.findDOMNode(this.form);
+				const $form = ReactDOM.findDOMNode(form.current);
 				$form.submit();
 			}
 		}
 	}
 
-	handleBlur(event) {
-		// Call submit function on blur
-		if (this.props.onBlur) {
-			const { onBlur } = this.props;
-			const data = this._collectFormData(this.props.data);
-			onBlur(data);
-		}
-	}
-
-	handleChange(event) {
+	const handleChange = (event) => {
+		// console.log('handleChange');
 		// Call submit function on change
-		if (this.props.onChange) {
-			const { onChange } = this.props;
-			const data = this._collectFormData(this.props.data);
-			onChange(data);
+		if (onChange) {
+			const $data = _collectFormData(items);
+			onChange($data);
 		}
 	}
 
-	validateForm() {
+	const validateForm = () => {
 		const errors = [];
-		let data_items = this.props.data;
-		const { intl } = this.props;
+		let dataItems = items;
 
-		if (this.props.displayShort) {
-			data_items = this.props.data.filter((i) => i.alternateForm === true);
+		if (displayShort) {
+			dataItems = items.filter((i) => i.alternateForm === true);
 		}
 
-		data_items.forEach(item => {
+		dataItems.forEach((item) => {
 			if (item.element === 'Signature') {
-				this._getSignatureImg(item);
+				_getSignatureImg(item);
 			}
 
-			if (this._isInvalid(item)) {
+			if (_isInvalid(item)) {
 				errors.push(`${item.label} ${intl.formatMessage({ id: 'message.is-required' })}!`);
 			}
 
 			if (item.element === 'EmailInput') {
-				const ref = this.inputs[item.fieldName];
-				const emailValue = this._getItemValue(item, ref).value;
+				const ref = inputs.current[item.fieldName];
+				const emailValue = _getItemValue(item, ref).value;
 				if (emailValue) {
-					const validateEmail = (email) => email.match(
-						// eslint-disable-next-line no-useless-escape
-						/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-					);
 					const checkEmail = validateEmail(emailValue);
 					if (!checkEmail) {
 						errors.push(`${item.label} ${intl.formatMessage({ id: 'message.invalid-email' })}`);
@@ -299,13 +310,9 @@ class ReactSurvey extends React.Component {
 			}
 
 			if (item.element === 'PhoneNumber') {
-				const ref = this.inputs[item.fieldName];
-				const phoneValue = this._getItemValue(item, ref).value;
+				const ref = inputs.current[item.fieldName];
+				const phoneValue = _getItemValue(item, ref).value;
 				if (phoneValue) {
-					const validatePhone = (phone) => phone.match(
-						// eslint-disable-next-line no-useless-escape
-						/^[+]?(1\-|1\s|1|\d{3}\-|\d{3}\s|)?((\(\d{3}\))|\d{3})(\-|\s)?(\d{3})(\-|\s)?(\d{4})$/g
-					);
 					const checkPhone = validatePhone(phoneValue);
 					if (!checkPhone) {
 						errors.push(`${item.label} ${intl.formatMessage({ id: 'message.invalid-phone-number' })}`);
@@ -313,48 +320,178 @@ class ReactSurvey extends React.Component {
 				}
 			}
 
-			if (this.props.validateForCorrectness && this._isIncorrect(item)) {
+			if (validateForCorrectness && _isIncorrect(item)) {
+				methods.setError(item.fieldName, { type: 'incorrect', message: `${item.label} ${intl.formatMessage({ id: 'message.was-answered-incorrectly' })}` });
 				errors.push(`${item.label} ${intl.formatMessage({ id: 'message.was-answered-incorrectly' })}!`);
 			}
 		});
 
 		return errors;
-	}
+	};
 
-	getDataById(id) {
-		const { data } = this.props;
-		return data.find(x => x.id === id);
-	}
+	const validateEmail = (email) => email.match(
+		// eslint-disable-next-line no-useless-escape
+		/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	);
 
-	getInputElement(item) {
-		if (item.custom) {
-			return this.getCustomElement(item);
+	const toE164PhoneNumber = (phoneNumberValue) => {
+		if (phoneNumberValue !== undefined && phoneNumberValue !== null) {
+			//Filter only numbers from the input
+			let cleaned = ('' + phoneNumberValue).replace(/\D/g, '');
+
+			//Check if the input is of correct
+			let match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
+
+			if (match) {
+				//Remove the matched extension code
+				//Change this to format for any country code.
+				let intlCode = (match[1] ? '+1' : '+1')
+				return [intlCode, match[2], match[3], match[4]].join('');
+			}
+
+			return '';
+		} else {
+			return '';
 		}
+	};
+
+	const validatePhone = (phone) => {
+		return isValidPhoneNumber(toE164PhoneNumber(phone), 'US');
+	};
+
+	const validateDate = (dateString) => {
+		if (dateString !== undefined && dateString !== null && dateString !== "") {
+			let dateformat = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[1-2][0-9]|3[01])[\/]\d{4}$/;
+
+			// Matching the date through regular expression      
+			if (dateString.match(dateformat)) {
+				let operator = dateString.split('/');
+
+				// Extract the string into month, date and year      
+				let datepart = [];
+				if (operator.length > 1) {
+					datepart = dateString.split('/');
+				}
+				let month = parseInt(datepart[0]);
+				let day = parseInt(datepart[1]);
+				let year = parseInt(datepart[2]);
+
+				if (day > 31 || day < 1) {
+					return false;
+				}
+
+				let currentYear = new Date().getFullYear();
+				if (year < 1900 || year > (currentYear + 5)) {
+					return false;
+				}
+
+				// Create a list of days of a month      
+				let ListofDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+				if (month === 1 || month > 2) {
+					if (day > ListofDays[month - 1]) {
+						// to check if the date is out of range     
+						return false;
+					}
+				} else if (month === 2) {
+					let leapYear = false;
+					if ((!(year % 4) && year % 100) || !(year % 400)) leapYear = true;
+					if ((leapYear === false) && (day >= 29)) return false;
+					else
+						if ((leapYear === true) && (day > 29)) {
+							// console.log('Invalid date format!');
+							return false;
+						}
+				} else if (month > 12 || month < 1) {
+					return false;
+				}
+			} else {
+				// console.log("Invalid date format!");
+				return false;
+			}
+		}
+		return true;
+	};
+
+	const getDataItemById = (id) => {
+		let $dataItem = items.find(x => x.id === id);
+		if ($dataItem !== undefined) {
+			return {
+				...$dataItem,
+				fieldRules: getFieldRules($dataItem),
+				print: print ?? false,
+				hideRequiredAlert: hideRequiredAlert || $dataItem.hideRequiredAlert,
+				readOnly: readOnly || $dataItem.readOnly,
+				disabled: $dataItem.readOnly,
+				mutable: true
+			};
+		}
+
+		return null;
+	};
+
+	const getInputElement = (item) => {
+		if (!item) return null;
+
+		if (item.custom) {
+			return getCustomElement(item);
+		}
+
 		const Input = SurveyElements[item.element];
-		return (<Input
-			handleChange={this.handleChange}
-			ref={c => this.inputs[item.fieldName] = c}
-			mutable={true}
-			key={`form_${item.id}`}
-			data={item}
-			readOnly={this.props.readOnly}
-			hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert}
-			defaultValue={this._getDefaultValue(item)} />);
+
+		return (
+			<Controller
+				key={`form_${item.id}`}
+				control={methods.control}
+				name={item.fieldName}
+				rules={item.fieldRules}
+				defaultValue={_getDefaultValue(item)}
+				disabled={item.disabled}
+				required={item.required}
+				render={({
+					field: { onChange, onBlur, value, name, ref },
+					fieldState: { invalid, isTouched, isDirty, error },
+					formState,
+				}) => (
+					<Input
+						onBlur={onBlur}
+						onChange={(e) => { onChange(e); handleChange(e); }}
+						value={value}
+						name={name}
+						ref={c => inputs.current[item.fieldName] = c}
+						isInvalid={invalid}
+						item={item}
+					/>
+				)}
+			/>
+		);
 	}
 
-	getContainerElement(item, Element) {
-		const controls = item.childItems.map(x => (x ? this.getInputElement(this.getDataById(x)) : <div>&nbsp;</div>));
-		return (<Element mutable={true} key={`form_${item.id}`} data={item} controls={controls} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />);
-	}
+	const getContainerElement = (item, Element) => {
+		const controls = item.childItems.map((childItem) => (childItem ? getInputElement(getDataItemById(childItem)) : <div>&nbsp;</div>));
 
-	getSimpleElement(item) {
+		return (
+			<Element
+				mutable={true}
+				key={`form_${item.id}`}
+				item={item}
+				controls={controls}
+			/>
+		);
+	};
+
+	const getSimpleElement = (item) => {
 		const Element = SurveyElements[item.element];
-		return (<Element mutable={true} key={`form_${item.id}`} data={item} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />);
-	}
 
-	getCustomElement(item) {
-		const { intl } = this.props;
+		return (
+			<Element
+				mutable={true}
+				key={`form_${item.id}`}
+				item={item}
+			/>
+		);
+	};
 
+	const getCustomElement = (item) => {
 		if (!item.component || typeof item.component !== 'function') {
 			item.component = Registry.get(item.key);
 			if (!item.component) {
@@ -362,142 +499,267 @@ class ReactSurvey extends React.Component {
 			}
 		}
 
-		const inputProps = item.forwardRef && {
-			handleChange: this.handleChange,
-			defaultValue: this._getDefaultValue(item),
-			ref: c => this.inputs[item.fieldName] = c,
-		};
 		return (
-			<CustomElement
-				mutable={true}
-				readOnly={this.props.readOnly}
-				hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert}
+			<Controller
 				key={`form_${item.id}`}
-				data={item}
-				{...inputProps}
+				control={methods.control}
+				name={item.fieldName}
+				rules={item.fieldRules}
+				defaultValue={_getDefaultValue(item)}
+				disabled={item.disabled}
+				required={item.required}
+				render={({
+					field: { onChange, onBlur, value, name, ref },
+					fieldState: { invalid, isTouched, isDirty, error },
+					formState,
+				}) => (
+					<CustomElement
+						onBlur={onBlur}
+						onChange={(e) => { onChange(e); handleChange(e); }}
+						value={value}
+						name={name}
+						ref={c => inputs.current[item.fieldName] = c}
+						isInvalid={invalid}
+						item={item}
+					/>
+				)}
 			/>
 		);
-	}
+	};
 
-	handleRenderSubmit = () => {
-		const name = this.props.actionName || this.props.actionName;
-		const actionName = name || 'Submit';
-		const { submitButton = false } = this.props;
+	const getFieldRules = (item) => {
+		let fieldRules = {};
 
-		let buttonProps = {};
-		if (this.props.formId) { buttonProps.form = this.props.formId; }
-
-		return submitButton || <Button variant="primary" type='submit'>{actionName}</Button>;
-	}
-
-	handleRenderBack = () => {
-		const name = this.props.backName || this.props.backName;
-		const backName = name || 'Cancel';
-		const { backButton = false } = this.props;
-
-		return backButton || <Button variant="secondary" onClick={this.props.backAction} className='btn-cancel'>{backName}</Button>;
-	}
-
-	render() {
-		let dataItems = this.props.data;
-
-		if (this.props.displayShort) {
-			dataItems = this.props.data.filter((i) => i.alternateForm === true);
+		if (item.fieldRules !== undefined && item.fieldRules !== null && !isEmpty(item.fieldRules)) {
+			fieldRules = { ...item.fieldRules };
 		}
 
-		dataItems.forEach((item) => {
-			if (item && item.readOnly && item.variableKey && this.props.variables[item.variableKey]) {
-				this.answerData[item.fieldName] = this.props.variables[item.variableKey];
-			}
-		});
+		if (item.required) {
+			fieldRules.required = `${item.label} ${intl.formatMessage({ id: 'message.is-required' })}`;
+		}
 
-		const items = dataItems.filter(x => !x.parentId).map(item => {
-			if (!item) return null;
-			switch (item.element) {
-				case 'TextInput':
-				case 'EmailInput':
-				case 'PhoneNumber':
-				case 'NumberInput':
-				case 'TextArea':
-				case 'Dropdown':
-				case 'DatePicker':
-				case 'RadioButtons':
-				case 'Rating':
-				case 'Tags':
-				case 'Range':
-				case 'Checkbox':
-					return this.getInputElement(item);
-				case 'CustomElement':
-					return this.getCustomElement(item);
-				case 'MultiColumnRow':
-					return this.getContainerElement(item, MultiColumnRow);
-				case 'ThreeColumnRow':
-					return this.getContainerElement(item, ThreeColumnRow);
-				case 'TwoColumnRow':
-					return this.getContainerElement(item, TwoColumnRow);
-				case 'FieldSet':
-					return this.getContainerElement(item, FieldSet);
-				case 'Signature':
-					return <Signature ref={c => this.inputs[item.fieldName] = c} readOnly={this.props.readOnly || item.readOnly} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} />;
-				case 'Checkboxes':
-					return <Checkboxes ref={c => this.inputs[item.fieldName] = c} readOnly={this.props.readOnly} handleChange={this.handleChange} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._optionsDefaultValue(item)} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
-				case 'Image':
-					return <Image ref={c => this.inputs[item.fieldName] = c} handleChange={this.handleChange} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
-				case 'Download':
-					return <Download downloadPath={this.props.downloadPath} mutable={true} key={`form_${item.id}`} data={item} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
-				case 'Camera':
-					return <Camera ref={c => this.inputs[item.fieldName] = c} readOnly={this.props.readOnly || item.readOnly} mutable={true} key={`form_${item.id}`} data={item} defaultValue={this._getDefaultValue(item)} hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert} />;
-				case 'FileUpload':
-					return (
-						<FileUpload
-							ref={(c) => (this.inputs[item.fieldName] = c)}
-							readOnly={this.props.readOnly || item.readOnly}
-							mutable={true}
-							key={`form_${item.id}`}
-							data={item}
-							hideRequiredAlert={this.props.hideRequiredAlert || item.hideRequiredAlert}
-							defaultValue={this._getDefaultValue(item)}
-						/>
-					);
-				default:
-					return this.getSimpleElement(item);
-			}
-		});
+		switch (item.element) {
+			case 'EmailInput':
+				fieldRules.minLength = {
+					value: 4,
+					message: `${item.label} must be at least 4 characters long`
+				};
+				fieldRules.validate = (value) => validateEmail(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-email' })}`;
+				break;
+			case 'PhoneNumber':
+				fieldRules.validate = (value) => validatePhone(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-phone-number' })}`;
+				break;
+			case 'DatePicker':
+				fieldRules.validate = (value) => validateDate(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-date' })}`;
+				break;
+			default:
+				break;
+		}
 
-		const formTokenStyle = {
-			display: 'none',
-		};
+		return fieldRules;
+	};
 
-		let formProps = {};
-		if (this.props.formId) { formProps.id = this.props.formId; }
+	const handleRenderSubmit = () => {
+		const actionName = actionName || 'Submit';
+		let buttonProps = {};
+		if (formId) { buttonProps.form = formId; }
 
-		return (
-			<div>
-				<SurveyValidator emitter={this.emitter} />
-				<div className='react-survey-builder-form'>
-					<form encType='multipart/form-data' ref={c => this.form = c} action={this.props.formAction} onBlur={this.handleBlur} onChange={this.handleChange} onSubmit={this.handleSubmit} method={this.props.formMethod} {...formProps}>
-						{this.props.authenticity_token &&
-							<div style={formTokenStyle}>
-								<input name='utf8' type='hidden' value='&#x2713;' />
-								<input name='authenticity_token' type='hidden' value={this.props.authenticity_token} />
-								<input name='task_id' type='hidden' value={this.props.task_id} />
-							</div>
-						}
-						{items}
-						<div className={this.props.buttonClassName ? this.props.buttonClassName : 'btn-toolbar'}>
-							{!this.props.hideActions &&
-								this.handleRenderSubmit()
-							}
-							{!this.props.hideActions && this.props.backAction &&
-								this.handleRenderBack()
-							}
-						</div>
-					</form>
-				</div>
-			</div>
-		);
+		return submitButton || <Button variant="primary" type='submit'>{actionName}</Button>;
+	};
+
+	const handleRenderBack = () => {
+		const backName = backName || 'Cancel';
+
+		return backButton || <Button variant="secondary" onClick={backAction} className='btn-cancel'>{backName}</Button>;
+	};
+
+	//#endregion
+
+	let dataItems = items;
+
+	if (displayShort) {
+		dataItems = items.filter((i) => i.alternateForm === true);
 	}
-}
+
+	dataItems.forEach((item) => {
+		if (item && item.readOnly && item.variableKey && variables[item.variableKey]) {
+			answerData.current[item.fieldName] = variables[item.variableKey];
+		}
+	});
+
+	const fieldItems = dataItems.filter(x => !x.parentId).map((item) => {
+		if (!item) return null;
+
+		item.fieldRules = getFieldRules(item);
+		item.print = print ?? false;
+		item.hideRequiredAlert = hideRequiredAlert || item.hideRequiredAlert;
+		item.readOnly = readOnly || item.readOnly;
+		item.disabled = item.readOnly;
+		item.mutable = true;
+
+		switch (item.element) {
+			case 'TextInput':
+			case 'EmailInput':
+			case 'PhoneNumber':
+			case 'NumberInput':
+			case 'TextArea':
+			case 'Dropdown':
+			case 'DatePicker':
+			case 'RadioButtons':
+			case 'Rating':
+			case 'Tags':
+			case 'Range':
+			case 'Checkbox':
+				return getInputElement(item);
+			case 'CustomElement':
+				return getCustomElement(item);
+			case 'MultiColumnRow':
+				return getContainerElement(item, MultiColumnRow);
+			case 'ThreeColumnRow':
+				return getContainerElement(item, ThreeColumnRow);
+			case 'TwoColumnRow':
+				return getContainerElement(item, TwoColumnRow);
+			case 'FieldSet':
+				return getContainerElement(item, FieldSet);
+			case 'Signature':
+				return (
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_getDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<Signature
+								methods={methods}
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								item={item}
+							/>
+						)}
+					/>
+				);
+			case 'Checkboxes':
+				return (
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_optionsDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<Checkboxes
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								isInvalid={invalid}
+								item={item}
+							/>
+						)}
+					/>
+				);
+			case 'Image':
+				return (
+					<Image ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} />
+				);
+			case 'Download':
+				return (
+					<Download downloadPath={downloadPath} key={`form_${item.id}`} item={item} />
+				);
+			case 'Camera':
+				return (
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_getDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<Camera
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								isInvalid={invalid}
+								item={item}
+							/>
+						)}
+					/>
+				);
+			case 'FileUpload':
+				return (
+					<Controller
+						key={`form_${item.id}`}
+						control={methods.control}
+						name={item.fieldName}
+						rules={item.fieldRules}
+						defaultValue={_getDefaultValue(item)}
+						disabled={item.disabled}
+						required={item.required}
+						render={({
+							field: { onChange, onBlur, value, name, ref },
+							fieldState: { invalid, isTouched, isDirty, error },
+							formState,
+						}) => (
+							<FileUpload
+								onBlur={onBlur}
+								onChange={(e) => { onChange(e); handleChange(e); }}
+								value={value}
+								name={name}
+								ref={c => inputs.current[item.fieldName] = c}
+								isInvalid={invalid}
+								item={item}
+							/>
+						)}
+					/>
+				);
+			default:
+				return getSimpleElement(item);
+		}
+	});
+
+	let formProps = {};
+	if (formId) { formProps.id = formId; }
+
+	return (
+		<div>
+			<div className='react-survey-builder-form'>
+				<FormProvider {...methods}>
+					<Form onSubmit={methods.handleSubmit(handleSubmit)} {...formProps}>
+						{fieldItems}
+						<div className={buttonClassName ? buttonClassName : 'btn-toolbar'}>
+							{!hideActions && handleRenderSubmit()}
+							{!hideActions && backAction && handleRenderBack()}
+						</div>
+					</Form>
+				</FormProvider>
+			</div>
+		</div>
+	);
+};
 
 export default injectIntl(ReactSurvey);
-ReactSurvey.defaultProps = { validateForCorrectness: false };

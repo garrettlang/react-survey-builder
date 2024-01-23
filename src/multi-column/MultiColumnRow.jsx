@@ -10,10 +10,8 @@ const accepts = [ItemTypes.BOX, ItemTypes.CARD];
 
 class MultiColumnRowBase extends React.Component {
 	render() {
-		const {
-			controls, data, editModeOn, getDataById, setAsChild, removeChild, seq, className, index,
-		} = this.props;
-		const { childItems, pageBreakBefore } = data;
+		const {	controls, item, editModeOn, getDataById, setAsChild, removeChild, seq, className, index	} = this.props;
+		const { childItems, pageBreakBefore } = item;
 		let baseClasses = 'SortableItem rfb-item';
 		if (pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
@@ -28,13 +26,13 @@ class MultiColumnRowBase extends React.Component {
 								controls ? controls[i] :
 									<Dustbin
 										style={{ width: '100%' }}
-										data={data}
+										item={item}
 										accepts={accepts}
 										items={childItems}
 										col={i}
 										parentIndex={index}
 										editModeOn={editModeOn}
-										_onDestroy={() => removeChild(data, i)}
+										_onDestroy={() => removeChild(item, i)}
 										getDataById={getDataById}
 										setAsChild={setAsChild}
 										seq={seq}
@@ -47,37 +45,37 @@ class MultiColumnRowBase extends React.Component {
 	}
 }
 
-const TwoColumnRow = ({ data, className, ...rest }) => {
+const TwoColumnRow = ({ item, className, ...rest }) => {
 	const classNameVal = className || 'col-md-6';
-	if (!data.childItems) {
+	if (!item.childItems) {
 		// eslint-disable-next-line no-param-reassign
-		data.childItems = [null, null]; data.isContainer = true;
+		item.childItems = [null, null]; item.isContainer = true;
 	}
 	return (
-		<MultiColumnRowBase {...rest} className={classNameVal} data={data} />
+		<MultiColumnRowBase {...rest} className={classNameVal} item={item} />
 	);
 };
 
-const ThreeColumnRow = ({ data, className, ...rest }) => {
+const ThreeColumnRow = ({ item, className, ...rest }) => {
 	const classNameVal = className || 'col-md-4';
-	if (!data.childItems) {
+	if (!item.childItems) {
 		// eslint-disable-next-line no-param-reassign
-		data.childItems = [null, null, null]; data.isContainer = true;
+		item.childItems = [null, null, null]; item.isContainer = true;
 	}
 	return (
-		<MultiColumnRowBase {...rest} className={classNameVal} data={data} />
+		<MultiColumnRowBase {...rest} className={classNameVal} item={item} />
 	);
 };
 
-const MultiColumnRow = ({ data, ...rest }) => {
-	const colCount = data.colCount || 4;
-	const classNameVal = data.className || (colCount === 4 ? 'col-md-3' : 'col');
-	if (!data.childItems) {
+const MultiColumnRow = ({ item, ...rest }) => {
+	const colCount = item.colCount || 4;
+	const classNameVal = item.className || (colCount === 4 ? 'col-md-3' : 'col');
+	if (!item.childItems) {
 		// eslint-disable-next-line no-param-reassign
-		data.childItems = Array.from({ length: colCount }, (v, i) => null);
-		data.isContainer = true;
+		item.childItems = Array.from({ length: colCount }, (v, i) => null);
+		item.isContainer = true;
 	}
-	return <MultiColumnRowBase {...rest} className={classNameVal} data={data} />;
+	return <MultiColumnRowBase {...rest} className={classNameVal} item={item} />;
 };
 
 export { TwoColumnRow, ThreeColumnRow, MultiColumnRow };

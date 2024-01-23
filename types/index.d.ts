@@ -156,7 +156,7 @@ export interface SurveyGeneratorProps {
   onBlur?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   onSubmit?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   onChange?: (info: SurveyGeneratorOnSubmitParams[]) => void;
-  data: any[];
+  items: any[];
   backAction?: string;
   backName?: string;
   task_id?: number;
@@ -173,6 +173,8 @@ export interface SurveyGeneratorProps {
   buttons?: JSX.Element;
   buttonClassName?: string;
   formId?: string;
+  methods?: Record<any, any>;
+  print?: boolean;
 }
 
 export class ReactSurveyGenerator extends React.Component<SurveyGeneratorProps> {}
