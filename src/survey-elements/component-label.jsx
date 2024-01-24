@@ -12,6 +12,9 @@ const ComponentLabel = ({ item, className, htmlFor }) => {
 
 	const hideRequiredAlert = item.hideRequiredAlert;
 
+	const hideLabel = item.hideLabel ?? false;
+	if (hideLabel) return null;
+
 	return (
 		<label className={className || ''} htmlFor={htmlFor}>
 			<span dangerouslySetInnerHTML={{ __html: labelText }} />

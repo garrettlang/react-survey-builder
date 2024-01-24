@@ -7,6 +7,7 @@ type BaseElement = {
     | "Header Text"
     | "Label"
     | "Paragraph"
+    | "Static Content"
     | "Line Break"
     | "Dropdown"
     | "Tags"
@@ -30,6 +31,8 @@ type BaseElement = {
   showDescription?: boolean;
   showLabelLocationPicker?: boolean;
   showHelp?: boolean;
+  hideLabel?: boolean;
+  canHideLabel: boolean;
 	hideRequiredAlert?: boolean;
   required: boolean;
   canHaveAlternateForm: boolean;

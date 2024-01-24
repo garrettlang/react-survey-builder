@@ -6,7 +6,7 @@ import { FieldSet } from './fieldset';
 import CustomElement from './survey-elements/custom-element';
 
 const {
-	Header, Paragraph, Label, LineBreak, TextInput, EmailInput, PhoneNumber, NumberInput, TextArea, Dropdown, Checkboxes,
+	Header, Paragraph, ContentBody, Label, LineBreak, TextInput, EmailInput, PhoneNumber, NumberInput, TextArea, Dropdown, Checkboxes,
 	DatePicker, RadioButtons, Image, Rating, Tags, Signature, HyperLink, Download, Camera, Range, FileUpload, Checkbox,
 } = BaseSurveyElements;
 
@@ -14,6 +14,7 @@ const SurveyElements = {};
 
 SurveyElements.Header = SortableElement(Header);
 SurveyElements.Paragraph = SortableElement(Paragraph);
+SurveyElements.ContentBody = SortableElement(ContentBody);
 SurveyElements.Label = SortableElement(Label);
 SurveyElements.LineBreak = SortableElement(LineBreak);
 SurveyElements.TextInput = SortableElement(TextInput);

@@ -10,7 +10,7 @@ import ID from './UUID';
 import store from './stores/store';
 import { groupBy } from './functions';
 import { FaArrowsAltH, FaBars, FaCamera, FaCaretSquareDown, FaCheckSquare, FaColumns, FaEnvelope, FaFile, FaFont, FaHeading, FaLink, FaParagraph, FaPenSquare, FaPhone, FaPlus, FaRegCalendarAlt, FaRegDotCircle, FaRegImage, FaSlidersH, FaStar, FaTags, FaTextHeight } from 'react-icons/fa';
-
+import { PiFileHtml } from 'react-icons/pi'
 // function isDefaultItem(item) {
 //   const keys = Object.keys(item);
 //   return keys.filter(x => x !== 'element' && x !== 'key' && x !== 'groupName').length === 0;
@@ -115,6 +115,13 @@ class Toolbar extends React.Component {
 				content: intl.formatMessage({ id: 'place-holder-text' }),
 			},
 			{
+				key: 'ContentBody',
+				name: intl.formatMessage({ id: 'content-body' }),
+				static: true,
+				icon: PiFileHtml,
+				content: intl.formatMessage({ id: 'place-holder-text' }),
+			},
+			{
 				key: 'LineBreak',
 				name: intl.formatMessage({ id: 'line-break' }),
 				static: true,
@@ -178,7 +185,9 @@ class Toolbar extends React.Component {
 				showHelp: true,
 				boxLabel: 'Agree To Rules & Regs',
 				hideRequiredAlert: true,
-				answerType: 'BOOLEAN'
+				answerType: 'BOOLEAN',
+				canHideLabel: true,
+				showLabel: false
 			},
 			{
 				key: 'RadioButtons',
@@ -356,7 +365,7 @@ class Toolbar extends React.Component {
 				icon: FaBars,
 				fieldName: 'fieldset-element',
 			},
-			
+
 			{
 				key: 'Image',
 				name: intl.formatMessage({ id: 'image' }),
@@ -482,7 +491,7 @@ class Toolbar extends React.Component {
 			elementOptions.customOptions = item.customOptions || [];
 		}
 
-		if (item.static) {
+		if (item.static && ['Header', 'Paragraph', 'Label'].indexOf(element) !== -1) {
 			elementOptions.bold = false;
 			elementOptions.italic = false;
 		}
@@ -496,6 +505,9 @@ class Toolbar extends React.Component {
 		elementOptions.help = item.help;
 
 		elementOptions.hideRequiredAlert = item.hideRequiredAlert;
+
+		elementOptions.canHideLabel = item.canHideLabel;
+		elementOptions.hideLabel = item.hideLabel;
 
 		if (item.canHaveAnswer) { elementOptions.canHaveAnswer = item.canHaveAnswer; }
 

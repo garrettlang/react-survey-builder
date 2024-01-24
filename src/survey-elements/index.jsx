@@ -7,7 +7,7 @@ import RangeSlider from 'react-bootstrap-range-slider';
 import StarRating from './star-rating';
 import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
-import myxss from './myxss';
+import myxss, { myContentXSS } from './myxss';
 import { FaCamera, FaDownload, FaFile, FaTimes } from 'react-icons/fa';
 import { Button, Col, Container, Form, Image as ImageComponent, Row } from 'react-bootstrap';
 import { IMaskInput } from "react-imask";
@@ -103,6 +103,22 @@ class Header extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<h3 className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
+			</div>
+		);
+	}
+}
+
+class ContentBody extends React.Component {
+	render() {
+		let classNames = 'static';
+
+		let baseClasses = 'SortableItem rfb-item';
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		return (
+			<div style={{ ...this.props.style }} className={baseClasses}>
+				<ComponentHeader {...this.props} />
+				<div className={classNames} dangerouslySetInnerHTML={{ __html: myContentXSS.process(this.props.item.content) }} />
 			</div>
 		);
 	}
@@ -245,7 +261,7 @@ class EmailInput extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value ?? this.props.defaultValue}</div>
+						<div>{this.props.value}</div>
 					</Form.Group>
 				</div>
 			);
@@ -303,7 +319,7 @@ class PhoneNumber extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value ?? this.props.defaultValue}</div>
+						<div>{this.props.value}</div>
 					</Form.Group>
 				</div>
 			);
@@ -363,7 +379,7 @@ class DatePicker extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value ?? this.props.defaultValue}</div>
+						<div>{this.props.value}</div>
 					</Form.Group>
 				</div>
 			);
@@ -425,7 +441,7 @@ class NumberInput extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value ?? this.props.defaultValue}</div>
+						<div>{this.props.value}</div>
 					</Form.Group>
 				</div>
 			);
@@ -483,7 +499,7 @@ class TextArea extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value ?? this.props.defaultValue}</div>
+						<div>{this.props.value}</div>
 					</Form.Group>
 				</div>
 			);
@@ -541,7 +557,7 @@ class Dropdown extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.item.options.filter((selectedOption) => selectedOption.value === (this.props.value ?? this.props.defaultValue))?.label}</div>
+						<div>{this.props.item.options.filter((selectedOption) => selectedOption.value === (this.props.value))?.label}</div>
 					</Form.Group>
 				</div>
 			);
@@ -664,7 +680,6 @@ class Signature extends React.Component {
 		if (this.props.item.mutable) {
 			padProps.defaultValue = this.props.value?.signature;
 			padProps.ref = this.canvas;
-			padProps.willReadFrequently = true;
 			canClear = !this.props.item.readOnly;
 		}
 
@@ -676,7 +691,7 @@ class Signature extends React.Component {
 			sourceDataURL = this.state.value?.signature;
 		}
 
-		padProps.canvasProps = {};
+		padProps.canvasProps = { };
 
 		if (this.props.item.print === true && !!sourceDataURL) {
 			return (
@@ -915,7 +930,7 @@ class Checkbox extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value === true ? 'Yes' : 'No'}</div>
+						<div><span dangerouslySetInnerHTML={{ __html: this.props.item.boxLabel }} />: {this.props.value === true ? 'Yes' : 'No'}</div>
 					</Form.Group>
 				</div>
 			);
@@ -1428,6 +1443,7 @@ class Range extends React.Component {
 
 SurveyElements.Header = Header;
 SurveyElements.Paragraph = Paragraph;
+SurveyElements.ContentBody = ContentBody;
 SurveyElements.Label = Label;
 SurveyElements.LineBreak = LineBreak;
 SurveyElements.TextInput = TextInput;

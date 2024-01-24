@@ -10,7 +10,25 @@ import IntlMessages from './language-provider/IntlMessages';
 import { FaTimes } from 'react-icons/fa';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 
-const toolbar = {
+const bodyToolbar = {
+	options: ['inline', 'blockType', 'list', 'textAlign', 'fontSize', 'link', 'remove', 'history'],
+	inline: {
+		inDropdown: false,
+		className: undefined,
+		options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace', 'superscript', 'subscript'],
+	},
+};
+
+const headerToolbar = {
+	options: ['inline', 'list', 'textAlign', 'fontSize', 'link', 'history'],
+	inline: {
+		inDropdown: false,
+		className: undefined,
+		options: ['bold', 'italic', 'underline', 'superscript', 'subscript'],
+	},
+};
+
+const labelToolbar = {
 	options: ['inline', 'list', 'textAlign', 'fontSize', 'link', 'history'],
 	inline: {
 		inDropdown: false,
@@ -49,8 +67,8 @@ export default class SurveyElementsEdit extends React.Component {
 
 	onEditorStateChange(index, property, editorContent) {
 		// const html = draftToHtml(convertToRaw(editorContent.getCurrentContent())).replace(/<p>/g, '<div>').replace(/<\/p>/g, '</div>');
-		const html = draftToHtml(convertToRaw(editorContent.getCurrentContent())).replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/&nbsp;/g, ' ')
-			.replace(/(?:\r\n|\r|\n)/g, '');
+		// const html = draftToHtml(convertToRaw(editorContent.getCurrentContent())).replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/&nbsp;/g, ' ').replace(/(?:\r\n|\r|\n)/g, '');
+		const html = draftToHtml(convertToRaw(editorContent.getCurrentContent())).replace(/&nbsp;/g, ' ').replace(/(?:\r\n|\r|\n)/g, '');
 		const thisElement = this.state.element;
 		thisElement[property] = html;
 
@@ -117,8 +135,9 @@ export default class SurveyElementsEdit extends React.Component {
 		const thisCheckedCenter = this.props.element.hasOwnProperty('center') ? this.props.element.center : false;
 		const thisCheckedPageBreak = this.props.element.hasOwnProperty('pageBreakBefore') ? this.props.element.pageBreakBefore : false;
 		const thisCheckedAlternateForm = this.props.element.hasOwnProperty('alternateForm') ? this.props.element.alternateForm : false;
+		const thisCheckedHideLabel = this.props.element.hasOwnProperty('hideLabel') ? this.props.element.hideLabel : false;
 
-		const { canHavePageBreakBefore, canHaveAlternateForm, canHaveDisplayHorizontal, canHaveOptionCorrect, canHaveOptionValue } = this.props.element;
+		const { canHavePageBreakBefore, canHaveAlternateForm, canHaveDisplayHorizontal, canHaveOptionCorrect, canHaveOptionValue, canHideLabel = false } = this.props.element;
 		const canHaveImageSize = (this.state.element.element === 'Image' || this.state.element.element === 'Camera');
 
 		const thisFiles = this.props.files.length ? this.props.files : [];
@@ -144,15 +163,54 @@ export default class SurveyElementsEdit extends React.Component {
 					<FaTimes className="float-end dismiss-edit" onClick={this.props.manualEditModeOff} />
 				</div>
 
-				{this.props.element.hasOwnProperty('content') &&
+				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'Header' &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
 						<Editor
-							toolbar={toolbar}
+							toolbar={headerToolbar}
 							defaultEditorState={editorState}
 							onBlur={this.updateElement.bind(this)}
 							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
 							stripPastedStyles={true}
+						/>
+					</Form.Group>
+				}
+
+				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'Label' &&
+					<Form.Group className="form-group mb-5">
+						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
+						<Editor
+							toolbar={labelToolbar}
+							defaultEditorState={editorState}
+							onBlur={this.updateElement.bind(this)}
+							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
+							stripPastedStyles={true}
+						/>
+					</Form.Group>
+				}
+
+				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'Paragraph' &&
+					<Form.Group className="form-group mb-5">
+						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
+						<Editor
+							toolbar={labelToolbar}
+							defaultEditorState={editorState}
+							onBlur={this.updateElement.bind(this)}
+							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
+							stripPastedStyles={true}
+						/>
+					</Form.Group>
+				}
+
+				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'ContentBody' &&
+					<Form.Group className="form-group mb-5">
+						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
+						<Editor
+							toolbar={bodyToolbar}
+							defaultEditorState={editorState}
+							onBlur={this.updateElement.bind(this)}
+							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
+						//stripPastedStyles={true}
 						/>
 					</Form.Group>
 				}
@@ -180,7 +238,7 @@ export default class SurveyElementsEdit extends React.Component {
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="display-label" />:</Form.Label>
 						<Editor
-							toolbar={toolbar}
+							toolbar={labelToolbar}
 							defaultEditorState={editorState}
 							onBlur={this.updateElement.bind(this)}
 							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'label')}
@@ -378,7 +436,7 @@ export default class SurveyElementsEdit extends React.Component {
 					</Form.Group>
 				}
 
-				{this.props.element.hasOwnProperty('static') && this.props.element.static &&
+				{this.props.element.hasOwnProperty('static') && this.props.element.static && this.props.element.hasOwnProperty('bold') && this.props.element.hasOwnProperty('italic') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="text-style" />:</Form.Label>
 						<Form.Check id="do-bold" inline label={<IntlMessages id="bold" />} type="checkbox" checked={this_checked_bold} value={true} onChange={this.editElementProp.bind(this, 'bold', 'checked')} />
@@ -407,6 +465,13 @@ export default class SurveyElementsEdit extends React.Component {
 							<option value="ABOVE">Above Form Field</option>
 							<option value="FLOATING">Floating Inside Form Field</option>
 						</Form.Select>
+					</Form.Group>
+				}
+
+				{canHideLabel &&
+					<Form.Group className="form-group mb-5">
+						<Form.Label className="fw-bold">Hide Label:</Form.Label>
+						<Form.Check id="hide-label" label="Hide Label" type="checkbox" checked={thisCheckedHideLabel} value={true} onChange={this.editElementProp.bind(this, 'hideLabel', 'checked')} />
 					</Form.Group>
 				}
 
