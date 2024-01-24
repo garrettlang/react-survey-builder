@@ -1,9 +1,9 @@
 import React from 'react';
 import { ReactSurveyFieldGenerator, ReactSurveyGenerator } from './src/index';
-import { Button, Container, Modal, Navbar } from 'react-bootstrap';
+import { Button, Modal } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 
-const HeaderBar = ({ variables, data }) => {
+const PreviewBlock = ({ variables, data }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -13,7 +13,7 @@ const HeaderBar = ({ variables, data }) => {
 	const [answers, setAnswers] = React.useState([]);
 	const [previewVisible, setpreviewVisible] = React.useState(false);
 	const [shortPreviewVisible, setshortPreviewVisible] = React.useState(false);
-	const [roPreviewVisible, setroPreviewVisible] = React.useState(false);
+	const [readOnlyPreviewVisible, setReadOnlyPreviewVisible] = React.useState(false);
 	const [previewRHFVisible, setpreviewRHFVisible] = React.useState(false);
 
 	const showPreview = () => {
@@ -28,15 +28,15 @@ const HeaderBar = ({ variables, data }) => {
 		setshortPreviewVisible(true);
 	};
 
-	const showRoPreview = () => {
-		setroPreviewVisible(true);
+	const showReadOnlyPreview = () => {
+		setReadOnlyPreviewVisible(true);
 	};
 
 	const closePreview = () => {
 		setpreviewVisible(false);
 		setpreviewRHFVisible(false);
 		setshortPreviewVisible(false);
-		setroPreviewVisible(false);
+		setReadOnlyPreviewVisible(false);
 	}
 
 	const _onChange = (dataArray) => {
@@ -53,17 +53,16 @@ const HeaderBar = ({ variables, data }) => {
 
 	return (
 		<>
-			<Navbar bg="light" sticky="bottom" data-bs-theme="light">
-				<Container fluid>
-					<Navbar.Text>Save the Survey prior to Previewing</Navbar.Text>
-					<div className="ms-auto">
-						<Button variant="success" className="mx-1" onClick={() => { showRHFPreview(); }}>Preview React Hook Form Survey</Button>
-						<Button variant="info" className="mx-1" onClick={() => { showPreview(); }}>Preview Survey</Button>
-						<Button variant="secondary" className="mx-1" onClick={() => { showShortPreview(); }}>Alternate/Short Survey</Button>
-						<Button variant="secondary" className="mx-1" onClick={() => { showRoPreview(); }}>Read Only Survey</Button>
-					</div>
-				</Container>
-			</Navbar>
+			<div>
+				<h4 className="text-center">Previews</h4>
+				<div className="text-center"><small>Save the Survey prior to Previewing</small></div>
+				<div className="d-grid gap-2">
+					<Button variant="success" className="mx-1" onClick={() => { showRHFPreview(); }}>Survey with Injected React Hook Form</Button>
+					<Button variant="info" className="mx-1" onClick={() => { showPreview(); }}>Survey</Button>
+					<Button variant="secondary" className="mx-1" onClick={() => { showShortPreview(); }}>Alternate/Short Survey</Button>
+					<Button variant="warning" className="mx-1" onClick={() => { showReadOnlyPreview(); }}>Read Only Survey</Button>
+				</div>
+			</div>
 
 			<Modal
 				show={previewRHFVisible}
@@ -132,7 +131,7 @@ const HeaderBar = ({ variables, data }) => {
 			</Modal>
 
 			<Modal
-				show={roPreviewVisible}
+				show={readOnlyPreviewVisible}
 				dialogClassName="modal-lg"
 				size="lg"
 				contentClassName="border border-light"
@@ -185,6 +184,7 @@ const HeaderBar = ({ variables, data }) => {
 						variables={variables}
 						hideActions={false}
 						locale='en'
+						buttonClassName="d-grid gap-2"
 					/>
 				</Modal.Body>
 				<Modal.Footer className="p-0">
@@ -195,4 +195,4 @@ const HeaderBar = ({ variables, data }) => {
 	);
 };
 
-export default HeaderBar;
+export default PreviewBlock;

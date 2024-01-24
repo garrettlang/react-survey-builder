@@ -128,6 +128,9 @@ export type ToolbarItem = {
 export interface SurveyBuilderProps {
   surveyName?: string;
   saveSurveyName?: string;
+  editSurveyBlock?: React.ReactNode;
+  previewSurveyBlock?: React.ReactNode;
+  surveyToolbarClassName?: string;
   toolbarItems?: ToolbarItem[];
   files?: any[];
   url?: string;

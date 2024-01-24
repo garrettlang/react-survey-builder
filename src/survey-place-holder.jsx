@@ -14,7 +14,7 @@ class PlaceHolder extends React.Component {
 			(this.props.text === 'Dropzone' ? intl.formatMessage({ id: 'drop-zone' }) : this.props.text) : '';
 
 		return (
-			<div className={placeHolderClass} >
+			<div className={placeHolderClass}>
 				<div>{placeHolder}</div>
 			</div>
 		);

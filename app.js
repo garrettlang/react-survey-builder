@@ -1,5 +1,5 @@
 import React from 'react';
-import HeaderBar from './headerbar';
+import PreviewBlock from './previewBlock';
 // eslint-disable-next-line no-unused-vars
 import SurveyBuilder, { Registry } from './src/index';
 import * as variables from './variables';
@@ -99,23 +99,25 @@ const TestComponent = () => <h2>Hello</h2>;
 
 const App = () => {
 	const [data, setData] = React.useState([]);
-	
+
 	return (
 		<>
 			<SurveyBuilder.ReactSurveyBuilder
 				surveyName={'Test Survey'}
+				saveSurveyName="Save Survey Blocks"
+				previewSurveyBlock={<PreviewBlock variables={variables} data={data} />}
+				surveyToolbarClassName="bg-white sticky-top"
 				variables={variables}
 				url={url}
 				saveUrl={saveUrl}
 				locale='en'
-				saveAlways={false}
+				saveAlways={true}
 				// toolbarItems={items}
 				showCorrectColumn
 				showDescription
 				editMode={true}
 				onPost={($data) => { console.log('onPost', $data); setData($data.task_data); }}
 			/>
-			<HeaderBar variables={variables} data={data} />
 		</>
 	);
 };
