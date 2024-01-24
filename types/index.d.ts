@@ -28,18 +28,19 @@ type BaseElement = {
     | "File Attachment"
     | "Range"
     | "Camera";
-  showDescription?: boolean;
-  showLabelLocationPicker?: boolean;
-  showHelp?: boolean;
-  hideLabel?: boolean;
+  canHaveLabelLocation?: boolean;
+  labelLocation?: string;
+  canHaveHelp?: boolean;
+  help?: string;
   canHideLabel: boolean;
-	hideRequiredAlert?: boolean;
-  required: boolean;
+  hideLabel?: boolean;
+  required?: boolean;
   canHaveAlternateForm: boolean;
+  alternateForm?: boolean;
   canHaveDisplayHorizontal: boolean;
-  canHaveOptionCorrect: boolean;
-  canHaveOptionValue: boolean;
+  inline?: boolean;
   canHavePageBreakBefore: boolean;
+  pageBreakBefore?: boolean;
   canPopulateFromApi: boolean;
   text: string;
 };
@@ -51,7 +52,6 @@ export type StaticElement = {
   static: true;
 };
 export type SurveyBuilderInput = {
-  canHaveAnswer?: true;
   fieldName: string;
   label: string;
 };
@@ -72,10 +72,6 @@ export type DateElement = {
   dateFormat: string;
   defaultToday: boolean;
   readOnly: boolean;
-  showTimeSelect: boolean;
-  showTimeSelectOnly: boolean;
-  showTimeInput: boolean;
-  timeFormat: string;
 } & SurveyBuilderInput;
 export type RangeElement = {
   maxLabel: string;
@@ -85,7 +81,7 @@ export type RangeElement = {
   step: number;
 } & SurveyBuilderInput;
 export type FileElement = {
-  _href: string;
+  href: string;
   filePath: string;
   fieldName: string;
 } & StaticElement;

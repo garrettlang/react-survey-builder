@@ -49,7 +49,8 @@ const TwoColumnRow = ({ item, className, ...rest }) => {
 	const classNameVal = className || 'col-md-6';
 	if (!item.childItems) {
 		// eslint-disable-next-line no-param-reassign
-		item.childItems = [null, null]; item.isContainer = true;
+		item.childItems = [null, null]; 
+		item.isContainer = true;
 	}
 	return (
 		<MultiColumnRowBase {...rest} className={classNameVal} item={item} />
@@ -60,7 +61,8 @@ const ThreeColumnRow = ({ item, className, ...rest }) => {
 	const classNameVal = className || 'col-md-4';
 	if (!item.childItems) {
 		// eslint-disable-next-line no-param-reassign
-		item.childItems = [null, null, null]; item.isContainer = true;
+		item.childItems = [null, null, null]; 
+		item.isContainer = true;
 	}
 	return (
 		<MultiColumnRowBase {...rest} className={classNameVal} item={item} />

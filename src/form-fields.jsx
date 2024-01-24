@@ -18,7 +18,7 @@ import { isValidPhoneNumber } from 'react-phone-number-input';
 
 const { Image, Checkboxes, Signature, Download, Camera, FileUpload } = SurveyElements;
 
-const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations = false, displayShort = false, hideRequiredAlert = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, items, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, formId, methods, print = false }) => {
+const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, items, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, formId, methods, print = false }) => {
 	if (!methods) return null;
 
 	//#region helper functions
@@ -60,6 +60,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		if (defaultValue === undefined) {
 			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'Tags') {
 				defaultValue = [];
+			} else if ($dataItem.element === 'NumberInput' || $dataItem.element === 'Range') {
+				defaultValue = $dataItem.minValue ?? 0;
 			} else {
 				defaultValue = '';
 			}
@@ -113,7 +115,9 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 
 	const _isIncorrect = ($dataItem) => {
 		let incorrect = false;
-		if ($dataItem.canHaveAnswer) {
+
+		const canHaveAnswer = ['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'RadioButtons', 'Rating', 'Range'].indexOf($dataItem.element) !== -1;
+		if (canHaveAnswer) {
 			const ref = inputs.current[$dataItem.fieldName];
 			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'RadioButtons') {
 				$dataItem.options.forEach((option) => {
@@ -124,7 +128,13 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 				});
 			} else {
 				const $item = _getItemValue($dataItem, ref);
-				if ($dataItem.element === 'Rating') {
+				if ($dataItem.element === 'Rating' || $dataItem.element === 'Range' || $dataItem.element === 'NumberInput') {
+					// number to string
+					if ($item.value.toString() !== $dataItem.correct) {
+						incorrect = true;
+					}
+				} else if ($dataItem.element === 'Checkbox') {
+					// boolean to string
 					if ($item.value.toString() !== $dataItem.correct) {
 						incorrect = true;
 					}
@@ -225,43 +235,25 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		return formData;
 	};
 
-	const _getSignatureImg = ($dataItem) => {
-		// const ref = inputs.current[$dataItem.fieldName];
-		// const $canvas_sig = ref.canvas.current;
-		// if ($canvas_sig) {
-		// 	const base64 = $canvas_sig.toDataURL().replace('data:image/png;base64,', '');
-		// 	const isEmpty = $canvas_sig.isEmpty();
-		// 	const $input_sig = ReactDOM.findDOMNode(ref.inputField.current);
-		// 	if (isEmpty) {
-		// 		$input_sig.value = '';
-		// 		methods.setValue($dataItem.fieldName, '');
-		// 	} else {
-		// 		$input_sig.value = base64;
-		// 		methods.setValue($dataItem.fieldName, base64);
-		// 	}
-		// }
-	};
-
 	//#endregion
 	//#region form methods
 
 	const handleSubmit = ($formData, event) => {
 		event.preventDefault();
 
-		console.log('handleSubmit', $formData);
-
-		let errors = [];
-		if (!skipValidations) {
-			errors = validateForm();
-			// Publish errors, if any.
-			//emitter.emit('surveyValidation', errors);
+		let hasErrors = false;
+		if (validateForCorrectness) {
+			hasErrors = validateForm();
 		}
 
 		// Only submit if there are no errors.
-		if (errors.length < 1) {
+		if (hasErrors === false) {
 			if (onSubmit) {
 				const $data = _collectFormData(items);
-				onSubmit($data);
+				onSubmit({
+					formData: $formData,
+					answers: $data
+				});
 			} else {
 				const $form = ReactDOM.findDOMNode(form.current);
 				$form.submit();
@@ -279,7 +271,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 	}
 
 	const validateForm = () => {
-		const errors = [];
+		let hasErrors = false;
 		let dataItems = items;
 
 		if (displayShort) {
@@ -287,43 +279,15 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 		}
 
 		dataItems.forEach((item) => {
-			if (item.element === 'Signature') {
-				_getSignatureImg(item);
-			}
-
-			if (_isInvalid(item)) {
-				errors.push(`${item.label} ${intl.formatMessage({ id: 'message.is-required' })}!`);
-			}
-
-			if (item.element === 'EmailInput') {
-				const ref = inputs.current[item.fieldName];
-				const emailValue = _getItemValue(item, ref).value;
-				if (emailValue) {
-					const checkEmail = validateEmail(emailValue);
-					if (!checkEmail) {
-						errors.push(`${item.label} ${intl.formatMessage({ id: 'message.invalid-email' })}`);
-					}
+			if (_isIncorrect(item)) {
+				if (methods) {
+					methods.setError(item.fieldName, { type: 'incorrect', message: `${item.label} ${intl.formatMessage({ id: 'message.was-answered-incorrectly' })}` });
 				}
-			}
-
-			if (item.element === 'PhoneNumber') {
-				const ref = inputs.current[item.fieldName];
-				const phoneValue = _getItemValue(item, ref).value;
-				if (phoneValue) {
-					const checkPhone = validatePhone(phoneValue);
-					if (!checkPhone) {
-						errors.push(`${item.label} ${intl.formatMessage({ id: 'message.invalid-phone-number' })}`);
-					}
-				}
-			}
-
-			if (validateForCorrectness && _isIncorrect(item)) {
-				methods.setError(item.fieldName, { type: 'incorrect', message: `${item.label} ${intl.formatMessage({ id: 'message.was-answered-incorrectly' })}` });
-				errors.push(`${item.label} ${intl.formatMessage({ id: 'message.was-answered-incorrectly' })}!`);
+				hasErrors = true;
 			}
 		});
 
-		return errors;
+		return hasErrors;
 	};
 
 	const validateEmail = (email) => email.match(
@@ -416,9 +380,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 				...$dataItem,
 				fieldRules: getFieldRules($dataItem),
 				print: print ?? false,
-				hideRequiredAlert: hideRequiredAlert || $dataItem.hideRequiredAlert,
-				readOnly: readOnly || $dataItem.readOnly,
-				disabled: $dataItem.readOnly,
+				readOnly: (readOnly || $dataItem.readOnly) ?? false,
+				disabled: (readOnly || $dataItem.readOnly) ?? false,
 				mutable: true
 			};
 		}
@@ -461,7 +424,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 				)}
 			/>
 		);
-	}
+	};
 
 	const getContainerElement = (item, Element) => {
 		const controls = item.childItems.map((childItem) => (childItem ? getInputElement(getDataItemById(childItem)) : <div>&nbsp;</div>));
@@ -572,10 +535,10 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 
 	//#endregion
 
-	let dataItems = items;
+	let dataItems = items ? [...items] : [];
 
 	if (displayShort) {
-		dataItems = items.filter((i) => i.alternateForm === true);
+		dataItems = items ? [...items].filter((i) => i.alternateForm === true) : [];
 	}
 
 	dataItems.forEach((item) => {
@@ -589,9 +552,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, skipValidations
 
 		item.fieldRules = getFieldRules(item);
 		item.print = print ?? false;
-		item.hideRequiredAlert = hideRequiredAlert || item.hideRequiredAlert;
-		item.readOnly = readOnly || item.readOnly;
-		item.disabled = item.readOnly;
+		item.readOnly = (readOnly || item.readOnly) ?? false;
+		item.disabled = (readOnly || item.readOnly) ?? false;
 		item.mutable = true;
 
 		switch (item.element) {

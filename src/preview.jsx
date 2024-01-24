@@ -104,8 +104,8 @@ export default class Preview extends React.Component {
 
 	_onDestroy(item) {
 		if (item.childItems) {
-			item.childItems.forEach(x => {
-				const child = this.getDataById(x);
+			item.childItems.forEach((childItem) => {
+				const child = this.getDataById(childItem);
 				if (child) {
 					store.dispatch('delete', child);
 				}
@@ -116,7 +116,8 @@ export default class Preview extends React.Component {
 
 	getDataById(id) {
 		const { items } = this.state;
-		return items.find(x => x && x.id === id);
+
+		return items.find((x) => x && x.id === id);
 	}
 
 	swapChildren($dataItems, item, child, col) {
@@ -135,16 +136,21 @@ export default class Preview extends React.Component {
 		// eslint-disable-next-line no-param-reassign
 		item.childItems[col] = child.id; child.col = col;
 		store.dispatch('updateOrder', $dataItems);
+
 		return true;
 	}
 
 	setAsChild(item, child, col, isBusy) {
 		const { items } = this.state;
+
 		if (this.swapChildren(items, item, child, col)) {
 			return;
-		} if (isBusy) {
+		} 
+		
+		if (isBusy) {
 			return;
 		}
+
 		const oldParent = this.getDataById(child.parentId);
 		const oldCol = child.col;
 		// eslint-disable-next-line no-param-reassign
@@ -153,15 +159,17 @@ export default class Preview extends React.Component {
 		child.parentId = item.id;
 		// eslint-disable-next-line no-param-reassign
 		child.parentIndex = items.indexOf(item);
+
 		if (oldParent) {
 			oldParent.childItems[oldCol] = null;
 		}
-		const list = items.filter(x => x && x.parentId === item.id);
-		const toRemove = list.filter(x => item.childItems.indexOf(x.id) === -1);
+
+		const list = items.filter((x) => x && x.parentId === item.id);
+		const toRemove = list.filter((x) => item.childItems.indexOf(x.id) === -1);
 		let newData = items;
 		if (toRemove.length) {
 			// console.log('toRemove', toRemove);
-			newData = items.filter(x => toRemove.indexOf(x) === -1);
+			newData = items.filter((x) => toRemove.indexOf(x) === -1);
 		}
 		if (!this.getDataById(child.id)) {
 			newData.push(child);

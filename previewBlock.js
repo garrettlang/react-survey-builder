@@ -4,6 +4,9 @@ import { Button, Modal } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 
 const PreviewBlock = ({ variables, data }) => {
+	
+	console.log('dataItems', data);
+	
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });

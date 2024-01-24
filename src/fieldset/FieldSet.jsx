@@ -1,12 +1,23 @@
 /* eslint-disable camelcase */
 import React from "react";
 import ComponentHeader from "../survey-elements/component-header";
-import ComponentLabel from "../survey-elements/component-label";
 import FieldsetDustbin from '../multi-column/dustbin';
 import ItemTypes from "../ItemTypes";
-import { Col, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
+import myxss from "../survey-elements/myxss";
 
 const accepts = [ItemTypes.BOX, ItemTypes.CARD];
+
+const ComponentLegend = ({ item }) => {
+	let labelText = myxss.process(item.label);
+	if (!labelText || !labelText.trim()) {
+		return null;
+	}
+
+	return (
+		<legend dangerouslySetInnerHTML={{ __html: labelText }} />
+	);
+};
 
 export default function FieldSetBase(props) {
 
@@ -59,36 +70,38 @@ export default function FieldSetBase(props) {
 	return (
 		<div style={{ ...props.style }} className={baseClasses}>
 			<ComponentHeader {...props} isFieldSet={true} />
-			<div>
-				<ComponentLabel {...props} />
-				<Row>
-					{
-						childItems?.map((x, i) => (
-							<Col key={`${i}_${x || "_"}`} md={12}>
-								{controls ? (
-									controls[i]
-								) : (
-									<FieldsetDustbin
-										style={{ width: "100%" }}
-										item={childData}
-										accepts={accepts}
-										items={childItems}
-										key={i}
-										col={i}
-										onDropSuccess={() => onDropSuccess(i)}
-										parentIndex={index}
-										editModeOn={editModeOn}
-										_onDestroy={() => removeChild(childData, i)}
-										getDataById={getDataById}
-										setAsChild={setAsChild}
-										seq={seq}
-										rowNo={i}
-									/>
-								)}
-							</Col>
-						))}
-				</Row>
-			</div>
+			<fieldset>
+				<ComponentLegend {...props} />
+				<Container fluid>
+					<Row>
+						{
+							childItems?.map((x, i) => (
+								<Col key={`${i}_${x || "_"}`} md={12}>
+									{controls ? (
+										controls[i]
+									) : (
+										<FieldsetDustbin
+											style={{ width: "100%" }}
+											item={childData}
+											accepts={accepts}
+											items={childItems}
+											key={i}
+											col={i}
+											onDropSuccess={() => onDropSuccess(i)}
+											parentIndex={index}
+											editModeOn={editModeOn}
+											_onDestroy={() => removeChild(childData, i)}
+											getDataById={getDataById}
+											setAsChild={setAsChild}
+											seq={seq}
+											rowNo={i}
+										/>
+									)}
+								</Col>
+							))}
+					</Row>
+				</Container>
+			</fieldset>
 		</div>
 	);
 }

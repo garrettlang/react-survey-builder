@@ -118,27 +118,23 @@ export default class SurveyElementsEdit extends React.Component {
 	}
 
 	render() {
-		if (this.state.dirty) {
-			this.props.element.dirty = true;
-		}
+		if (this.state.dirty) { this.props.element.dirty = true; }
 
-		const thisChecked = this.props.element.hasOwnProperty('required') ? this.props.element.required : false;
+		const thisRequiredChecked = this.props.element.hasOwnProperty('required') ? this.props.element.required : false;
 		const thisDefaultChecked = this.props.element.hasOwnProperty('defaultChecked') ? this.props.element.defaultChecked : false;
 		const thisReadOnly = this.props.element.hasOwnProperty('readOnly') ? this.props.element.readOnly : false;
 		const thisDefaultToday = this.props.element.hasOwnProperty('defaultToday') ? this.props.element.defaultToday : false;
-		const thisShowTimeSelect = this.props.element.hasOwnProperty('showTimeSelect') ? this.props.element.showTimeSelect : false;
-		const thisShowTimeSelectOnly = this.props.element.hasOwnProperty('showTimeSelectOnly') ? this.props.element.showTimeSelectOnly : false;
-		const thisShowTimeInput = this.props.element.hasOwnProperty('showTimeInput') ? this.props.element.showTimeInput : false;
 		const thisCheckedInline = this.props.element.hasOwnProperty('inline') ? this.props.element.inline : false;
-		const this_checked_bold = this.props.element.hasOwnProperty('bold') ? this.props.element.bold : false;
+		const thisCheckedBold = this.props.element.hasOwnProperty('bold') ? this.props.element.bold : false;
 		const thisCheckedItalic = this.props.element.hasOwnProperty('italic') ? this.props.element.italic : false;
 		const thisCheckedCenter = this.props.element.hasOwnProperty('center') ? this.props.element.center : false;
 		const thisCheckedPageBreak = this.props.element.hasOwnProperty('pageBreakBefore') ? this.props.element.pageBreakBefore : false;
 		const thisCheckedAlternateForm = this.props.element.hasOwnProperty('alternateForm') ? this.props.element.alternateForm : false;
 		const thisCheckedHideLabel = this.props.element.hasOwnProperty('hideLabel') ? this.props.element.hideLabel : false;
 
-		const { canHavePageBreakBefore, canHaveAlternateForm, canHaveDisplayHorizontal, canHaveOptionCorrect, canHaveOptionValue, canHideLabel = false } = this.props.element;
-		const canHaveImageSize = (this.state.element.element === 'Image' || this.state.element.element === 'Camera');
+		const canHaveAnswer = ['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'RadioButtons', 'Rating', 'Range'].indexOf(this.state.element.element) !== -1;
+		const canHaveOptionValue = ['Dropdown', 'Tags', 'Checkboxes', 'RadioButtons'].indexOf(this.state.element.element) !== -1;
+		const canHaveOptionCorrect = canHaveAnswer && canHaveOptionValue;
 
 		const thisFiles = this.props.files.length ? this.props.files : [];
 		if (thisFiles.length < 1 || (thisFiles.length > 0 && thisFiles[0].id !== '')) {
@@ -244,35 +240,27 @@ export default class SurveyElementsEdit extends React.Component {
 							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'label')}
 							stripPastedStyles={true}
 						/>
-						<br />
-						<Form.Label className="fw-bold">Field Properties:</Form.Label>
-						<Form.Check id="is-required" label={<IntlMessages id="required" />} type="checkbox" checked={thisChecked} value={true} onChange={this.editElementProp.bind(this, 'required', 'checked')} />
+					</Form.Group>
+				}
 
+				{(this.props.element.hasOwnProperty('required') || this.props.element.hasOwnProperty('readOnly') || this.props.element.hasOwnProperty('defaultToday') || (['Checkboxes', 'Checkbox'].indexOf(this.state.element.element) !== -1) || ((this.state.element.element === 'RadioButtons' || this.state.element.element === 'Checkboxes') && this.props.element.hasOwnProperty('inline'))) &&
+					<Form.Group className="form-group mb-5">
+						<Form.Label className="fw-bold">Field Properties:</Form.Label>
+						{this.props.element.hasOwnProperty('required') &&
+							<Form.Check id="is-required" label={<IntlMessages id="required" />} type="checkbox" checked={thisRequiredChecked} value={true} onChange={this.editElementProp.bind(this, 'required', 'checked')} />
+						}
 						{this.props.element.hasOwnProperty('readOnly') &&
 							<Form.Check id="is-read-only" label={<IntlMessages id="read-only" />} type="checkbox" checked={thisReadOnly} value={true} onChange={this.editElementProp.bind(this, 'readOnly', 'checked')} />
 						}
-
 						{this.props.element.hasOwnProperty('defaultToday') &&
 							<Form.Check id="is-default-to-today" label={<IntlMessages id="default-to-today" />} type="checkbox" checked={thisDefaultToday} value={true} onChange={this.editElementProp.bind(this, 'defaultToday', 'checked')} />
 						}
-
-						{/* {this.props.element.hasOwnProperty('showTimeSelect') &&
-							<Form.Check id="show-time-select" label={<IntlMessages id="show-time-select" />} type="checkbox" checked={this_show_time_select} value={true} onChange={this.editElementProp.bind(this, 'showTimeSelect', 'checked')} />
-						}
-
-						{this_show_time_select && this.props.element.hasOwnProperty('showTimeSelectOnly') &&
-							<Form.Check id="show-time-select-only" label={<IntlMessages id="show-time-select-only" />} type="checkbox" checked={this_show_time_select_only} value={true} onChange={this.editElementProp.bind(this, 'showTimeSelectOnly', 'checked')} />
-						}
-
-						{this.props.element.hasOwnProperty('showTimeInput') &&
-							<Form.Check id="show-time-input" label={<IntlMessages id="show-time-input" />} type="checkbox" checked={this_show_time_input} value={true} onChange={this.editElementProp.bind(this, 'showTimeInput', 'checked')} />
-						} */}
 
 						{(['Checkboxes', 'Checkbox'].indexOf(this.state.element.element) !== -1) &&
 							<Form.Check id="default-checked" label={<IntlMessages id="default-checked" />} type="checkbox" checked={thisDefaultChecked} value={true} onChange={this.editElementProp.bind(this, 'defaultChecked', 'checked')} />
 						}
 
-						{(this.state.element.element === 'RadioButtons' || this.state.element.element === 'Checkboxes') && canHaveDisplayHorizontal &&
+						{((this.state.element.element === 'RadioButtons' || this.state.element.element === 'Checkboxes') && this.props.element.hasOwnProperty('inline')) &&
 							<Form.Check id="display-horizontal" label={<IntlMessages id="display-horizontal" />} type="checkbox" checked={thisCheckedInline} value={true} onChange={this.editElementProp.bind(this, 'inline', 'checked')} />
 						}
 					</Form.Group>
@@ -298,7 +286,7 @@ export default class SurveyElementsEdit extends React.Component {
 					</Form.Group>
 				}
 
-				{canHaveImageSize &&
+				{(this.state.element.element === 'Image' || this.state.element.element === 'Camera') &&
 					<Form.Group className="form-group mb-5">
 						<Row>
 							<Col sm={3}>
@@ -368,14 +356,14 @@ export default class SurveyElementsEdit extends React.Component {
 				{/*   : (<div/>) */}
 				{/* } */}
 
-				{canHavePageBreakBefore &&
+				{this.props.element.hasOwnProperty('pageBreakBefore') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="print-options" />:</Form.Label>
 						<Form.Check id="page-break-before-element" label={<IntlMessages id="page-break-before-element" />} type="checkbox" checked={thisCheckedPageBreak} value={true} onChange={this.editElementProp.bind(this, 'pageBreakBefore', 'checked')} />
 					</Form.Group>
 				}
 
-				{canHaveAlternateForm &&
+				{this.props.element.hasOwnProperty('alternateForm') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="alternate-signature-page" />:</Form.Label>
 						<Form.Check id="display-on-alternate" label={<IntlMessages id="display-on-alternate-signature-page" />} type="checkbox" checked={thisCheckedAlternateForm} value={true} onChange={this.editElementProp.bind(this, 'alternateForm', 'checked')} />
@@ -439,26 +427,26 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.props.element.hasOwnProperty('static') && this.props.element.static && this.props.element.hasOwnProperty('bold') && this.props.element.hasOwnProperty('italic') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="text-style" />:</Form.Label>
-						<Form.Check id="do-bold" inline label={<IntlMessages id="bold" />} type="checkbox" checked={this_checked_bold} value={true} onChange={this.editElementProp.bind(this, 'bold', 'checked')} />
+						<Form.Check id="do-bold" inline label={<IntlMessages id="bold" />} type="checkbox" checked={thisCheckedBold} value={true} onChange={this.editElementProp.bind(this, 'bold', 'checked')} />
 						<Form.Check id="do-italic" inline label={<IntlMessages id="italic" />} type="checkbox" checked={thisCheckedItalic} value={true} onChange={this.editElementProp.bind(this, 'italic', 'checked')} />
 					</Form.Group>
 				}
 
-				{this.props.element.showPlaceholder &&
+				{this.props.element.hasOwnProperty('placeholder') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold" htmlFor="placeholder"><IntlMessages id="place-holder-text-label" />:</Form.Label>
 						<Form.Control type="text" id="placeholder" defaultValue={this.props.element.placeholder} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'placeholder', 'value')} />
 					</Form.Group>
 				}
 
-				{this.props.element.showCustomName &&
+				{this.props.element.hasOwnProperty('customName') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold" htmlFor="customName"><IntlMessages id="custom-name-label" />:</Form.Label>
 						<Form.Control type="text" id="customName" defaultValue={this.props.element.customName} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'customName', 'value')} />
 					</Form.Group>
 				}
 
-				{this.props.element.showLabelLocationPicker &&
+				{this.props.element.hasOwnProperty('labelLocation') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold" htmlFor="labelLocation"><IntlMessages id="choose-label-location" />:</Form.Label>
 						<Form.Select id="labelLocation" defaultValue={this.props.element.labelLocation} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'labelLocation', 'value')}>
@@ -468,31 +456,31 @@ export default class SurveyElementsEdit extends React.Component {
 					</Form.Group>
 				}
 
-				{canHideLabel &&
+				{this.props.element.hasOwnProperty('hideLabel') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold">Hide Label:</Form.Label>
 						<Form.Check id="hide-label" label="Hide Label" type="checkbox" checked={thisCheckedHideLabel} value={true} onChange={this.editElementProp.bind(this, 'hideLabel', 'checked')} />
 					</Form.Group>
 				}
 
-				{this.props.element.showHelp &&
+				{this.props.element.hasOwnProperty('help') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold" htmlFor="help"><IntlMessages id="help-label" />:</Form.Label>
 						<TextAreaAutosize type="text" className="form-control" id="help" defaultValue={this.props.element.help} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'help', 'value')} />
 					</Form.Group>
 				}
 
-				{this.props.element.showDescription &&
+				{((this.props.showDescription && !this.props.element.static) || this.props.element.hasOwnProperty('description')) &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="questionDescription"><IntlMessages id="description" />:</Form.Label>
-						<TextAreaAutosize type="text" className="form-control" id="questionDescription" defaultValue={this.props.element.description} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'description', 'value')} />
+						<Form.Label className="fw-bold" htmlFor="description"><IntlMessages id="description" />:</Form.Label>
+						<TextAreaAutosize type="text" className="form-control" id="description" defaultValue={this.props.element.description} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'description', 'value')} />
 					</Form.Group>
 				}
 
-				{this.props.showCorrectColumn && this.props.element.canHaveAnswer && !this.props.element.hasOwnProperty('options') &&
+				{this.props.showCorrectColumn && canHaveAnswer && !this.props.element.hasOwnProperty('options') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="correctAnswer"><IntlMessages id="correct-answer" />:</Form.Label>
-						<Form.Control id="correctAnswer" type="text" defaultValue={this.props.element.correct} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'correct', 'value')} />
+						<Form.Label className="fw-bold" htmlFor="correct"><IntlMessages id="correct-answer" />:</Form.Label>
+						<Form.Control id="correct" type="text" defaultValue={this.props.element.correct} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'correct', 'value')} />
 					</Form.Group>
 				}
 
@@ -511,7 +499,8 @@ export default class SurveyElementsEdit extends React.Component {
 				}
 
 				{this.props.element.hasOwnProperty('options') &&
-					<DynamicOptionList showCorrectColumn={this.props.showCorrectColumn}
+					<DynamicOptionList
+						showCorrectColumn={this.props.showCorrectColumn}
 						canHaveOptionCorrect={canHaveOptionCorrect}
 						canHaveOptionValue={canHaveOptionValue}
 						item={this.props.preview.state.item}

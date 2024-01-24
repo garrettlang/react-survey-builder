@@ -101,24 +101,22 @@ const App = () => {
 	const [data, setData] = React.useState([]);
 
 	return (
-		<>
-			<SurveyBuilder.ReactSurveyBuilder
-				surveyName={'Test Survey'}
-				saveSurveyName="Save Survey Blocks"
-				previewSurveyBlock={<PreviewBlock variables={variables} data={data} />}
-				surveyToolbarClassName="bg-white sticky-top"
-				variables={variables}
-				url={url}
-				saveUrl={saveUrl}
-				locale='en'
-				saveAlways={true}
-				// toolbarItems={items}
-				showCorrectColumn
-				showDescription
-				editMode={true}
-				onPost={($data) => { console.log('onPost', $data); setData($data.task_data); }}
-			/>
-		</>
+		<SurveyBuilder.ReactSurveyBuilder
+			surveyName={'Test Survey'}
+			saveSurveyName="Save Survey Blocks"
+			previewSurveyBlock={<PreviewBlock variables={variables} data={data} />}
+			surveyToolbarClassName="bg-white sticky-top"
+			variables={variables}
+			url={url}
+			saveUrl={saveUrl}
+			locale='en'
+			saveAlways={true}
+			// toolbarItems={items}
+			showCorrectColumn={true}
+			showDescription={true}
+			editMode={true}
+			onPost={($data) => { console.log('onPost', $data.task_data); setData($data.task_data); }}
+		/>
 	);
 };
 

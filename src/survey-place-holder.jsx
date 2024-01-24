@@ -22,6 +22,7 @@ class PlaceHolder extends React.Component {
 }
 
 export default injectIntl(PlaceHolder);
+
 PlaceHolder.propTypes = {
 	text: PropTypes.string,
 	show: PropTypes.bool,

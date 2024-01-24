@@ -1374,7 +1374,12 @@ class Range extends React.Component {
 		props.value = this.props.value;
 		props.onChange = (event) => { this.props.onChange(event.target.value); };
 		if (this.props.item.disabled) { props.disabled = true; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+		if (this.props.item.mutable) { props.ref = this.inputField; } 
+		else {
+			if (props.value === undefined) {
+				props.value = this.props.item.defaultValue;
+			}
+		 }
 
 		props.type = 'range';
 		props.list = `tickmarks_${name}`;
