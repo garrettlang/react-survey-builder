@@ -83,23 +83,27 @@ class ReactSurveyBuilder extends React.Component {
 									/>
 								</Col>
 								<Col md={3}>
-									<div className={this.props.surveyToolbarClassName}>
-										<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
-											{this.props.editSurveyBlock ?? (
-												<div>
-													<h4>{this.props.surveyName ?? 'Preview'}</h4>
+									{(!!!this.props.saveAlways || this.props.editSurveyBlock || this.props.previewSurveyBlock || this.props.surveyName) &&
+										<div className={this.props.surveyToolbarClassName}>
+											{(!!!this.props.saveAlways || this.props.editSurveyBlock || this.props.surveyName) &&
+												<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
+													{this.props.editSurveyBlock ?? (this.props.surveyName ? (
+														<div>
+															<h4>{this.props.surveyName}</h4>
+														</div>
+													) : null)}
+													{!!!this.props.saveAlways &&
+														<Button variant="primary" onClick={() => { this.saveFormData(); }}>{this.props.saveSurveyName ?? 'Save Survey'}</Button>
+													}
 												</div>
-											)}
-											{!!!this.props.saveAlways &&
-												<Button variant="primary" onClick={() => { this.saveFormData(); }}>{this.props.saveSurveyName ?? 'Save Survey'}</Button>
 											}
+											{this.props.previewSurveyBlock ? (
+												<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
+													{this.props.previewSurveyBlock}
+												</div>
+											) : null}
 										</div>
-										{this.props.previewSurveyBlock ? (
-											<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
-												{this.props.previewSurveyBlock}
-											</div>
-										) : null}
-									</div>
+									}
 									<Toolbar {...toolbarProps} customItems={this.props.customToolbarItems} />
 								</Col>
 							</Row>

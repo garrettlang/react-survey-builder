@@ -1,6 +1,6 @@
 {
   "name": "react-survey-builder",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "A complete survey builder for react.",
   "main": "lib/index.js",
   "types": "types/index.d.ts",
