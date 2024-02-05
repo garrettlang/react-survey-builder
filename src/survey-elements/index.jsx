@@ -859,7 +859,7 @@ class Checkboxes extends React.Component {
 			return (
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<ComponentLabel {...this.props} htmlFor={this.props.name} />
 						<div>{this.props.item.options.filter((option) => this.props.value.includes(option.value)).map((option) => option.label).join(', ')}</div>
 					</Form.Group>
 				</div>
@@ -966,7 +966,7 @@ class RadioButtons extends React.Component {
 			return (
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
+						<ComponentLabel {...this.props} htmlFor={this.props.name} />
 						<div>{this.props.item.options.filter((option) => this.props.value === option.value).map((option) => option.label).join(', ')}</div>
 					</Form.Group>
 				</div>
