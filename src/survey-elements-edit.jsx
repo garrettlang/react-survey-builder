@@ -2,13 +2,14 @@ import React from 'react';
 import TextAreaAutosize from 'react-textarea-autosize';
 import { ContentState, EditorState, convertFromHTML, convertToRaw } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
-import { Editor } from 'react-draft-wysiwyg';
+// import { Editor } from 'react-draft-wysiwyg';
 import DynamicOptionList from './dynamic-option-list';
 import { get } from './stores/requests';
 import ID from './UUID';
 import IntlMessages from './language-provider/IntlMessages';
 import { FaTimes } from 'react-icons/fa';
 import { Button, Col, Form, Row } from 'react-bootstrap';
+import Editor from 'react-simple-wysiwyg';
 
 const bodyToolbar = {
 	options: ['inline', 'blockType', 'list', 'textAlign', 'fontSize', 'link', 'remove', 'history'],
@@ -36,6 +37,18 @@ const labelToolbar = {
 		options: ['bold', 'italic', 'underline', 'superscript', 'subscript'],
 	},
 };
+
+const CustomWysiwygInput = React.forwardRef(({ onChange, onBlur, value, name, ...otherProps }, ref) => (
+	<Editor
+		{...otherProps}
+		onBlur={onBlur}
+		value={value}
+		name={name}
+		onChange={onChange}
+		containerProps={{ style: { height: '500px', width: '100%', resize: 'both' } }}
+	/>
+));
+
 
 export default class SurveyElementsEdit extends React.Component {
 	constructor(props) {
@@ -159,54 +172,18 @@ export default class SurveyElementsEdit extends React.Component {
 					<FaTimes className="float-end dismiss-edit" onClick={this.props.manualEditModeOff} />
 				</div>
 
-				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'Header' &&
+				{this.props.element.hasOwnProperty('content') && (this.state.element.element === 'Header' || this.state.element.element === 'Label' || this.state.element.element === 'Paragraph' || this.state.element.element === 'ContentBody') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
-						<Editor
-							toolbar={headerToolbar}
-							defaultEditorState={editorState}
+						<Form.Control
+							type="text"
+							id="content"
+							name="content"
+							as={CustomWysiwygInput}
+							value={this.props.element.content}
+							defaultValue={this.props.element.content}
 							onBlur={this.updateElement.bind(this)}
-							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
-							stripPastedStyles={true}
-						/>
-					</Form.Group>
-				}
-
-				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'Label' &&
-					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
-						<Editor
-							toolbar={labelToolbar}
-							defaultEditorState={editorState}
-							onBlur={this.updateElement.bind(this)}
-							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
-							stripPastedStyles={true}
-						/>
-					</Form.Group>
-				}
-
-				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'Paragraph' &&
-					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
-						<Editor
-							toolbar={labelToolbar}
-							defaultEditorState={editorState}
-							onBlur={this.updateElement.bind(this)}
-							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
-							stripPastedStyles={true}
-						/>
-					</Form.Group>
-				}
-
-				{this.props.element.hasOwnProperty('content') && this.state.element.element === 'ContentBody' &&
-					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
-						<Editor
-							toolbar={bodyToolbar}
-							defaultEditorState={editorState}
-							onBlur={this.updateElement.bind(this)}
-							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'content')}
-						//stripPastedStyles={true}
+							onChange={this.editElementProp.bind(this, 'content', 'value')}
 						/>
 					</Form.Group>
 				}
@@ -233,12 +210,15 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.props.element.hasOwnProperty('label') &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="display-label" />:</Form.Label>
-						<Editor
-							toolbar={labelToolbar}
-							defaultEditorState={editorState}
+						<Form.Control
+							type="text"
+							id="label"
+							name="label"
+							as={CustomWysiwygInput}
+							value={this.props.element.label}
+							defaultValue={this.props.element.label}
 							onBlur={this.updateElement.bind(this)}
-							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'label')}
-							stripPastedStyles={true}
+							onChange={this.editElementProp.bind(this, 'label', 'value')}
 						/>
 					</Form.Group>
 				}
@@ -269,12 +249,16 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.state.element.element === 'Checkbox' &&
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold"><IntlMessages id="checkbox-label-text" />:</Form.Label>
-						<Editor
-							toolbar={toolbar}
-							defaultEditorState={secondaryEditorState}
+						<Form.Control
+							type="text"
+							id="boxLabel"
+							name="boxLabel"
+							as={CustomWysiwygInput}
+							value={this.props.element.boxLabel}
+							defaultValue={this.props.element.boxLabel}
 							onBlur={this.updateElement.bind(this)}
-							onEditorStateChange={this.onEditorStateChange.bind(this, 0, 'boxLabel')}
-							stripPastedStyles={true}
+							onChange={this.editElementProp.bind(this, 'boxLabel', 'value')}
+							containerProps={{ style: { height: '500px', width: '100%', resize: 'both' } }}
 						/>
 					</Form.Group>
 				}
