@@ -557,7 +557,7 @@ class Dropdown extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.item.options.filter((selectedOption) => selectedOption.value === (this.props.value))?.label}</div>
+						<div>{this.props.item.options.filter((selectedOption) => selectedOption.value === (this.props.value))?.text}</div>
 					</Form.Group>
 				</div>
 			);
@@ -803,7 +803,7 @@ class Tags extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{props.selected.map((selectedOption) => selectedOption.label).join(', ')}</div>
+						<div>{this.props.item.options.filter((option) => this.props.value.includes(option.value)).map((option) => option.text).join(', ')}</div>
 					</Form.Group>
 				</div>
 			);
@@ -860,7 +860,7 @@ class Checkboxes extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={this.props.name} />
-						<div>{this.props.item.options.filter((option) => this.props.value.includes(option.value)).map((option) => option.label).join(', ')}</div>
+						<div>{this.props.item.options.filter((option) => this.props.value.includes(option.value)).map((option) => option.text).join(', ')}</div>
 					</Form.Group>
 				</div>
 			);
@@ -967,7 +967,7 @@ class RadioButtons extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={this.props.name} />
-						<div>{this.props.item.options.filter((option) => this.props.value === option.value).map((option) => option.label).join(', ')}</div>
+						<div>{this.props.item.options.filter((option) => this.props.value === option.value).map((option) => option.text).join(', ')}</div>
 					</Form.Group>
 				</div>
 			);
