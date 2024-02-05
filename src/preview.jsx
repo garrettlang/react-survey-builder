@@ -145,8 +145,8 @@ export default class Preview extends React.Component {
 
 		if (this.swapChildren(items, item, child, col)) {
 			return;
-		} 
-		
+		}
+
 		if (isBusy) {
 			return;
 		}
@@ -258,7 +258,7 @@ export default class Preview extends React.Component {
 		if (SortableFormElement === null) {
 			return null;
 		}
-		return <SortableFormElement id={item.id} name={item.fieldName} seq={this.seq} index={index} moveCard={this.moveCard} insertCard={this.insertCard} mutable={false} parent={this.props.parent} editModeOn={this.props.editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={item} getDataById={this.getDataById} setAsChild={this.setAsChild} removeChild={this.removeChild} _onDestroy={this._onDestroy} />;
+		return <SortableFormElement id={item.id} name={item.fieldName} seq={this.seq} index={index} moveCard={this.moveCard} insertCard={this.insertCard} mutable={false} parent={this.props.parent} editModeOn={this.props.editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, mutable: false, readOnly: false, print: false }} getDataById={this.getDataById} setAsChild={this.setAsChild} removeChild={this.removeChild} _onDestroy={this._onDestroy} />;
 	}
 
 	showEditForm() {
