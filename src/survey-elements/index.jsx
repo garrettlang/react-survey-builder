@@ -557,7 +557,7 @@ class Dropdown extends React.Component {
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
 						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.item.options.filter((selectedOption) => selectedOption.value === (this.props.value))?.text}</div>
+						<div>{this.props.item.options.find((option) => option.value === (this.props.value))?.text}</div>
 					</Form.Group>
 				</div>
 			);

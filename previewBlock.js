@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 const PreviewBlock = ({ variables, data }) => {
 	
 	console.log('dataItems', data);
-	
+
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -43,13 +43,13 @@ const PreviewBlock = ({ variables, data }) => {
 	}
 
 	const _onChange = (dataArray) => {
-		setAnswers(dataArray);
+		setAnswers(dataArray.answers);
 		console.log('onChange', dataArray);
 	};
 
 	// eslint-disable-next-line no-unused-vars
 	const _onSubmit = (dataArray) => {
-		setAnswers(dataArray);
+		setAnswers(dataArray.answers);
 		console.log('onSubmit', dataArray);
 		// Place code to post json data to server here
 	};
@@ -152,7 +152,7 @@ const PreviewBlock = ({ variables, data }) => {
 						actionName="Save"
 						formAction="/"
 						formMethod="POST"
-						readOnly={true}
+						readOnly={false}
 						variables={variables}
 						hideActions={true}
 						items={data}
