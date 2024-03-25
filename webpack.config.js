@@ -3,7 +3,7 @@ var webpack = require('webpack');
 
 module.exports = {
   entry: './index.js',
-  devtool: 'source-map',
+  // devtool: 'source-map',
   output: {
     path: path.resolve('./public'),
     filename: 'app.js'
@@ -34,15 +34,11 @@ module.exports = {
             loader: 'style-loader'
           },
           {
-            loader: 'css-loader',
-            options: {
-              sourceMap: true
-            }
+            loader: 'css-loader'
           },
           {
             loader: 'sass-loader', 
             options: {
-              sourceMap: true,
               sassOptions: {
                 includePaths: ['./node_modules'],
               },

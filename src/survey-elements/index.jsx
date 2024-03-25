@@ -16,6 +16,7 @@ import ComponentErrorMessage from './component-error-message';
 import { getIPAddress } from '../utils/ipUtils';
 import moment from 'moment-timezone';
 import { RiCheckboxBlankLine, RiCheckboxFill, RiRadioButtonFill, RiRadioButtonLine } from "react-icons/ri";
+import ID from '../UUID';
 
 const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => (
 	<IMaskInput
@@ -924,16 +925,20 @@ class Checkbox extends React.Component {
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 		const props = {};
 		// eslint-disable-next-line no-undef
-		props.name = this.props.name;
-		props.onChange = (event) => { this.props.onChange(event.target.checked); };
-		props.isInvalid = this.props.isInvalid;
+		props.name = this.props.name + '-' + ID.uuid();
+		props.onChange = (event) => {
+			if (this.props.onChange) {
+				this.props.onChange(event.target.checked);
+			}
+		};
+		//props.isInvalid = this.props.isInvalid;
 		props.onBlur = this.props.onBlur;
 		props.autoComplete = "new-password";
 		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+		if (this.props.item.mutable) { props.inputRef = this.inputField; }
 
 		props.checked = this.props.value;
-		props.inline = this.props.item.inline ?? false;
+		//props.inline = this.props.item.inline ?? false;
 
 		if (this.props.item.print === true) {
 			return (

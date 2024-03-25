@@ -54,14 +54,14 @@ module.exports = {
 					},
 					{
 						loader: 'css-loader',
-						options: {
-                            sourceMap: true
-                        }
+						// options: {
+                        //     sourceMap: true
+                        // }
 					},
 					{
 						loader: 'sass-loader', 
 						options: {
-							sourceMap: true,
+							// sourceMap: true,
 							sassOptions: {
 								includePaths: ['./node_modules'],
 							},
