@@ -9,12 +9,13 @@ import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
 import myxss, { myContentXSS } from './myxss';
 import { FaCamera, FaDownload, FaFile, FaTimes } from 'react-icons/fa';
-import { Button, Col, Container, Form, Image as ImageComponent, Row } from 'react-bootstrap';
+import { Button, Col, Container, Form, Image as ImageComponent, Row, ToggleButton } from 'react-bootstrap';
 import { IMaskInput } from "react-imask";
 import { Typeahead } from 'react-bootstrap-typeahead';
 import ComponentErrorMessage from './component-error-message';
 import { getIPAddress } from '../utils/ipUtils';
 import moment from 'moment-timezone';
+import { RiCheckboxBlankLine, RiCheckboxFill, RiRadioButtonFill, RiRadioButtonLine } from "react-icons/ri";
 
 const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => (
 	<IMaskInput
@@ -691,7 +692,7 @@ class Signature extends React.Component {
 			sourceDataURL = this.state.value?.signature;
 		}
 
-		padProps.canvasProps = { };
+		padProps.canvasProps = {};
 
 		if (this.props.item.print === true && !!sourceDataURL) {
 			return (
@@ -880,19 +881,28 @@ class Checkboxes extends React.Component {
 						if (self.props.item.disabled) { props.disabled = 'disabled'; }
 
 						return (
-							<Form.Check
-								label={option.text}
+							<ToggleButton
 								type="checkbox"
+								variant={this.props.checkboxButtonClassName ?? "outline-light"}
+								className="btn-survey-builder-checkbox"
 								key={`preview_${option.key}`}
 								id={`fid_preview_${option.key}`}
-								ref={c => {
+								inputRef={c => {
 									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
 									}
 								}}
 								onChange={(e) => { self.onCheckboxChange(option.value, e); }}
 								{...props}
-							/>
+							>
+								<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
+									{(props.checked !== true) && <RiCheckboxBlankLine size={"40px"} className="me-3 flex-shrink-0" />}
+									{(props.checked === true) && <RiCheckboxFill size={"40px"} className="me-3 flex-shrink-0" />}
+									<div className="text-start">
+										{option.text}
+									</div>
+								</div>
+							</ToggleButton>
 						);
 					})}
 					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
@@ -941,7 +951,22 @@ class Checkbox extends React.Component {
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel className="form-label" {...this.props} />
-					<Form.Check label={<span dangerouslySetInnerHTML={{ __html: this.props.item.boxLabel }} />} type="checkbox" id={props.name} {...props} />
+					<ToggleButton
+						type="checkbox"
+						variant={this.props.checkboxButtonClassName ?? "outline-light"}
+						className="btn-survey-builder-checkbox"
+						value={props.name}
+						id={props.name}
+						{...props}
+					>
+						<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
+							{(props.checked !== true) && <RiCheckboxBlankLine size={"40px"} className="me-3 flex-shrink-0" />}
+							{(props.checked === true) && <RiCheckboxFill size={"40px"} className="me-3 flex-shrink-0" />}
+							<div className="text-start">
+								{<span dangerouslySetInnerHTML={{ __html: this.props.item.boxLabel }} />}
+							</div>
+						</div>
+					</ToggleButton>
 					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
@@ -988,18 +1013,28 @@ class RadioButtons extends React.Component {
 						props.inline = self.props.item.inline ?? false;
 
 						return (
-							<Form.Check
+							<ToggleButton
 								label={option.text}
 								type="radio"
+								variant={this.props.checkboxButtonClassName ?? "outline-light"}
+								className="btn-survey-builder-checkbox"
 								key={`preview_${option.key}`}
 								id={`fid_preview_${option.key}`}
-								ref={c => {
+								inputRef={c => {
 									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
 									}
 								}}
 								{...props}
-							/>
+							>
+								<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
+									{(props.checked !== true) && <RiRadioButtonLine size={"40px"} className="me-3 flex-shrink-0" />}
+									{(props.checked === true) && <RiRadioButtonFill size={"40px"} className="me-3 flex-shrink-0" />}
+									<div className="text-start">
+										{<span dangerouslySetInnerHTML={{ __html: this.props.item.boxLabel }} />}
+									</div>
+								</div>
+							</ToggleButton>
 						);
 					})}
 					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
@@ -1374,12 +1409,12 @@ class Range extends React.Component {
 		props.value = this.props.value;
 		props.onChange = (event) => { this.props.onChange(event.target.value); };
 		if (this.props.item.disabled) { props.disabled = true; }
-		if (this.props.item.mutable) { props.ref = this.inputField; } 
+		if (this.props.item.mutable) { props.ref = this.inputField; }
 		else {
 			if (props.value === undefined) {
 				props.value = this.props.item.defaultValue;
 			}
-		 }
+		}
 
 		props.type = 'range';
 		props.list = `tickmarks_${name}`;

@@ -53,10 +53,15 @@ module.exports = {
 						loader: 'style-loader'
 					},
 					{
-						loader: 'css-loader'
+						loader: 'css-loader',
+						options: {
+                            sourceMap: true
+                        }
 					},
 					{
-						loader: 'sass-loader', options: {
+						loader: 'sass-loader', 
+						options: {
+							sourceMap: true,
 							sassOptions: {
 								includePaths: ['./node_modules'],
 							},

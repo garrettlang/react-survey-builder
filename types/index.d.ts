@@ -174,6 +174,7 @@ export interface SurveyGeneratorProps {
   backButton?: JSX.Element;
   buttons?: JSX.Element;
   buttonClassName?: string;
+  checkboxButtonClassName?: string;
   formId?: string;
   methods?: Record<any, any>;
   print?: boolean;

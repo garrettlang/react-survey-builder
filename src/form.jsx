@@ -18,7 +18,7 @@ import { isValidPhoneNumber } from 'react-phone-number-input';
 
 const { Image, Checkboxes, Signature, Download, Camera, FileUpload } = SurveyElements;
 
-const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, items, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, formId, print = false }) => {
+const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, items, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, checkboxButtonClassName, formId, print = false }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -423,6 +423,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 						ref={c => inputs.current[item.fieldName] = c}
 						isInvalid={invalid}
 						item={item}
+						className={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
 					/>
 				)}
 			/>
@@ -633,6 +634,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 								ref={c => inputs.current[item.fieldName] = c}
 								isInvalid={invalid}
 								item={item}
+								className={checkboxButtonClassName ?? null}
 							/>
 						)}
 					/>
