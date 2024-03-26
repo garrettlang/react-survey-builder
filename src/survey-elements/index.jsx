@@ -878,7 +878,7 @@ class Checkboxes extends React.Component {
 						props.name = `option_${option.key}`;
 						props.value = option.value;
 						props.checked = self.props.value ? self.props.value.indexOf(option.value) > -1 : false;
-						props.inline = self.props.item.inline ?? false;
+						//props.inline = self.props.item.inline ?? false;
 						if (self.props.item.disabled) { props.disabled = 'disabled'; }
 
 						return (
@@ -925,7 +925,7 @@ class Checkbox extends React.Component {
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 		const props = {};
 		// eslint-disable-next-line no-undef
-		props.name = this.props.name + '-' + ID.uuid();
+		props.name = this.props.name;
 		props.onChange = (event) => {
 			if (this.props.onChange) {
 				this.props.onChange(event.target.checked);
@@ -961,7 +961,7 @@ class Checkbox extends React.Component {
 						variant={this.props.checkboxButtonClassName ?? "outline-light"}
 						className="btn-survey-builder-checkbox"
 						value={props.name}
-						id={props.name}
+						id={props.name + '-' + ID.uuid()}
 						{...props}
 					>
 						<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
@@ -1015,7 +1015,7 @@ class RadioButtons extends React.Component {
 						props.checked = self.props.value === option.value;
 						props.onChange = (event) => { self.props.onChange(event.target.value); };
 						if (self.props.item.disabled) { props.disabled = 'disabled'; }
-						props.inline = self.props.item.inline ?? false;
+						//props.inline = self.props.item.inline ?? false;
 
 						return (
 							<ToggleButton
