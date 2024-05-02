@@ -15,84 +15,106 @@ import { Typeahead } from 'react-bootstrap-typeahead';
 import ComponentErrorMessage from './component-error-message';
 import { getIPAddress } from '../utils/ipUtils';
 import moment from 'moment-timezone';
-import { RiCheckboxBlankLine, RiCheckboxFill, RiRadioButtonFill, RiRadioButtonLine } from "react-icons/ri";
+import { RiCheckboxBlankLine, RiCheckboxFill } from "react-icons/ri";
 import ID from '../UUID';
+import { IoRadioButtonOff, IoRadioButtonOn } from 'react-icons/io5';
 
-const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => (
-	<IMaskInput
-		{...otherProps}
-		mask={'{+1} (#00) 000-0000'}
-		lazy={false}
-		overwrite={true}
-		definitions={{
-			'#': /[1-9]/,
-		}}
-		unmask={true} // true|false|'typed'
-		inputRef={ref}
-		// inputRef={inputRef}  // access to nested input
-		// DO NOT USE onChange TO HANDLE CHANGES!
-		// USE onAccept INSTEAD
-		onAccept={
-			// depending on prop above first argument is
-			// `value` if `unmask=false`,
-			// `unmaskedValue` if `unmask=true`,
-			// `typedValue` if `unmask='typed'`
-			(value, mask) => {
-				onChange(value);
-			}
+const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => {
+	Object.keys(otherProps).forEach((key) => {
+		if (otherProps[key] === undefined) {
+			delete otherProps[key];
 		}
-	/>
-));
+	});
 
-const CustomDateInput = React.forwardRef(({ onChange, formatMask = 'MM/DD/YYYY', ...otherProps }, ref) => (
-	<IMaskInput
-		{...otherProps}
-		mask={Date}
-		lazy={false}
-		overwrite={true}
-		pattern={formatMask}
-		format={function (date) {
-			var day = date.getDate();
-			var month = date.getMonth() + 1;
-			var year = date.getFullYear();
-
-			if (day < 10) day = "0" + day;
-			if (month < 10) month = "0" + month;
-
-			return [month, day, year].join('/');
-		}}
-		autofix={true}
-		// min={new Date(1900, 0, 1)}
-		// max={new Date()}
-		blocks={{
-			DD: { mask: IMask.MaskedRange, from: 1, to: 31, maxLength: 2, placeholderChar: 'D' },
-			MM: { mask: IMask.MaskedRange, from: 1, to: 12, maxLength: 2, placeholderChar: 'M' },
-			YYYY: { mask: IMask.MaskedRange, from: 1900, to: new Date().getFullYear() + 5, placeholderChar: 'Y' }
-		}}
-		parse={function (str) {
-			var monthDayYear = str.split('/');
-			return new Date(monthDayYear[2], monthDayYear[0] - 1, monthDayYear[1]);
-		}}
-		unmask={false} // true|false|'typed'
-		inputRef={ref}
-		// inputRef={inputRef}  // access to nested input
-		// DO NOT USE onChange TO HANDLE CHANGES!
-		// USE onAccept INSTEAD
-		onAccept={
-			// depending on prop above first argument is
-			// `value` if `unmask=false`,
-			// `unmaskedValue` if `unmask=true`,
-			// `typedValue` if `unmask='typed'`
-			(value, mask) => {
-				onChange(value);
+	return (
+		<IMaskInput
+			{...otherProps}
+			mask={'{+1} (#00) 000-0000'}
+			lazy={false}
+			overwrite={true}
+			definitions={{
+				'#': /[1-9]/,
+			}}
+			unmask={true} // true|false|'typed'
+			inputRef={ref}
+			// inputRef={inputRef}  // access to nested input
+			// DO NOT USE onChange TO HANDLE CHANGES!
+			// USE onAccept INSTEAD
+			onAccept={
+				// depending on prop above first argument is
+				// `value` if `unmask=false`,
+				// `unmaskedValue` if `unmask=true`,
+				// `typedValue` if `unmask='typed'`
+				(value, mask) => {
+					onChange(value);
+				}
 			}
+		/>
+	)
+});
+
+const CustomDateInput = React.forwardRef(({ onChange, formatMask = 'MM/DD/YYYY', ...otherProps }, ref) => {
+	console.log('otherProps', otherProps);
+	Object.keys(otherProps).forEach((key) => {
+		if (otherProps[key] === undefined) {
+			delete otherProps[key];
 		}
-	/>
-));
+	});
+	console.log('otherProps', otherProps);
+
+
+	return (
+		<IMaskInput
+			{...otherProps}
+			mask={Date}
+			lazy={false}
+			overwrite={true}
+			pattern={formatMask ?? 'MM/DD/YYYY'}
+			format={function (date) {
+				var day = date.getDate();
+				var month = date.getMonth() + 1;
+				var year = date.getFullYear();
+
+				if (day < 10) day = "0" + day;
+				if (month < 10) month = "0" + month;
+
+				return [month, day, year].join('/');
+			}}
+			autofix={true}
+			// min={new Date(1900, 0, 1)}
+			// max={new Date()}
+			blocks={{
+				DD: { mask: IMask.MaskedRange, from: 1, to: 31, maxLength: 2, placeholderChar: 'D' },
+				MM: { mask: IMask.MaskedRange, from: 1, to: 12, maxLength: 2, placeholderChar: 'M' },
+				YYYY: { mask: IMask.MaskedRange, from: 1900, to: new Date().getFullYear() + 5, placeholderChar: 'Y' }
+			}}
+			parse={function (str) {
+				var monthDayYear = str.split('/');
+				return new Date(monthDayYear[2], monthDayYear[0] - 1, monthDayYear[1]);
+			}}
+			unmask={false} // true|false|'typed'
+			inputRef={ref}
+			// inputRef={inputRef}  // access to nested input
+			// DO NOT USE onChange TO HANDLE CHANGES!
+			// USE onAccept INSTEAD
+			onAccept={
+				// depending on prop above first argument is
+				// `value` if `unmask=false`,
+				// `unmaskedValue` if `unmask=true`,
+				// `typedValue` if `unmask='typed'`
+				(value, mask) => {
+					if (onChange !== undefined) {
+						onChange(value);
+					}
+				}
+			}
+		/>
+	)
+});
 
 const SurveyElements = {};
 
-class Header extends React.Component {
+export class Header extends React.Component {
 	render() {
 		let classNames = 'static';
 		if (this.props.item.bold) { classNames += ' bold'; }
@@ -110,7 +132,7 @@ class Header extends React.Component {
 	}
 }
 
-class ContentBody extends React.Component {
+export class ContentBody extends React.Component {
 	render() {
 		let classNames = 'static';
 
@@ -126,7 +148,7 @@ class ContentBody extends React.Component {
 	}
 }
 
-class Paragraph extends React.Component {
+export class Paragraph extends React.Component {
 	render() {
 		let classNames = 'static';
 		if (this.props.item.bold) { classNames += ' bold'; }
@@ -144,7 +166,7 @@ class Paragraph extends React.Component {
 	}
 }
 
-class Label extends React.Component {
+export class Label extends React.Component {
 	render() {
 		let classNames = 'static';
 		if (this.props.item.bold) { classNames += ' bold'; }
@@ -162,7 +184,7 @@ class Label extends React.Component {
 	}
 }
 
-class LineBreak extends React.Component {
+export class LineBreak extends React.Component {
 	render() {
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -176,7 +198,7 @@ class LineBreak extends React.Component {
 	}
 }
 
-class TextInput extends React.Component {
+export class TextInput extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -234,7 +256,7 @@ class TextInput extends React.Component {
 	}
 }
 
-class EmailInput extends React.Component {
+export class EmailInput extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -292,7 +314,7 @@ class EmailInput extends React.Component {
 	}
 }
 
-class PhoneNumber extends React.Component {
+export class PhoneNumber extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -350,7 +372,7 @@ class PhoneNumber extends React.Component {
 	}
 }
 
-class DatePicker extends React.Component {
+export class DatePicker extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -359,19 +381,22 @@ class DatePicker extends React.Component {
 	render() {
 		const props = {};
 		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder;
-		props.onChange = (val) => { this.props.onChange(val); };
+		props.placeholder = this.props.item.placeholder || this.props.item.formatMask || 'MM/DD/YYYY';
+		props.onChange = (val) => { if (this.props.onChange !== undefined) { this.props.onChange(val.target.value); } };
 		props.value = this.props.value;
 		props.isInvalid = this.props.isInvalid;
 		props.onBlur = this.props.onBlur;
 		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+		if (this.props.item.disabled) { props.disabled = true; }
 		if (this.props.item.mutable) { props.ref = this.inputField; }
 
 		props.formatMask = this.props.item.formatMask || 'MM/DD/YYYY';
 
 		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
+		if (this.props.item.labelLocation) {
+			labelLocation = this.props.item.labelLocation;
+			props.label = props.placeholder;
+		}
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -387,30 +412,55 @@ class DatePicker extends React.Component {
 			);
 		}
 
-		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
-				<Form.Group className="form-group mb-3">
-					{labelLocation === "FLOATING" ? (
-						<Form.Floating>
-							<Form.Control id={props.name} type='text' {...props} as={CustomDateInput} />
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-						</Form.Floating>
-					) : (
-						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control id={props.name} type='text' {...props} as={CustomDateInput} />
-						</>
-					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
-				</Form.Group>
-			</div>
-		);
+		console.log('this.props', this.props);
+		console.log('props', props);
+
+		Object.keys(props).forEach((key) => {
+			if (props[key] === undefined) {
+				delete props[key];
+			}
+		});
+
+		if (this.props) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<ComponentHeader {...this.props} />
+					<Form.Group className="form-group mb-3">
+						{labelLocation === "FLOATING" ? (
+							<Form.Floating>
+								<Form.Control id={props.name} type='text' {...props} as={CustomDateInput} />
+								<ComponentLabel {...this.props} htmlFor={props.name} />
+							</Form.Floating>
+						) : (
+							<>
+								<ComponentLabel {...this.props} htmlFor={props.name} />
+								<Form.Control 
+								id={props.name} 
+								type='text' 
+				// 				onBlur={props.onBlur}
+                // onChange={props.onChange}
+                // value={props.value}
+                // name={props.name}
+                // ref={props.ref}
+                // isInvalid={props.isInvalid}
+				{...props}
+                //as={CustomDateInput}
+
+								/>
+							</>
+						)}
+						{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+						<ComponentErrorMessage name={props.name} />
+					</Form.Group>
+				</div>
+			);
+		} else {
+			return null;
+		}
 	}
 }
 
-class NumberInput extends React.Component {
+export class NumberInput extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -472,7 +522,7 @@ class NumberInput extends React.Component {
 	}
 }
 
-class TextArea extends React.Component {
+export class TextArea extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -530,7 +580,7 @@ class TextArea extends React.Component {
 	}
 }
 
-class Dropdown extends React.Component {
+export class Dropdown extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -600,7 +650,7 @@ class Dropdown extends React.Component {
 	}
 }
 
-class Signature extends React.Component {
+export class Signature extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = { value: props.value };
@@ -756,7 +806,7 @@ class Signature extends React.Component {
 	}
 }
 
-class Tags extends React.Component {
+export class Tags extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -834,7 +884,7 @@ class Tags extends React.Component {
 	}
 }
 
-class Checkboxes extends React.Component {
+export class Checkboxes extends React.Component {
 	constructor(props) {
 		super(props);
 		this.options = {};
@@ -887,7 +937,7 @@ class Checkboxes extends React.Component {
 								variant={this.props.checkboxButtonClassName ?? "outline-light"}
 								className="btn-survey-builder-checkbox"
 								key={`preview_${option.key}`}
-								id={`fid_preview_${option.key}`}
+								id={self.props.name + '-' + ID.uuid()}
 								inputRef={c => {
 									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
@@ -914,7 +964,7 @@ class Checkboxes extends React.Component {
 	}
 }
 
-class Checkbox extends React.Component {
+export class Checkbox extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -980,7 +1030,7 @@ class Checkbox extends React.Component {
 	}
 }
 
-class RadioButtons extends React.Component {
+export class RadioButtons extends React.Component {
 	constructor(props) {
 		super(props);
 		this.options = {};
@@ -1002,55 +1052,53 @@ class RadioButtons extends React.Component {
 				</div>
 			);
 		}
+		console.log('self.props', self.props);
 
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...self.props.style }} className={baseClasses}>
+				<ComponentHeader {...self.props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} />
-					{this.props.item.options.map((option) => {
-						const props = {};
-						props.name = self.props.name;
-						props.value = option.value;
-						props.checked = self.props.value === option.value;
-						props.onChange = (event) => { self.props.onChange(event.target.value); };
-						if (self.props.item.disabled) { props.disabled = 'disabled'; }
-						//props.inline = self.props.item.inline ?? false;
-
+					<ComponentLabel {...self.props} />
+					{self.props.item.options.map((option) => {
+						console.log('option', option);
 						return (
 							<ToggleButton
 								label={option.text}
 								type="radio"
-								variant={this.props.checkboxButtonClassName ?? "outline-light"}
+								variant={self.props.checkboxButtonClassName ?? "outline-light"}
 								className="btn-survey-builder-checkbox"
 								key={`preview_${option.key}`}
-								id={`fid_preview_${option.key}`}
+								id={self.props.name + '-' + ID.uuid()}
 								inputRef={c => {
 									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
 									}
 								}}
-								{...props}
+								disabled={self?.props?.item?.disabled}
+								name={self?.props?.name}
+								value={option.value}
+								checked={self?.props?.value === option.value}
+								onChange={(e) => { if (self?.props?.onChange !== undefined) { console.log(e.target.value); self.props.onChange(e.target.value); } }}
 							>
 								<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
-									{(props.checked !== true) && <RiRadioButtonLine size={"40px"} className="me-3 flex-shrink-0" />}
-									{(props.checked === true) && <RiRadioButtonFill size={"40px"} className="me-3 flex-shrink-0" />}
+									{(self?.props?.value !== option.value) && <IoRadioButtonOff size={"40px"} className="me-3 flex-shrink-0" />}
+									{(self?.props?.value === option.value) && <IoRadioButtonOn size={"40px"} className="me-3 flex-shrink-0" />}
 									<div className="text-start">
-										{<span dangerouslySetInnerHTML={{ __html: this.props.item.boxLabel }} />}
+										{<span dangerouslySetInnerHTML={{ __html: option.text }} />}
 									</div>
 								</div>
 							</ToggleButton>
 						);
 					})}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={this.props.name} />
+					{self.props.item.help ? (<Form.Text muted>{self.props.item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={self.props.name} />
 				</Form.Group>
 			</div>
 		);
 	}
 }
 
-class Image extends React.Component {
+export class Image extends React.Component {
 	render() {
 		const style = (this.props.item.center) ? { textAlign: 'center' } : null;
 
@@ -1067,7 +1115,7 @@ class Image extends React.Component {
 	}
 }
 
-class Rating extends React.Component {
+export class Rating extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -1115,7 +1163,7 @@ class Rating extends React.Component {
 	}
 }
 
-class HyperLink extends React.Component {
+export class HyperLink extends React.Component {
 	render() {
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -1133,7 +1181,7 @@ class HyperLink extends React.Component {
 	}
 }
 
-class Download extends React.Component {
+export class Download extends React.Component {
 	render() {
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -1149,7 +1197,7 @@ class Download extends React.Component {
 	}
 }
 
-class Camera extends React.Component {
+export class Camera extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -1273,7 +1321,7 @@ class Camera extends React.Component {
 	}
 }
 
-class FileUpload extends React.Component {
+export class FileUpload extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
@@ -1401,7 +1449,7 @@ class FileUpload extends React.Component {
 	}
 }
 
-class Range extends React.Component {
+export class Range extends React.Component {
 	constructor(props) {
 		super(props);
 		this.inputField = React.createRef();
