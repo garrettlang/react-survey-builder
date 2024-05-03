@@ -145,6 +145,7 @@ export default function (ComposedComponent) {
 	const x = DropTarget([ItemTypes.CARD, ItemTypes.BOX], cardTarget, connect => ({
 		connectDropTarget: connect.dropTarget(),
 	}))(Card);
+	
 	return DragSource(ItemTypes.CARD, cardSource, (connect, monitor) => ({
 		connectDragSource: connect.dragSource(),
 		connectDragPreview: connect.dragPreview(),

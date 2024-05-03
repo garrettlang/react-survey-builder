@@ -1,12 +1,7 @@
-/**
-  * <SurveyValidator />
-  */
-
 import React from 'react';
 import xss from 'xss';
-import IntlMessages from './language-provider/IntlMessages';
 import { FaExclamationTriangle } from 'react-icons/fa';
-import { Alert, Button } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap/esm';
 
 const myxss = new xss.FilterXSS({
 	whiteList: {
@@ -64,7 +59,7 @@ export default class SurveyValidator extends React.Component {
 							</ul>
 						</div>
 						<div>
-							<Button variant="danger" size="sm" className="float-end" onClick={this.dismissModal.bind(this)}><IntlMessages id="dismiss" /></Button>
+							<Button variant="danger" size="sm" className="float-end" onClick={this.dismissModal.bind(this)}>Dismiss</Button>
 						</div>
 					</Alert>
 				}

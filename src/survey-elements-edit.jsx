@@ -2,41 +2,12 @@ import React from 'react';
 import TextAreaAutosize from 'react-textarea-autosize';
 import { ContentState, EditorState, convertFromHTML, convertToRaw } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
-// import { Editor } from 'react-draft-wysiwyg';
 import DynamicOptionList from './dynamic-option-list';
 import { get } from './stores/requests';
-import ID from './UUID';
-import IntlMessages from './language-provider/IntlMessages';
 import { FaTimes } from 'react-icons/fa';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row } from 'react-bootstrap/esm';
 import Editor from 'react-simple-wysiwyg';
-
-const bodyToolbar = {
-	options: ['inline', 'blockType', 'list', 'textAlign', 'fontSize', 'link', 'remove', 'history'],
-	inline: {
-		inDropdown: false,
-		className: undefined,
-		options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace', 'superscript', 'subscript'],
-	},
-};
-
-const headerToolbar = {
-	options: ['inline', 'list', 'textAlign', 'fontSize', 'link', 'history'],
-	inline: {
-		inDropdown: false,
-		className: undefined,
-		options: ['bold', 'italic', 'underline', 'superscript', 'subscript'],
-	},
-};
-
-const labelToolbar = {
-	options: ['inline', 'list', 'textAlign', 'fontSize', 'link', 'history'],
-	inline: {
-		inDropdown: false,
-		className: undefined,
-		options: ['bold', 'italic', 'underline', 'superscript', 'subscript'],
-	},
-};
+import ID from './UUID';
 
 const CustomWysiwygInput = React.forwardRef(({ onChange, onBlur, value, name, ...otherProps }, ref) => (
 	<Editor
@@ -48,7 +19,6 @@ const CustomWysiwygInput = React.forwardRef(({ onChange, onBlur, value, name, ..
 		containerProps={{ style: { height: '500px', width: '100%', resize: 'both' } }}
 	/>
 ));
-
 
 export default class SurveyElementsEdit extends React.Component {
 	constructor(props) {
@@ -154,17 +124,6 @@ export default class SurveyElementsEdit extends React.Component {
 			thisFiles.unshift({ id: '', file_name: '' });
 		}
 
-		let editorState;
-		let secondaryEditorState;
-		if (this.props.element.hasOwnProperty('content')) {
-			editorState = this.convertFromHTML(this.props.element.content);
-		}
-		if (this.props.element.hasOwnProperty('label')) {
-			editorState = this.convertFromHTML(this.props.element.label);
-		}
-		if (this.props.element.hasOwnProperty('boxLabel')) {
-			secondaryEditorState = this.convertFromHTML(this.props.element.boxLabel);
-		}
 		return (
 			<div>
 				<div className="clearfix">
@@ -174,7 +133,7 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.props.element.hasOwnProperty('content') && (this.state.element.element === 'Header' || this.state.element.element === 'Label' || this.state.element.element === 'Paragraph' || this.state.element.element === 'ContentBody') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="text-to-display" />:</Form.Label>
+						<Form.Label className="fw-bold">Text to display:</Form.Label>
 						<Form.Control
 							type="text"
 							id="content"
@@ -190,7 +149,7 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.props.element.hasOwnProperty('filePath') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="fileSelect"><IntlMessages id="choose-file" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="fileSelect">Choose file:</Form.Label>
 						<Form.Select id="fileSelect" defaultValue={this.props.element.filePath} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'filePath', 'value')}>
 							{thisFiles.map((file) => {
 								const thisKey = `file_${file.id}`;
@@ -202,14 +161,14 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.props.element.hasOwnProperty('href') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="href"><IntlMessages id="link-to" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="href">Link to:</Form.Label>
 						<Form.Control id="href" type="text" defaultValue={this.props.element.href} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'href', 'value')} />
 					</Form.Group>
 				}
 
 				{this.props.element.hasOwnProperty('label') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="display-label" />:</Form.Label>
+						<Form.Label className="fw-bold">Display Label:</Form.Label>
 						<Form.Control
 							type="text"
 							id="label"
@@ -227,28 +186,28 @@ export default class SurveyElementsEdit extends React.Component {
 					<Form.Group className="form-group mb-5">
 						<Form.Label className="fw-bold">Field Properties:</Form.Label>
 						{this.props.element.hasOwnProperty('required') &&
-							<Form.Check id="is-required" label={<IntlMessages id="required" />} type="checkbox" checked={thisRequiredChecked} value={true} onChange={this.editElementProp.bind(this, 'required', 'checked')} />
+							<Form.Check id="is-required" label="Required" type="checkbox" checked={thisRequiredChecked} value={true} onChange={this.editElementProp.bind(this, 'required', 'checked')} />
 						}
 						{this.props.element.hasOwnProperty('readOnly') &&
-							<Form.Check id="is-read-only" label={<IntlMessages id="read-only" />} type="checkbox" checked={thisReadOnly} value={true} onChange={this.editElementProp.bind(this, 'readOnly', 'checked')} />
+							<Form.Check id="is-read-only" label="Read Only" type="checkbox" checked={thisReadOnly} value={true} onChange={this.editElementProp.bind(this, 'readOnly', 'checked')} />
 						}
 						{this.props.element.hasOwnProperty('defaultToday') &&
-							<Form.Check id="is-default-to-today" label={<IntlMessages id="default-to-today" />} type="checkbox" checked={thisDefaultToday} value={true} onChange={this.editElementProp.bind(this, 'defaultToday', 'checked')} />
+							<Form.Check id="is-default-to-today" label="Default to Today" type="checkbox" checked={thisDefaultToday} value={true} onChange={this.editElementProp.bind(this, 'defaultToday', 'checked')} />
 						}
 
 						{(['Checkboxes', 'Checkbox'].indexOf(this.state.element.element) !== -1) &&
-							<Form.Check id="default-checked" label={<IntlMessages id="default-checked" />} type="checkbox" checked={thisDefaultChecked} value={true} onChange={this.editElementProp.bind(this, 'defaultChecked', 'checked')} />
+							<Form.Check id="default-checked" label="Default Checked" type="checkbox" checked={thisDefaultChecked} value={true} onChange={this.editElementProp.bind(this, 'defaultChecked', 'checked')} />
 						}
 
 						{((this.state.element.element === 'RadioButtons' || this.state.element.element === 'Checkboxes') && this.props.element.hasOwnProperty('inline')) &&
-							<Form.Check id="display-horizontal" label={<IntlMessages id="display-horizontal" />} type="checkbox" checked={thisCheckedInline} value={true} onChange={this.editElementProp.bind(this, 'inline', 'checked')} />
+							<Form.Check id="display-horizontal" label="Display Horizontal" type="checkbox" checked={thisCheckedInline} value={true} onChange={this.editElementProp.bind(this, 'inline', 'checked')} />
 						}
 					</Form.Group>
 				}
 
 				{this.state.element.element === 'Checkbox' &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="checkbox-label-text" />:</Form.Label>
+						<Form.Label className="fw-bold">Checkbox Label Text:</Form.Label>
 						<Form.Control
 							type="text"
 							id="boxLabel"
@@ -265,7 +224,7 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.props.element.hasOwnProperty('src') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="srcInput"><IntlMessages id="link-to" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="srcInput">Link to:</Form.Label>
 						<Form.Control id="srcInput" type="text" defaultValue={this.props.element.src} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'src', 'value')} />
 					</Form.Group>
 				}
@@ -275,14 +234,14 @@ export default class SurveyElementsEdit extends React.Component {
 						<Row>
 							<Col sm={3}>
 								<Form.Label className="fw-bold" htmlFor="do-center">Alignment:</Form.Label>
-								<Form.Check id="do-center" label={<IntlMessages id="center" />} type="checkbox" checked={thisCheckedCenter} value={true} onChange={this.editElementProp.bind(this, 'center', 'checked')} />
+								<Form.Check id="do-center" label="Center" type="checkbox" checked={thisCheckedCenter} value={true} onChange={this.editElementProp.bind(this, 'center', 'checked')} />
 							</Col>
 							<Col sm={3}>
-								<Form.Label className="fw-bold" htmlFor="elementWidth"><IntlMessages id="width" />:</Form.Label>
+								<Form.Label className="fw-bold" htmlFor="elementWidth">Width:</Form.Label>
 								<Form.Control id="elementWidth" type="number" defaultValue={this.props.element.width} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'width', 'value')} />
 							</Col>
 							<Col sm={3}>
-								<Form.Label className="fw-bold" htmlFor="elementHeight"><IntlMessages id="height" />:</Form.Label>
+								<Form.Label className="fw-bold" htmlFor="elementHeight">Height:</Form.Label>
 								<Form.Control id="elementHeight" type="number" defaultValue={this.props.element.height} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'height', 'value')} />
 							</Col>
 						</Row>
@@ -291,7 +250,7 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.state.element.element === 'FileUpload' && (
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor='fileType'><IntlMessages id='choose-file-type' />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor='fileType'>Choose file type:</Form.Label>
 						<Form.Select
 							id='fileType'
 							onBlur={this.updateElement.bind(this)}
@@ -332,9 +291,9 @@ export default class SurveyElementsEdit extends React.Component {
 				{/* {this.state.element.element === 'Signature' && this.props.element.readOnly */}
 				{/*   ? ( */}
 				{/*     <Form.Group className="form-group mb-5"> */}
-				{/*       <Form.Label className="fw-bold" htmlFor="variableKey"><IntlMessages id="variable-key" />:</Form.Label> */}
+				{/*       <Form.Label className="fw-bold" htmlFor="variableKey">Variable Key:</Form.Label> */}
 				{/*       <Form.Control id="variableKey" type="text" defaultValue={this.props.element.variableKey} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'variableKey', 'value')} /> */}
-				{/*       <p className="help-block"><IntlMessages id="variable-key-desc" />.</p> */}
+				{/*       <p className="help-block">This will give the element a key that can be used to replace the content with a runtime value.</p> */}
 				{/*     </Form.Group> */}
 				{/*   ) */}
 				{/*   : (<div/>) */}
@@ -342,22 +301,22 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.props.element.hasOwnProperty('pageBreakBefore') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="print-options" />:</Form.Label>
-						<Form.Check id="page-break-before-element" label={<IntlMessages id="page-break-before-element" />} type="checkbox" checked={thisCheckedPageBreak} value={true} onChange={this.editElementProp.bind(this, 'pageBreakBefore', 'checked')} />
+						<Form.Label className="fw-bold">Print options:</Form.Label>
+						<Form.Check id="page-break-before-element" label="Page Break Before Element" type="checkbox" checked={thisCheckedPageBreak} value={true} onChange={this.editElementProp.bind(this, 'pageBreakBefore', 'checked')} />
 					</Form.Group>
 				}
 
 				{this.props.element.hasOwnProperty('alternateForm') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="alternate-signature-page" />:</Form.Label>
-						<Form.Check id="display-on-alternate" label={<IntlMessages id="display-on-alternate-signature-page" />} type="checkbox" checked={thisCheckedAlternateForm} value={true} onChange={this.editElementProp.bind(this, 'alternateForm', 'checked')} />
+						<Form.Label className="fw-bold">Alternate/Signature Page:</Form.Label>
+						<Form.Check id="display-on-alternate" label="Display on alternate/signature Page" type="checkbox" checked={thisCheckedAlternateForm} value={true} onChange={this.editElementProp.bind(this, 'alternateForm', 'checked')} />
 					</Form.Group>
 				}
 
 				{this.props.element.hasOwnProperty('step') &&
 					<Form.Group className="form-group mb-5">
 						<div className="form-group-range">
-							<Form.Label className="fw-bold" htmlFor="rangeStep"><IntlMessages id="step" />:</Form.Label>
+							<Form.Label className="fw-bold" htmlFor="rangeStep">Step:</Form.Label>
 							<Form.Control id="rangeStep" type="number" defaultValue={this.props.element.step} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'step', 'value')} />
 						</div>
 					</Form.Group>
@@ -366,7 +325,7 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.props.element.hasOwnProperty('minValue') &&
 					<Form.Group className="form-group mb-5">
 						<div className="form-group-range">
-							<Form.Label className="fw-bold" htmlFor="rangeMin"><IntlMessages id="min" />:</Form.Label>
+							<Form.Label className="fw-bold" htmlFor="rangeMin">Min:</Form.Label>
 							<Form.Control id="rangeMin" type="number" defaultValue={this.props.element.minValue} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'minValue', 'value')} />
 						</div>
 					</Form.Group>
@@ -375,7 +334,7 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.props.element.hasOwnProperty('minLabel') &&
 					<Form.Group className="form-group mb-5">
 						<div className="form-group-range">
-							<Form.Label className="fw-bold" htmlFor="rangeMin"><IntlMessages id="min-label" />:</Form.Label>
+							<Form.Label className="fw-bold" htmlFor="rangeMin">Minimum Value Label:</Form.Label>
 							<Form.Control type="text" defaultValue={this.props.element.minLabel} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'minLabel', 'value')} />
 						</div>
 					</Form.Group>
@@ -384,7 +343,7 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.props.element.hasOwnProperty('maxValue') &&
 					<Form.Group className="form-group mb-5">
 						<div className="form-group-range">
-							<Form.Label className="fw-bold" htmlFor="rangeMax"><IntlMessages id="max" />:</Form.Label>
+							<Form.Label className="fw-bold" htmlFor="rangeMax">Max:</Form.Label>
 							<Form.Control id="rangeMax" type="number" defaultValue={this.props.element.maxValue} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'maxValue', 'value')} />
 						</div>
 					</Form.Group>
@@ -393,7 +352,7 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.props.element.hasOwnProperty('maxLabel') &&
 					<Form.Group className="form-group mb-5">
 						<div className="form-group-range">
-							<Form.Label className="fw-bold" htmlFor="rangeMax"><IntlMessages id="max-label" />:</Form.Label>
+							<Form.Label className="fw-bold" htmlFor="rangeMax">Maximum Value Label:</Form.Label>
 							<Form.Control type="text" defaultValue={this.props.element.maxLabel} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'maxLabel', 'value')} />
 						</div>
 					</Form.Group>
@@ -402,7 +361,7 @@ export default class SurveyElementsEdit extends React.Component {
 				{this.props.element.hasOwnProperty('defaultValue') &&
 					<Form.Group className="form-group mb-5">
 						<div className="form-group-range">
-							<Form.Label className="fw-bold" htmlFor="defaultSelected"><IntlMessages id="default-selected" />:</Form.Label>
+							<Form.Label className="fw-bold" htmlFor="defaultSelected">Default Selected:</Form.Label>
 							<Form.Control id="defaultSelected" type="number" defaultValue={this.props.element.defaultValue} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'defaultValue', 'value')} />
 						</div>
 					</Form.Group>
@@ -410,29 +369,29 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.props.element.hasOwnProperty('static') && this.props.element.static && this.props.element.hasOwnProperty('bold') && this.props.element.hasOwnProperty('italic') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold"><IntlMessages id="text-style" />:</Form.Label>
-						<Form.Check id="do-bold" inline label={<IntlMessages id="bold" />} type="checkbox" checked={thisCheckedBold} value={true} onChange={this.editElementProp.bind(this, 'bold', 'checked')} />
-						<Form.Check id="do-italic" inline label={<IntlMessages id="italic" />} type="checkbox" checked={thisCheckedItalic} value={true} onChange={this.editElementProp.bind(this, 'italic', 'checked')} />
+						<Form.Label className="fw-bold">Text Style:</Form.Label>
+						<Form.Check id="do-bold" inline label={"Bold"} type="checkbox" checked={thisCheckedBold} value={true} onChange={this.editElementProp.bind(this, 'bold', 'checked')} />
+						<Form.Check id="do-italic" inline label={"Italic"} type="checkbox" checked={thisCheckedItalic} value={true} onChange={this.editElementProp.bind(this, 'italic', 'checked')} />
 					</Form.Group>
 				}
 
 				{this.props.element.hasOwnProperty('placeholder') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="placeholder"><IntlMessages id="place-holder-text-label" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="placeholder">Placeholder:</Form.Label>
 						<Form.Control type="text" id="placeholder" defaultValue={this.props.element.placeholder} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'placeholder', 'value')} />
 					</Form.Group>
 				}
 
 				{this.props.element.hasOwnProperty('customName') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="customName"><IntlMessages id="custom-name-label" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="customName">A Name To Give This Input That Will Show Up In Data Retrieval:</Form.Label>
 						<Form.Control type="text" id="customName" defaultValue={this.props.element.customName} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'customName', 'value')} />
 					</Form.Group>
 				}
 
 				{this.props.element.hasOwnProperty('labelLocation') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="labelLocation"><IntlMessages id="choose-label-location" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="labelLocation">Choose Label Location:</Form.Label>
 						<Form.Select id="labelLocation" defaultValue={this.props.element.labelLocation} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'labelLocation', 'value')}>
 							<option value="ABOVE">Above Form Field</option>
 							<option value="FLOATING">Floating Inside Form Field</option>
@@ -449,34 +408,34 @@ export default class SurveyElementsEdit extends React.Component {
 
 				{this.props.element.hasOwnProperty('help') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="help"><IntlMessages id="help-label" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="help">Help instructions/details that will show up beneath the input field:</Form.Label>
 						<TextAreaAutosize type="text" className="form-control" id="help" defaultValue={this.props.element.help} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'help', 'value')} />
 					</Form.Group>
 				}
 
 				{((this.props.showDescription && !this.props.element.static) || this.props.element.hasOwnProperty('description')) &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="description"><IntlMessages id="description" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="description">Description:</Form.Label>
 						<TextAreaAutosize type="text" className="form-control" id="description" defaultValue={this.props.element.description} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'description', 'value')} />
 					</Form.Group>
 				}
 
 				{this.props.showCorrectColumn && canHaveAnswer && !this.props.element.hasOwnProperty('options') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="correct"><IntlMessages id="correct-answer" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="correct">Correct Answer:</Form.Label>
 						<Form.Control id="correct" type="text" defaultValue={this.props.element.correct} onBlur={this.updateElement.bind(this)} onChange={this.editElementProp.bind(this, 'correct', 'value')} />
 					</Form.Group>
 				}
 
 				{this.props.element.canPopulateFromApi && this.props.element.hasOwnProperty('options') &&
 					<Form.Group className="form-group mb-5">
-						<Form.Label className="fw-bold" htmlFor="optionsApiUrl"><IntlMessages id="populate-options-from-api" />:</Form.Label>
+						<Form.Label className="fw-bold" htmlFor="optionsApiUrl">Populate Options from API:</Form.Label>
 						<Row>
 							<Col sm={6}>
 								<Form.Control style={{ width: '100%' }} type="text" id="optionsApiUrl" placeholder="http://localhost:8080/api/optionsdata" />
 							</Col>
 							<Col sm={6}>
-								<Button variant="success" onClick={this.addOptions.bind(this)}><IntlMessages id="populate" /></Button>
+								<Button variant="success" onClick={this.addOptions.bind(this)}>Populate</Button>
 							</Col>
 						</Row>
 					</Form.Group>
@@ -498,4 +457,5 @@ export default class SurveyElementsEdit extends React.Component {
 		);
 	}
 }
+
 SurveyElementsEdit.defaultProps = { className: 'edit-element-fields' };

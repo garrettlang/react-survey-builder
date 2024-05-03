@@ -13,6 +13,7 @@ function getCustomElement(item, props) {
 			console.error(`${item.element} was not registered`);
 		}
 	}
+
 	return (
 		<CustomElement
 			{...props}
@@ -60,8 +61,8 @@ function isContainer($containerItem) {
 	return false;
 }
 
-const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex, canDrop, isOver, isOverCurrent, connectDropTarget, items, col, getDataById, ...rest }, ref) => {
-	const item = getDataById(items[col]);
+const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex, canDrop, isOver, isOverCurrent, connectDropTarget, items, col, getItemById, ...rest }, ref) => {
+	const item = getItemById(items[col]);
 	React.useImperativeHandle(
 		ref,
 		() => ({

@@ -9,108 +9,17 @@ import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
 import myxss, { myContentXSS } from './myxss';
 import { FaCamera, FaDownload, FaFile, FaTimes } from 'react-icons/fa';
-import { Button, Col, Container, Form, Image as ImageComponent, Row, ToggleButton } from 'react-bootstrap';
-import { IMaskInput } from "react-imask";
 import { Typeahead } from 'react-bootstrap-typeahead';
 import ComponentErrorMessage from './component-error-message';
 import { getIPAddress } from '../utils/ipUtils';
 import moment from 'moment-timezone';
 import { RiCheckboxBlankLine, RiCheckboxFill } from "react-icons/ri";
-import ID from '../UUID';
 import { IoRadioButtonOff, IoRadioButtonOn } from 'react-icons/io5';
-
-const CustomPhoneInput = React.forwardRef(({ onChange, ...otherProps }, ref) => {
-	Object.keys(otherProps).forEach((key) => {
-		if (otherProps[key] === undefined) {
-			delete otherProps[key];
-		}
-	});
-
-	return (
-		<IMaskInput
-			{...otherProps}
-			mask={'{+1} (#00) 000-0000'}
-			lazy={false}
-			overwrite={true}
-			definitions={{
-				'#': /[1-9]/,
-			}}
-			unmask={true} // true|false|'typed'
-			inputRef={ref}
-			// inputRef={inputRef}  // access to nested input
-			// DO NOT USE onChange TO HANDLE CHANGES!
-			// USE onAccept INSTEAD
-			onAccept={
-				// depending on prop above first argument is
-				// `value` if `unmask=false`,
-				// `unmaskedValue` if `unmask=true`,
-				// `typedValue` if `unmask='typed'`
-				(value, mask) => {
-					onChange(value);
-				}
-			}
-		/>
-	)
-});
-
-const CustomDateInput = React.forwardRef(({ onChange, formatMask = 'MM/DD/YYYY', ...otherProps }, ref) => {
-	console.log('otherProps', otherProps);
-	Object.keys(otherProps).forEach((key) => {
-		if (otherProps[key] === undefined) {
-			delete otherProps[key];
-		}
-	});
-	console.log('otherProps', otherProps);
-
-
-	return (
-		<IMaskInput
-			{...otherProps}
-			mask={Date}
-			lazy={false}
-			overwrite={true}
-			pattern={formatMask ?? 'MM/DD/YYYY'}
-			format={function (date) {
-				var day = date.getDate();
-				var month = date.getMonth() + 1;
-				var year = date.getFullYear();
-
-				if (day < 10) day = "0" + day;
-				if (month < 10) month = "0" + month;
-
-				return [month, day, year].join('/');
-			}}
-			autofix={true}
-			// min={new Date(1900, 0, 1)}
-			// max={new Date()}
-			blocks={{
-				DD: { mask: IMask.MaskedRange, from: 1, to: 31, maxLength: 2, placeholderChar: 'D' },
-				MM: { mask: IMask.MaskedRange, from: 1, to: 12, maxLength: 2, placeholderChar: 'M' },
-				YYYY: { mask: IMask.MaskedRange, from: 1900, to: new Date().getFullYear() + 5, placeholderChar: 'Y' }
-			}}
-			parse={function (str) {
-				var monthDayYear = str.split('/');
-				return new Date(monthDayYear[2], monthDayYear[0] - 1, monthDayYear[1]);
-			}}
-			unmask={false} // true|false|'typed'
-			inputRef={ref}
-			// inputRef={inputRef}  // access to nested input
-			// DO NOT USE onChange TO HANDLE CHANGES!
-			// USE onAccept INSTEAD
-			onAccept={
-				// depending on prop above first argument is
-				// `value` if `unmask=false`,
-				// `unmaskedValue` if `unmask=true`,
-				// `typedValue` if `unmask='typed'`
-				(value, mask) => {
-					if (onChange !== undefined) {
-						onChange(value);
-					}
-				}
-			}
-		/>
-	)
-});
+import { ToggleButton, Col, Row, Form, Container, Button, Image as ImageComponent } from 'react-bootstrap/esm';
+import { Controller, useFormContext } from 'react-hook-form';
+import { IMask, IMaskInput } from 'react-imask/esm';
+import { isValidPhoneNumber } from 'libphonenumber-js';
+import ID from '../UUID';
 
 const SurveyElements = {};
 
@@ -198,457 +107,1226 @@ export class LineBreak extends React.Component {
 	}
 }
 
-export class TextInput extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
+export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
+	const inputField = React.useRef(null);
+
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
+		}
+	};
+
+	const inputProps = {
+		type: 'text',
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password' // hack to prevent auto-complete for form fields
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
 	}
 
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder;
-		props.onChange = (event) => { this.props.onChange(event.target.value); };
-		props.value = this.props.value;
-		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
+	}
 
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
+	if (item?.mutable) { inputProps.ref = inputField; }
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let fieldRules = {};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
 
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{props.value}</div>
-					</Form.Group>
-				</div>
-			);
-		}
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
 
+	controllerProps.render = ({
+		field: { onChange, onBlur, value, name, ref },
+		fieldState: { invalid, isTouched, isDirty, error },
+		formState,
+	}) => (
+		<Form.Control
+			onBlur={onBlur}
+			onChange={e => { onChange(e.target.value); onChangeHandler(e.target.value); }}
+			value={value}
+			name={name}
+			ref={ref}
+			isInvalid={invalid}
+			id={name + '-' + ID.uuid()}
+			{...inputProps}
+		/>
+	)
+
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} type='text' {...props} />
-							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								{...inputProps}
+							/>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control id={props.name} type='text' {...props} />
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								{...inputProps}
+							/>
 						</>
 					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
 	}
-}
 
-export class EmailInput extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
-	}
-
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder;
-		props.onChange = (event) => { this.props.onChange(event.target.value); };
-		props.value = this.props.value;
-		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
-
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
-
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
-
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value}</div>
-					</Form.Group>
-				</div>
-			);
-		}
-
+	if (item?.print === true) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
-					{labelLocation === "FLOATING" ? (
-						<Form.Floating>
-							<Form.Control id={props.name} type='text' {...props} />
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-						</Form.Floating>
-					) : (
-						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control id={props.name} type='text' {...props} />
-						</>
-					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{value ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
 	}
-}
 
-export class PhoneNumber extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
+
+export const EmailInput = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
+	const inputField = React.useRef(null);
+
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
+		}
+	};
+
+	const validateEmail = (email) => email.match(
+		// eslint-disable-next-line no-useless-escape
+		/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	);
+
+	const inputProps = {
+		type: 'text',
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password' // hack to prevent auto-complete for form fields
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
 	}
 
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder;
-		props.onChange = (val) => { this.props.onChange(val); };
-		props.value = this.props.value;
-		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
+	}
 
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
+	if (item?.mutable) { inputProps.ref = inputField; }
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let fieldRules = {
+		minLength: {
+			value: 4,
+			message: `${item?.label} must be at least 4 characters long`
+		},
+		validate: (value) => validateEmail(value) || `${item?.label} field requires valid email address`
+	};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
 
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value}</div>
-					</Form.Group>
-				</div>
-			);
-		}
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
 
+	controllerProps.render = ({
+		field: { onChange, onBlur, value, name, ref },
+		fieldState: { invalid, isTouched, isDirty, error },
+		formState,
+	}) => (
+		<Form.Control
+			onBlur={onBlur}
+			onChange={e => { onChange(e.target.value); onChangeHandler(e.target.value); }}
+			value={value}
+			name={name}
+			ref={ref}
+			isInvalid={invalid}
+			id={name + '-' + ID.uuid()}
+			{...inputProps}
+		/>
+	)
+
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} type='text' {...props} as={CustomPhoneInput} />
-							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								{...inputProps}
+							/>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control id={props.name} type='text' {...props} as={CustomPhoneInput} />
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								{...inputProps}
+							/>
 						</>
 					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
 	}
-}
 
-export class DatePicker extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
+	if (item?.print === true) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{value ?? ''}</div>
+				</Form.Group>
+			</div>
+		);
 	}
 
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder || this.props.item.formatMask || 'MM/DD/YYYY';
-		props.onChange = (val) => { if (this.props.onChange !== undefined) { this.props.onChange(val.target.value); } };
-		props.value = this.props.value;
-		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = true; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
 
-		props.formatMask = this.props.item.formatMask || 'MM/DD/YYYY';
+export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
+	const inputField = React.useRef(null);
 
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) {
-			labelLocation = this.props.item.labelLocation;
-			props.label = props.placeholder;
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
 		}
+	};
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
-
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value}</div>
-					</Form.Group>
-				</div>
-			);
-		}
-
-		console.log('this.props', this.props);
-		console.log('props', props);
-
-		Object.keys(props).forEach((key) => {
-			if (props[key] === undefined) {
-				delete props[key];
+	const toE164PhoneNumber = (phoneNumberValue) => {
+		if (phoneNumberValue !== undefined && phoneNumberValue !== null) {
+			//Filter only numbers from the input
+			let cleaned = ('' + phoneNumberValue).replace(/\D/g, '');
+	
+			//Check if the input is of correct
+			let match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
+	
+			if (match) {
+				//Remove the matched extension code
+				//Change this to format for any country code.
+				let intlCode = (match[1] ? '+1' : '+1')
+				return [intlCode, match[2], match[3], match[4]].join('');
 			}
-		});
-
-		if (this.props) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<ComponentHeader {...this.props} />
-					<Form.Group className="form-group mb-3">
-						{labelLocation === "FLOATING" ? (
-							<Form.Floating>
-								<Form.Control id={props.name} type='text' {...props} as={CustomDateInput} />
-								<ComponentLabel {...this.props} htmlFor={props.name} />
-							</Form.Floating>
-						) : (
-							<>
-								<ComponentLabel {...this.props} htmlFor={props.name} />
-								<Form.Control 
-								id={props.name} 
-								type='text' 
-				// 				onBlur={props.onBlur}
-                // onChange={props.onChange}
-                // value={props.value}
-                // name={props.name}
-                // ref={props.ref}
-                // isInvalid={props.isInvalid}
-				{...props}
-                //as={CustomDateInput}
-
-								/>
-							</>
-						)}
-						{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-						<ComponentErrorMessage name={props.name} />
-					</Form.Group>
-				</div>
-			);
+	
+			return '';
 		} else {
-			return null;
+			return '';
 		}
+	};
+
+	const inputProps = {
+		type: 'text',
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password', // hack to prevent auto-complete for form fields
+		formatMask: item?.formatMask || 'MM/DD/YYYY'
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
 	}
-}
 
-export class NumberInput extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
 	}
 
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder;
-		props.onChange = (event) => { this.props.onChange(event.target.value); };
-		props.value = this.props.value;
-		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+	if (item?.mutable) { inputProps.ref = inputField; }
 
-		props.min = this.props.item.minValue;
-		props.max = this.props.item.maxValue;
-		props.step = this.props.item.step;
+	let fieldRules = {
+		validate: value => isValidPhoneNumber(toE164PhoneNumber(value), 'US') || `${item?.label} field requires a valid phone number`
+	};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
 
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
+	// if (CustomPhoneInput !== undefined) {
+	// 	inputProps.as = CustomPhoneInput;
+	// }
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
 
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value}</div>
-					</Form.Group>
-				</div>
-			);
-		}
+	if (IMaskInput !== undefined) {
+		controllerProps.render = ({
+			field: { onChange, onBlur, value, name, ref },
+			fieldState: { invalid, isTouched, isDirty, error },
+			formState,
+		}) => (
+			<IMaskInput
+				id={name + '-' + ID.uuid()}
+				className="form-control"
+				onBlur={onBlur}
+				value={value}
+				name={name}
+				mask={'{+1} (#00) 000-0000'}
+				lazy={false}
+				overwrite={true}
+				definitions={{
+					'#': /[1-9]/,
+				}}
+				unmask={true} // true|false|'typed'
+				inputRef={ref}
+				// inputRef={inputRef}  // access to nested input
+				// DO NOT USE onChange TO HANDLE CHANGES!
+				// USE onAccept INSTEAD
+				onAccept={
+					// depending on prop above first argument is
+					// `value` if `unmask=false`,
+					// `unmaskedValue` if `unmask=true`,
+					// `typedValue` if `unmask='typed'`
+					(value, mask) => {
+						if (onChange !== undefined) {
+							onChange(value);
+						}
+						onChangeHandler(value);
+					}
+				}
+				{...inputProps}
+			/>
+		);
+	} else {
+		controllerProps.render = ({
+			field: { onChange, onBlur, value, name, ref },
+			fieldState: { invalid, isTouched, isDirty, error },
+			formState,
+		}) => (
+			<Form.Control
+				onBlur={onBlur}
+				onChange={e => { onChange(e.target.value); onChangeHandler(e.target.value); }}
+				value={value}
+				name={name}
+				ref={ref}
+				isInvalid={invalid}
+				id={name + '-' + ID.uuid()}
+				{...inputProps}
+			/>
+		);
+	}
 
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Control id={props.name} type='number' {...props} />
-							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-' + ID.uuid()}
+								{...inputProps}
+							/>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control id={props.name} type='number' {...props} />
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-' + ID.uuid()}
+								{...inputProps}
+							/>
 						</>
 					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
 	}
-}
 
-export class TextArea extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
-	}
-
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder;
-		props.onChange = (event) => { this.props.onChange(event.target.value); };
-		props.value = this.props.value;
-		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
-
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
-
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
-
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value}</div>
-					</Form.Group>
-				</div>
-			);
-		}
-
+	if (item?.print === true) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
-					{labelLocation === "FLOATING" ? (
-						<Form.Floating>
-							<Form.Control as="textarea" id={props.name} {...props} />
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-						</Form.Floating>
-					) : (
-						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Control as="textarea" id={props.name} {...props} />
-						</>
-					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{value ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
 	}
-}
 
-export class Dropdown extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
+
+export const DatePicker = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
+	const inputField = React.useRef(null);
+
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
+		}
+	};
+
+	const validateDate = (dateString) => {
+		if (dateString !== undefined && dateString !== null && dateString !== "") {
+			let dateformat = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[1-2][0-9]|3[01])[\/]\d{4}$/;
+	
+			// Matching the date through regular expression      
+			if (dateString.match(dateformat)) {
+				let operator = dateString.split('/');
+	
+				// Extract the string into month, date and year      
+				let datepart = [];
+				if (operator.length > 1) {
+					datepart = dateString.split('/');
+				}
+				let month = parseInt(datepart[0]);
+				let day = parseInt(datepart[1]);
+				let year = parseInt(datepart[2]);
+	
+				if (day > 31 || day < 1) {
+					return false;
+				}
+	
+				let currentYear = new Date().getFullYear();
+				if (year < 1900 || year > (currentYear + 5)) {
+					return false;
+				}
+	
+				// Create a list of days of a month      
+				let ListofDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+				if (month === 1 || month > 2) {
+					if (day > ListofDays[month - 1]) {
+						// to check if the date is out of range     
+						return false;
+					}
+				} else if (month === 2) {
+					let leapYear = false;
+					if ((!(year % 4) && year % 100) || !(year % 400)) leapYear = true;
+					if ((leapYear === false) && (day >= 29)) return false;
+					else
+						if ((leapYear === true) && (day > 29)) {
+							// console.log('Invalid date format!');
+							return false;
+						}
+				} else if (month > 12 || month < 1) {
+					return false;
+				}
+			} else {
+				// console.log("Invalid date format!");
+				return false;
+			}
+		}
+		return true;
+	};
+
+	const inputProps = {
+		type: 'text',
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password', // hack to prevent auto-complete for form fields
+		formatMask: item?.formatMask || 'MM/DD/YYYY'
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
 	}
 
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder || 'Select One';
-		props.onChange = (event) => { this.props.onChange(event.target.value); };
-		props.value = this.props.value;
-		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
+	}
 
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
+	if (item?.mutable) { inputProps.ref = inputField; }
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let fieldRules = {
+		validate: value => validateDate(value) || 'Please enter a valid Date in the format MM/DD/YYYY'
+	};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
 
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.item.options.find((option) => option.value === (this.props.value))?.text}</div>
-					</Form.Group>
-				</div>
-			);
-		}
+	// if (CustomDateInput !== undefined) {
+	// 	inputProps.as = CustomDateInput;
+	// }
 
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
+
+	console.log('inputProps', inputProps);
+	console.log('iMaskInput', IMaskInput);
+
+	if (IMaskInput !== undefined && IMask !== undefined) {
+		controllerProps.render = ({
+			field: { onChange, onBlur, value, name, ref },
+			fieldState: { invalid, isTouched, isDirty, error },
+			formState,
+		}) => (
+			<IMaskInput
+				id={name + '-' + ID.uuid()}
+				className="form-control"
+				onBlur={onBlur}
+				value={value}
+				name={name}
+				mask={Date}
+				lazy={false}
+				overwrite={true}
+				pattern={inputProps?.formatMask ?? 'MM/DD/YYYY'}
+				format={function (date) {
+					var day = date.getDate();
+					var month = date.getMonth() + 1;
+					var year = date.getFullYear();
+
+					if (day < 10) day = "0" + day;
+					if (month < 10) month = "0" + month;
+
+					return [month, day, year].join('/');
+				}}
+				autofix={true}
+				// min={new Date(1900, 0, 1)}
+				// max={new Date()}
+				blocks={{
+					DD: { mask: IMask.MaskedRange, from: 1, to: 31, maxLength: 2, placeholderChar: 'D' },
+					MM: { mask: IMask.MaskedRange, from: 1, to: 12, maxLength: 2, placeholderChar: 'M' },
+					YYYY: { mask: IMask.MaskedRange, from: 1900, to: new Date().getFullYear() + 5, placeholderChar: 'Y' }
+				}}
+				parse={function (str) {
+					var monthDayYear = str.split('/');
+					return new Date(monthDayYear[2], monthDayYear[0] - 1, monthDayYear[1]);
+				}}
+				unmask={false} // true|false|'typed'
+				inputRef={ref}
+				// inputRef={inputRef}  // access to nested input
+				// DO NOT USE onChange TO HANDLE CHANGES!
+				// USE onAccept INSTEAD
+				onAccept={
+					// depending on prop above first argument is
+					// `value` if `unmask=false`,
+					// `unmaskedValue` if `unmask=true`,
+					// `typedValue` if `unmask='typed'`
+					(value, mask) => {
+						if (onChange !== undefined) {
+							onChange(value);
+						}
+						onChangeHandler(value)
+					}
+				}
+				{...inputProps}
+			/>
+		);
+	} else {
+		controllerProps.render = ({
+			field: { onChange, onBlur, value, name, ref },
+			fieldState: { invalid, isTouched, isDirty, error },
+			formState,
+		}) => (
+			<Form.Control
+				onBlur={onBlur}
+				onChange={e => { onChange(e.target.value); onChangeHandler(e.target.value); }}
+				value={value}
+				name={name}
+				ref={ref}
+				isInvalid={invalid}
+				id={name + '-' + ID.uuid()}
+				{...inputProps}
+			/>
+		);
+	}
+
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	console.log('controllerProps', controllerProps);
+
+	if (!methods) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Select id={props.name} {...props}>
-								{props.placeholder ? <option value="">{props.placeholder}</option> : null}
-								{this.props.item.options.map((option) => {
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-' + ID.uuid()}
+								{...inputProps}
+							/>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-' + ID.uuid()}
+								{...inputProps}
+							/>
+						</>
+					)}
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
+				</Form.Group>
+			</div>
+		);
+	}
+
+	if (item?.print === true) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{value ?? ''}</div>
+				</Form.Group>
+			</div>
+		);
+	}
+
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
+
+export const NumberInput = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
+	const inputField = React.useRef(null);
+
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
+		}
+	};
+
+	const inputProps = {
+		type: 'number',
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password' // hack to prevent auto-complete for form fields
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
+	}
+
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
+	}
+
+	if (item?.mutable) { inputProps.ref = inputField; }
+
+	let fieldRules = {};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
+
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
+
+	controllerProps.render = ({
+		field: { onChange, onBlur, value, name, ref },
+		fieldState: { invalid, isTouched, isDirty, error },
+		formState,
+	}) => (
+		<Form.Control
+			onBlur={onBlur}
+			onChange={e => { onChange(e.target.value); onChangeHandler(e.target.value); }}
+			value={value}
+			name={name}
+			ref={ref}
+			isInvalid={invalid}
+			id={name + '-' + ID.uuid()}
+			{...inputProps}
+		/>
+	)
+
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
+				<Form.Group className="form-group mb-3">
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								{...inputProps}
+							/>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								{...inputProps}
+							/>
+						</>
+					)}
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
+				</Form.Group>
+			</div>
+		);
+	}
+
+	if (item?.print === true) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{value ?? ''}</div>
+				</Form.Group>
+			</div>
+		);
+	}
+
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
+
+export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
+	const inputField = React.useRef(null);
+
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
+		}
+	};
+
+	const inputProps = {
+		type: 'number',
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password' // hack to prevent auto-complete for form fields
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
+	}
+
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
+	}
+
+	if (item?.mutable) { inputProps.ref = inputField; }
+
+	let fieldRules = {};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
+
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
+
+	controllerProps.render = ({
+		field: { onChange, onBlur, value, name, ref },
+		fieldState: { invalid, isTouched, isDirty, error },
+		formState,
+	}) => (
+		<Form.Control
+			onBlur={onBlur}
+			onChange={e => { onChange(e.target.value); onChangeHandler(e.target.value); }}
+			value={value}
+			name={name}
+			ref={ref}
+			isInvalid={invalid}
+			id={name + '-' + ID.uuid()}
+			as="textarea"
+			{...inputProps}
+		/>
+	)
+
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
+				<Form.Group className="form-group mb-3">
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								as="textarea"
+								{...inputProps}
+							/>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						</Form.Floating>
+					) : (
+						<>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Form.Control
+								value={value}
+								name={name}
+								ref={inputField}
+								id={name + '-2-' + ID.uuid()}
+								as="textarea"
+								{...inputProps}
+							/>
+						</>
+					)}
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
+				</Form.Group>
+			</div>
+		);
+	}
+
+	if (item?.print === true) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{value ?? ''}</div>
+				</Form.Group>
+			</div>
+		);
+	}
+
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
+
+export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
+	const inputField = React.useRef(null);
+
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
+		}
+	};
+
+	const inputProps = {
+		type: 'text',
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password', // hack to prevent auto-complete for form fields
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
+	}
+
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
+	}
+
+	if (item?.mutable) { inputProps.ref = inputField; }
+
+	let fieldRules = {};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
+
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
+
+	controllerProps.render = ({
+		field: { onChange, onBlur, value, name, ref },
+		fieldState: { invalid, isTouched, isDirty, error },
+		formState,
+	}) => (
+		<Form.Select
+			onBlur={onBlur}
+			onChange={e => { onChange(e.target.value); onChangeHandler(e.target.value); }}
+			value={value}
+			name={name}
+			ref={ref}
+			isInvalid={invalid}
+			id={name + '-' + ID.uuid()}
+			{...inputProps}
+		>
+			{inputProps.placeholder ? <option value="">{inputProps.placeholder}</option> : null}
+			{item?.options.map((option) => {
+				const thisKey = `preview_${option.key}`;
+				return <option value={option.value} key={thisKey}>{option.text}</option>;
+			})}
+		</Form.Select>
+	)
+
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
+				<Form.Group className="form-group mb-3">
+					{labelLocation === "FLOATING" ? (
+						<Form.Floating>
+							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} ref={inputField} {...inputProps}>
+								{inputProps.placeholder ? <option value="">{inputProps.placeholder}</option> : null}
+								{item?.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
 									return <option value={option.value} key={thisKey}>{option.text}</option>;
 								})}
 							</Form.Select>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Form.Select id={props.name} {...props}>
-								{props.placeholder ? <option value="">{props.placeholder}</option> : null}
-								{this.props.item.options.map((option) => {
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} ref={inputField} {...inputProps}>
+								{inputProps.placeholder ? <option value="">{inputProps.placeholder}</option> : null}
+								{item?.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
 									return <option value={option.value} key={thisKey}>{option.text}</option>;
 								})}
 							</Form.Select>
 						</>
 					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
 	}
-}
+
+	if (item?.print === true) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{item?.options.find((option) => option.value === value)?.text}</div>
+				</Form.Group>
+			</div>
+		);
+	}
+
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
 
 export class Signature extends React.Component {
 	constructor(props) {
@@ -687,7 +1365,7 @@ export class Signature extends React.Component {
 
 			let value = isEmpty ? '' : base64;
 			let ipAddress = await getIPAddress();
-			let date = moment().toISOString();
+			let date = new Date().toISOString();
 
 			let signature = {
 				...this.props.value,
@@ -834,7 +1512,7 @@ export class Tags extends React.Component {
 		props.placeholder = this.props.item.placeholder || 'Select...';
 		props.onChange = (val) => { this.props.onChange(val !== undefined && val !== null && val.length > 0 ? val.map((i) => i.value) : []); };
 		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
 		props.autoComplete = "new-password";
 		if (this.props.item.disabled) { props.disabled = 'disabled'; }
 		if (this.props.item.mutable) { props.ref = this.inputField; }
@@ -867,13 +1545,13 @@ export class Tags extends React.Component {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Typeahead labelKey={(option) => option.label} id={props.name} {...props} />
+							<Typeahead labelKey={(option) => option.label} id={props.name + '-' + ID.uuid()} {...props} />
 							<ComponentLabel {...this.props} htmlFor={props.name} />
 						</Form.Floating>
 					) : (
 						<>
 							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Typeahead labelKey={(option) => option.label} id={props.name} {...props} />
+							<Typeahead labelKey={(option) => option.label} id={props.name + '-' + ID.uuid()} {...props} />
 						</>
 					)}
 					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
@@ -982,7 +1660,7 @@ export class Checkbox extends React.Component {
 			}
 		};
 		//props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
 		props.autoComplete = "new-password";
 		if (this.props.item.disabled) { props.disabled = 'disabled'; }
 		if (this.props.item.mutable) { props.inputRef = this.inputField; }
@@ -1248,7 +1926,7 @@ export class Camera extends React.Component {
 		props.onChange = this.handleChange;
 		props.onClick = (event) => { event.target.value = null; };
 		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
 		if (this.props.item.disabled) { props.disabled = 'disabled'; }
 		if (this.props.item.mutable) { props.ref = this.inputField; }
 
@@ -1381,7 +2059,7 @@ export class FileUpload extends React.Component {
 		props.onChange = this.handleChange;
 		props.onClick = (event) => { event.target.value = null; };
 		props.isInvalid = this.props.isInvalid;
-		props.onBlur = this.props.onBlur;
+		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
 		if (this.props.item.disabled) { props.disabled = 'disabled'; }
 		if (this.props.item.mutable) { props.ref = this.inputField; }
 

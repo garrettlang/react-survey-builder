@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { DragSource } from 'react-dnd';
 import { getEmptyImage } from 'react-dnd-html5-backend';
 import ItemTypes from '../ItemTypes';
@@ -14,7 +14,7 @@ const style = {
 
 const dragHandleSource = {
 	beginDrag(props) {
-		const { item, index, onDestroy, setAsChild, getDataById } = props;
+		const { item, index, onDestroy, setAsChild, getItemById } = props;
 		return {
 			itemType: ItemTypes.BOX,
 			index: item.parentId ? -1 : index,
@@ -23,13 +23,13 @@ const dragHandleSource = {
 			col: item.col,
 			onDestroy,
 			setAsChild,
-			getDataById,
-			data: item,
+			getItemById,
+			item: item,
 		};
 	},
 };
 
-class DragHandle extends PureComponent {
+class DragHandle extends React.PureComponent {
 	componentDidMount() {
 		const { connectDragPreview } = this.props;
 		if (connectDragPreview) {

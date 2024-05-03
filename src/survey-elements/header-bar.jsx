@@ -6,7 +6,7 @@ import React from 'react';
 // import Grip from '../multi-column/grip';
 import DragHandle from './component-drag-handle';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import { Badge, Button, ButtonToolbar } from 'react-bootstrap';
+import { Badge, Button, ButtonToolbar } from 'react-bootstrap/esm';
 
 export default class HeaderBar extends React.Component {
 	render() {

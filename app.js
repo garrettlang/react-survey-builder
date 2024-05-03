@@ -106,15 +106,14 @@ const App = () => {
 			saveSurveyName="Save Survey Blocks"
 			previewSurveyBlock={<PreviewBlock variables={variables} data={data} />}
 			surveyToolbarClassName="bg-white sticky-top"
-			variables={variables}
-			url={url}
-			saveUrl={saveUrl}
-			locale='en'
-			saveAlways={true}
+			// variables={variables}
+			// url={url}
+			// saveUrl={saveUrl}
+			saveAlways
 			// toolbarItems={items}
-			showCorrectColumn={true}
-			showDescription={true}
-			editMode={true}
+			showCorrectColumn
+			showDescription
+			editMode
 			onPost={($data) => { console.log('onPost', $data.task_data); setData($data.task_data); }}
 		/>
 	);

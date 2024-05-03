@@ -3,10 +3,12 @@ import myxss from './myxss';
 
 const ComponentLabel = ({ item, className, htmlFor }) => {
 	const hasRequiredLabel = (item.hasOwnProperty('required') && item.required === true && !item.readOnly);
+	
 	let labelText = myxss.process(item.label);
 	if (!labelText || !labelText.trim()) {
 		return null;
 	}
+
 	labelText = `${labelText}${hasRequiredLabel ? '*' : ''}`;
 
 	const hideLabel = item.hideLabel ?? false;

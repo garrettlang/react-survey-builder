@@ -4,14 +4,16 @@ import ComponentHeader from '../survey-elements/component-header';
 import ComponentLabel from '../survey-elements/component-label';
 import Dustbin from './dustbin';
 import ItemTypes from '../ItemTypes';
-import { Container, Row } from 'react-bootstrap';
+import { Row } from 'react-bootstrap/esm';
 
 const accepts = [ItemTypes.BOX, ItemTypes.CARD];
 
 class MultiColumnRowBase extends React.Component {
 	render() {
-		const {	controls, item, editModeOn, getDataById, setAsChild, removeChild, seq, className, index	} = this.props;
+		const {	controls, item, editModeOn, getItemById, setAsChild, removeChild, seq, className, index	} = this.props;
+		
 		const { childItems, pageBreakBefore } = item;
+		
 		let baseClasses = 'SortableItem rfb-item';
 		if (pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
@@ -33,7 +35,7 @@ class MultiColumnRowBase extends React.Component {
 										parentIndex={index}
 										editModeOn={editModeOn}
 										_onDestroy={() => removeChild(item, i)}
-										getDataById={getDataById}
+										getItemById={getItemById}
 										setAsChild={setAsChild}
 										seq={seq}
 									/>}

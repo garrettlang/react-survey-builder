@@ -1,24 +1,14 @@
-/**
-  * <FormFields />
-  */
-
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { injectIntl } from 'react-intl';
-import SurveyElements from './survey-elements';
+import SurveyElements, { Image, Checkboxes, Signature, Download, Camera, FileUpload, PhoneNumber, DatePicker, TextInput, EmailInput, NumberInput, TextArea } from './survey-elements';
 import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
-import { FieldSet } from './fieldset';
+import FieldSet from './fieldset';
 import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap/esm';
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { isEmpty } from 'lodash';
-import moment from 'moment-timezone';
-import { isValidPhoneNumber } from 'react-phone-number-input';
 
-const { Image, Checkboxes, Signature, Download, Camera, FileUpload } = SurveyElements;
-
-const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, intl, answers, onSubmit, onChange, onBlur, items, submitButton = false, backButton = false, actionName = null, backName = null, backAction = null, hideActions = false, formAction, formMethod, variables, authenticity_token, task_id, buttonClassName, checkboxButtonClassName, formId, print = false }) => {
+const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, variables, buttonClassName, checkboxButtonClassName, formId, print = false }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -47,9 +37,23 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		let defaultValue = answerData.current[$dataItem.fieldName];
 		if ($dataItem.element === 'DatePicker') {
 			const defaultToday = $dataItem.defaultToday ?? false;
-			const formatMask = $dataItem.formatMask || 'MM/DD/YYYY';
 			if (defaultToday && (defaultValue === '' || defaultValue === undefined)) {
-				defaultValue = moment().format(formatMask);
+				let today = new Date();
+
+				let dd = today.getDate();
+				let mm = today.getMonth() + 1;
+
+				let yyyy = today.getFullYear();
+
+				if (dd < 10) {
+					dd = '0' + dd;
+				}
+				if (mm < 10) {
+					mm = '0' + mm;
+				}
+				today = mm + '/' + dd + '/' + yyyy;
+
+				defaultValue = today;
 			}
 		}
 
@@ -284,96 +288,13 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		dataItems.forEach((item) => {
 			if (_isIncorrect(item)) {
 				if (methods) {
-					methods.setError(item.fieldName, { type: 'incorrect', message: `${item.label} ${intl.formatMessage({ id: 'message.was-answered-incorrectly' })}` });
+					methods.setError(item.fieldName, { type: 'incorrect', message: `${item.label} was answered incorrectly` });
 				}
 				hasErrors = true;
 			}
 		});
 
 		return hasErrors;
-	};
-
-	const validateEmail = (email) => email.match(
-		// eslint-disable-next-line no-useless-escape
-		/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-	);
-
-	const toE164PhoneNumber = (phoneNumberValue) => {
-		if (phoneNumberValue !== undefined && phoneNumberValue !== null) {
-			//Filter only numbers from the input
-			let cleaned = ('' + phoneNumberValue).replace(/\D/g, '');
-
-			//Check if the input is of correct
-			let match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
-
-			if (match) {
-				//Remove the matched extension code
-				//Change this to format for any country code.
-				let intlCode = (match[1] ? '+1' : '+1')
-				return [intlCode, match[2], match[3], match[4]].join('');
-			}
-
-			return '';
-		} else {
-			return '';
-		}
-	};
-
-	const validatePhone = (phone) => {
-		return isValidPhoneNumber(toE164PhoneNumber(phone), 'US');
-	};
-
-	const validateDate = (dateString) => {
-		if (dateString !== undefined && dateString !== null && dateString !== "") {
-			let dateformat = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[1-2][0-9]|3[01])[\/]\d{4}$/;
-
-			// Matching the date through regular expression      
-			if (dateString.match(dateformat)) {
-				let operator = dateString.split('/');
-
-				// Extract the string into month, date and year      
-				let datepart = [];
-				if (operator.length > 1) {
-					datepart = dateString.split('/');
-				}
-				let month = parseInt(datepart[0]);
-				let day = parseInt(datepart[1]);
-				let year = parseInt(datepart[2]);
-
-				if (day > 31 || day < 1) {
-					return false;
-				}
-
-				let currentYear = new Date().getFullYear();
-				if (year < 1900 || year > (currentYear + 5)) {
-					return false;
-				}
-
-				// Create a list of days of a month      
-				let ListofDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-				if (month === 1 || month > 2) {
-					if (day > ListofDays[month - 1]) {
-						// to check if the date is out of range     
-						return false;
-					}
-				} else if (month === 2) {
-					let leapYear = false;
-					if ((!(year % 4) && year % 100) || !(year % 400)) leapYear = true;
-					if ((leapYear === false) && (day >= 29)) return false;
-					else
-						if ((leapYear === true) && (day > 29)) {
-							// console.log('Invalid date format!');
-							return false;
-						}
-				} else if (month > 12 || month < 1) {
-					return false;
-				}
-			} else {
-				// console.log("Invalid date format!");
-				return false;
-			}
-		}
-		return true;
 	};
 
 	const getDataItemById = (id) => {
@@ -459,7 +380,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		if (!item.component || typeof item.component !== 'function') {
 			item.component = Registry.get(item.key);
 			if (!item.component) {
-				console.error(`${item.element} ${intl.formatMessage({ id: 'message.was-not-registered' })}`);
+				console.error(`${item.element} was not registered`);
 			}
 		}
 
@@ -494,30 +415,12 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 	const getFieldRules = (item) => {
 		let fieldRules = {};
 
-		if (item.fieldRules !== undefined && item.fieldRules !== null && !isEmpty(item.fieldRules)) {
+		if (item.fieldRules !== undefined && item.fieldRules !== null) {
 			fieldRules = { ...item.fieldRules };
 		}
 
 		if (item.required) {
-			fieldRules.required = `${item.label} ${intl.formatMessage({ id: 'message.is-required' })}`;
-		}
-
-		switch (item.element) {
-			case 'EmailInput':
-				fieldRules.minLength = {
-					value: 4,
-					message: `${item.label} must be at least 4 characters long`
-				};
-				fieldRules.validate = (value) => validateEmail(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-email' })}`;
-				break;
-			case 'PhoneNumber':
-				fieldRules.validate = (value) => validatePhone(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-phone-number' })}`;
-				break;
-			case 'DatePicker':
-				fieldRules.validate = (value) => validateDate(value) || `${item.label} ${intl.formatMessage({ id: 'message.invalid-date' })}`;
-				break;
-			default:
-				break;
+			fieldRules.required = `${item.label} is required`;
 		}
 
 		return fieldRules;
@@ -561,19 +464,25 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		item.mutable = true;
 
 		switch (item.element) {
-			case 'TextInput':
-			case 'EmailInput':
-			case 'PhoneNumber':
-			case 'NumberInput':
-			case 'TextArea':
 			case 'Dropdown':
-			case 'DatePicker':
 			case 'RadioButtons':
 			case 'Rating':
 			case 'Tags':
 			case 'Range':
 			case 'Checkbox':
 				return getInputElement(item);
+			case 'TextInput':
+				return <TextInput name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
+			case 'EmailInput':
+				return <EmailInput name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
+			case 'NumberInput':
+				return <NumberInput name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
+			case 'TextArea':
+				return <TextArea name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
+			case 'PhoneNumber':
+				return <PhoneNumber name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
+			case 'DatePicker':
+				return <DatePicker name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
 			case 'CustomElement':
 				return getCustomElement(item);
 			case 'MultiColumnRow':
@@ -726,4 +635,4 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 	);
 };
 
-export default injectIntl(ReactSurvey);
+export default ReactSurvey;

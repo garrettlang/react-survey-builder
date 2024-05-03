@@ -1,17 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { injectIntl } from 'react-intl';
 
 const PLACE_HOLDER = 'survey-place-holder';
 const PLACE_HOLDER_HIDDEN = 'survey-place-holder-hidden';
 
 class PlaceHolder extends React.Component {
 	render() {
-		const { intl } = this.props;
 		const placeHolderClass = this.props.show ? PLACE_HOLDER : PLACE_HOLDER_HIDDEN;
 		// eslint-disable-next-line no-nested-ternary
 		const placeHolder = this.props.show ?
-			(this.props.text === 'Dropzone' ? intl.formatMessage({ id: 'drop-zone' }) : this.props.text) : '';
+			(this.props.text === 'Dropzone' ? 'Dropzone' : this.props.text) : '';
 
 		return (
 			<div className={placeHolderClass}>
@@ -20,8 +18,6 @@ class PlaceHolder extends React.Component {
 		);
 	}
 }
-
-export default injectIntl(PlaceHolder);
 
 PlaceHolder.propTypes = {
 	text: PropTypes.string,
@@ -32,3 +28,5 @@ PlaceHolder.defaultProps = {
 	text: 'Dropzone',
 	show: false,
 };
+
+export default PlaceHolder;

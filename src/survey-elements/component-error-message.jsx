@@ -1,7 +1,7 @@
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { ErrorMessage } from '@hookform/error-message';
-import { Alert } from "react-bootstrap";
+import { Alert } from "react-bootstrap/esm";
 
 export const getError = (errors, name) => {
     if (name !== undefined && errors !== undefined) {
@@ -24,7 +24,7 @@ export const getError = (errors, name) => {
 
 const ComponentErrorMessage = ({ name }) => {
     const methods = useFormContext();
-    console.log(methods)
+
     if (!methods) return null;
     
     if (getError(methods.formState.errors, name) !== undefined) {

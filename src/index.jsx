@@ -1,19 +1,13 @@
-/**
-  * <ReactSurveyBuilder />
-*/
-
 import React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { IntlProvider } from 'react-intl';
 import Preview from './preview';
 import Toolbar from './toolbar';
 import SurveyGenerator from './form';
 import SurveyFieldGenerator from './form-fields';
 import store from './stores/store';
 import Registry from './stores/registry';
-import AppLocale from './language-provider';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap';
+import { Button, Col, Container, Form, Row } from 'react-bootstrap/esm';
 
 class ReactSurveyBuilder extends React.Component {
 	constructor(props) {
@@ -52,13 +46,10 @@ class ReactSurveyBuilder extends React.Component {
 	render() {
 		const toolbarProps = { showDescription: this.props.showDescription };
 
-		const language = this.props.locale ? this.props.locale : 'en';
-		const currentAppLocale = AppLocale[language];
 		if (this.props.toolbarItems) { toolbarProps.items = this.props.toolbarItems; }
 
 		return (
 			<DndProvider backend={HTML5Backend}>
-				<IntlProvider locale={currentAppLocale.locale} messages={currentAppLocale.messages}>
 					<div>
 						<Container fluid className="react-survey-builder">
 							<Row>
@@ -109,34 +100,17 @@ class ReactSurveyBuilder extends React.Component {
 							</Row>
 						</Container>
 					</div>
-				</IntlProvider>
 			</DndProvider>
 		);
 	}
 }
 
 function ReactSurveyGenerator(props) {
-	const language = props.locale ? props.locale : 'en';
-	const currentAppLocale = AppLocale[language];
-	return (
-		<IntlProvider
-			locale={currentAppLocale.locale}
-			messages={currentAppLocale.messages}>
-			<SurveyGenerator {...props} />
-		</IntlProvider>
-	);
+	return <SurveyGenerator {...props} />;
 }
 
 function ReactSurveyFieldGenerator(props) {
-	const language = props.locale ? props.locale : 'en';
-	const currentAppLocale = AppLocale[language];
-	return (
-		<IntlProvider
-			locale={currentAppLocale.locale}
-			messages={currentAppLocale.messages}>
-			<SurveyFieldGenerator {...props} />
-		</IntlProvider>
-	);
+	return <SurveyFieldGenerator {...props} />;
 }
 
 const cleanUpSurveyItems = (items = []) => {

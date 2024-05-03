@@ -1,12 +1,7 @@
-/**
-  * <DynamicOptionList />
-  */
-
 import React from 'react';
-import ID from './UUID';
-import IntlMessages from './language-provider/IntlMessages';
 import { FaMinusCircle, FaPlusCircle } from 'react-icons/fa';
-import { Button, Col, Form, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row } from 'react-bootstrap/esm';
+import ID from './UUID';
 
 export default class DynamicOptionList extends React.Component {
 	constructor(props) {
@@ -86,11 +81,11 @@ export default class DynamicOptionList extends React.Component {
 				<ul>
 					<li>
 						<Row>
-							<Col sm={6}><b><IntlMessages id='options' /></b></Col>
+							<Col sm={6}><b>Options</b></Col>
 							{this.props.canHaveOptionValue &&
-								<Col sm={2}><b><IntlMessages id='value' /></b></Col>}
+								<Col sm={2}><b>Value</b></Col>}
 							{this.props.canHaveOptionValue && this.props.canHaveOptionCorrect &&
-								<Col sm={4}><b><IntlMessages id='correct' /></b></Col>}
+								<Col sm={4}><b>Correct</b></Col>}
 						</Row>
 					</li>
 					{

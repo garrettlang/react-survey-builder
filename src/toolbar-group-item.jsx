@@ -1,20 +1,15 @@
-/**
-  * <ToolbarGroupItem />
-  */
+import React from 'react';
+import { Button } from 'react-bootstrap/esm';
 
-import React, { useState } from 'react';
-import { Button } from 'react-bootstrap';
+const ToolbarGroupItem = ({ name, group, renderItem }) => {
+	const [show, setShow] = React.useState(false);
 
-function ToolbarGroupItem(props) {
-	const { name, group, renderItem } = props;
-
-	const [show, setShow] = useState(false);
-
-	function onClick() {
+	const onClick = () => {
 		setShow(!show);
-	}
+	};
 
 	const classShow = 'collapse' + (show ? ' show' : '');
+
 	return (
 		<li>
 			<div className="toolbar-group-item">
@@ -29,6 +24,6 @@ function ToolbarGroupItem(props) {
 			</div>
 		</li>
 	);
-}
+};
 
 export default ToolbarGroupItem;

@@ -13,29 +13,31 @@ const layerStyles = {
 	height: '100%',
 };
 
-function getItemStyles({ initialOffset, currentOffset }) {
+const getItemStyles = ({ initialOffset, currentOffset }) => {
 	if (!initialOffset || !currentOffset) {
 		return {
 			display: 'none',
 		};
 	}
+	
 	let { x, y } = currentOffset;
 
 	const transform = `translate(${x}px, ${y}px)`;
+
 	return { transform, WebkitTransform: transform };
-}
+};
 
 const CustomDragLayer = (props) => {
-	const { item, itemType, isDragging } = props;
-	function renderItem() {
-		switch (itemType) {
+	const renderItem = () => {
+		switch (props.itemType) {
 			case ItemTypes.BOX:
-				return <BoxDragPreview item={item} />;
+				return <BoxDragPreview item={props.item} />;
 			default:
 				return null;
 		}
-	}
-	if (!isDragging) { return null; }
+	};
+
+	if (!props.isDragging) { return null; }
 
 	return (
 		<div style={layerStyles}>
@@ -43,6 +45,7 @@ const CustomDragLayer = (props) => {
 		</div>
 	);
 };
+
 export default DragLayer((monitor) => ({
 	item: monitor.getItem(),
 	itemType: monitor.getItemType(),

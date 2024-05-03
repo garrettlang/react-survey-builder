@@ -3,7 +3,7 @@ import React from "react";
 import ComponentHeader from "../survey-elements/component-header";
 import FieldsetDustbin from '../multi-column/dustbin';
 import ItemTypes from "../ItemTypes";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap/esm";
 import myxss from "../survey-elements/myxss";
 
 const accepts = [ItemTypes.BOX, ItemTypes.CARD];
@@ -19,17 +19,15 @@ const ComponentLegend = ({ item }) => {
 	);
 };
 
-export default function FieldSetBase(props) {
-
-	const [childData, setChildData] = React.useState({});
+const FieldSet = (props) => {
+	const [childItem, setChildItem] = React.useState({});
 	const [childItems, setChildItems] = React.useState(null);
 
 	React.useEffect(() => {
 		const { item, className, ...rest } = props;
-		setChildData(item);
+		setChildItem(item);
 		let count = 1;
 		createChild(count, item);
-
 	}, [props]);
 
 
@@ -60,8 +58,11 @@ export default function FieldSetBase(props) {
 		}
 		setChildItems($dataItem.childItems);
 	};
-	const { controls, editModeOn, getDataById, setAsChild, removeChild, seq, index } = props;
-	const { pageBreakBefore } = childData;
+
+	const { controls, editModeOn, getItemById, setAsChild, removeChild, seq, index } = props;
+
+	const { pageBreakBefore } = childItem;
+
 	let baseClasses = "SortableItem rfb-item";
 	if (pageBreakBefore) {
 		baseClasses += " alwaysbreak";
@@ -74,15 +75,14 @@ export default function FieldSetBase(props) {
 				<ComponentLegend {...props} />
 				<Container fluid>
 					<Row>
-						{
-							childItems?.map((x, i) => (
+						{childItems?.map((x, i) => (
 								<Col key={`${i}_${x || "_"}`} md={12}>
 									{controls ? (
 										controls[i]
 									) : (
 										<FieldsetDustbin
 											style={{ width: "100%" }}
-											item={childData}
+											item={childItem}
 											accepts={accepts}
 											items={childItems}
 											key={i}
@@ -90,8 +90,8 @@ export default function FieldSetBase(props) {
 											onDropSuccess={() => onDropSuccess(i)}
 											parentIndex={index}
 											editModeOn={editModeOn}
-											_onDestroy={() => removeChild(childData, i)}
-											getDataById={getDataById}
+											_onDestroy={() => removeChild(childItem, i)}
+											getItemById={getItemById}
 											setAsChild={setAsChild}
 											seq={seq}
 											rowNo={i}
@@ -104,4 +104,6 @@ export default function FieldSetBase(props) {
 			</fieldset>
 		</div>
 	);
-}
+};
+
+export default FieldSet;

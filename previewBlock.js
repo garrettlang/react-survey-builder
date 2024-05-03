@@ -84,14 +84,13 @@ const PreviewBlock = ({ variables, data }) => {
 						backName="Cancel"
 						answers={answers}
 						actionName="Save"
-						formAction="/api/form"
-						formMethod="POST"
+						//formAction="/api/form"
+						//formMethod="POST"
 						// skipValidations={true}
 						onSubmit={_onSubmit}
 						onChange={_onChange}
 						variables={variables}
 						items={data}
-						locale='en'
 						buttonClassName="d-grid gap-2"
 						formId="test-form"
 						methods={methods}
@@ -119,12 +118,11 @@ const PreviewBlock = ({ variables, data }) => {
 						backName="Cancel"
 						answers={answers}
 						actionName="Save"
-						formAction="/api/form"
-						formMethod="POST"
+						// formAction="/api/form"
+						// formMethod="POST"
 						// skipValidations={true}
 						onSubmit={_onSubmit}
 						items={data}
-						locale='en'
 						buttonClassName="d-grid gap-2"
 					/>
 				</Modal.Body>
@@ -150,13 +148,12 @@ const PreviewBlock = ({ variables, data }) => {
 						backName="Back"
 						answers={answers}
 						actionName="Save"
-						formAction="/"
-						formMethod="POST"
+						// formAction="/"
+						// formMethod="POST"
 						readOnly={false}
 						variables={variables}
 						hideActions={true}
 						items={data}
-						locale='en'
 						print={true}
 					/>
 				</Modal.Body>
@@ -180,13 +177,12 @@ const PreviewBlock = ({ variables, data }) => {
 						downloadPath=""
 						backAction={closePreview}
 						answers={answers}
-						formAction="/"
-						formMethod="POST"
+						// formAction="/"
+						// formMethod="POST"
 						items={data}
 						displayShort={true}
 						variables={variables}
 						hideActions={false}
-						locale='en'
 						buttonClassName="d-grid gap-2"
 					/>
 				</Modal.Body>

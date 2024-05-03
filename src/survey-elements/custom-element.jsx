@@ -1,7 +1,7 @@
 import React from 'react';
 import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
-import { Form } from 'react-bootstrap';
+import { Form } from 'react-bootstrap/esm';
 import ComponentErrorMessage from './component-error-message';
 
 class CustomElement extends React.Component {

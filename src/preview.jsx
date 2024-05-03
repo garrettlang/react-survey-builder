@@ -1,7 +1,3 @@
-/**
-  * <Preview />
-  */
-
 import React from 'react';
 import update from 'immutability-helper';
 import store from './stores/store';
@@ -31,7 +27,7 @@ export default class Preview extends React.Component {
 		this.seq = 0;
 
 		this._onUpdate = this._onChange.bind(this);
-		this.getDataById = this.getDataById.bind(this);
+		this.getItemById = this.getItemById.bind(this);
 		this.moveCard = this.moveCard.bind(this);
 		this.insertCard = this.insertCard.bind(this);
 		this.setAsChild = this.setAsChild.bind(this);
@@ -105,7 +101,7 @@ export default class Preview extends React.Component {
 	_onDestroy(item) {
 		if (item.childItems) {
 			item.childItems.forEach((childItem) => {
-				const child = this.getDataById(childItem);
+				const child = this.getItemById(childItem);
 				if (child) {
 					store.dispatch('delete', child);
 				}
@@ -114,7 +110,7 @@ export default class Preview extends React.Component {
 		store.dispatch('delete', item);
 	}
 
-	getDataById(id) {
+	getItemById(id) {
 		const { items } = this.state;
 
 		return items.find((x) => x && x.id === id);
@@ -129,7 +125,7 @@ export default class Preview extends React.Component {
 			return false;
 		}
 		const oldId = item.childItems[col];
-		const oldItem = this.getDataById(oldId);
+		const oldItem = this.getItemById(oldId);
 		const oldCol = child.col;
 		// eslint-disable-next-line no-param-reassign
 		item.childItems[oldCol] = oldId; oldItem.col = oldCol;
@@ -151,7 +147,7 @@ export default class Preview extends React.Component {
 			return;
 		}
 
-		const oldParent = this.getDataById(child.parentId);
+		const oldParent = this.getItemById(child.parentId);
 		const oldCol = child.col;
 		// eslint-disable-next-line no-param-reassign
 		item.childItems[col] = child.id; child.col = col;
@@ -171,7 +167,7 @@ export default class Preview extends React.Component {
 			// console.log('toRemove', toRemove);
 			newData = items.filter((x) => toRemove.indexOf(x) === -1);
 		}
-		if (!this.getDataById(child.id)) {
+		if (!this.getItemById(child.id)) {
 			newData.push(child);
 		}
 		store.dispatch('updateOrder', newData);
@@ -180,7 +176,7 @@ export default class Preview extends React.Component {
 	removeChild(item, col) {
 		const { items } = this.state;
 		const oldId = item.childItems[col];
-		const oldItem = this.getDataById(oldId);
+		const oldItem = this.getItemById(oldId);
 		if (oldItem) {
 			const newData = items.filter(x => x !== oldItem);
 			// eslint-disable-next-line no-param-reassign
@@ -194,8 +190,8 @@ export default class Preview extends React.Component {
 
 	restoreCard(item, id) {
 		const { items } = this.state;
-		const parent = this.getDataById(item.item.parentId);
-		const oldItem = this.getDataById(id);
+		const parent = this.getItemById(item.item.parentId);
+		const oldItem = this.getItemById(id);
 		if (parent && oldItem) {
 			const newIndex = items.indexOf(oldItem);
 			const newData = [...items]; // items.filter(x => x !== oldItem);
@@ -253,12 +249,13 @@ export default class Preview extends React.Component {
 				item.component = this.props.registry.get(item.key);
 			}
 		}
+		console.log('getElement', item);
 		const SortableFormElement = SortableFormElements[item.element];
 
 		if (SortableFormElement === null) {
 			return null;
 		}
-		return <SortableFormElement id={item.id} name={item.fieldName} seq={this.seq} index={index} moveCard={this.moveCard} insertCard={this.insertCard} mutable={false} parent={this.props.parent} editModeOn={this.props.editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, mutable: false, readOnly: false, print: false }} getDataById={this.getDataById} setAsChild={this.setAsChild} removeChild={this.removeChild} _onDestroy={this._onDestroy} />;
+		return <SortableFormElement id={item.id} name={item.fieldName} seq={this.seq} index={index} moveCard={this.moveCard} insertCard={this.insertCard} mutable={false} parent={this.props.parent} editModeOn={this.props.editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, mutable: false, readOnly: false, print: false }} getDataById={this.getItemById} setAsChild={this.setAsChild} removeChild={this.removeChild} _onDestroy={this._onDestroy} />;
 	}
 
 	showEditForm() {

@@ -13,7 +13,8 @@ const style = {
 
 const gripSource = {
 	beginDrag(props) {
-		const { item, index, onDestroy, setAsChild, getDataById } = props;
+		const { item, index, onDestroy, setAsChild, getItemById } = props;
+
 		return {
 			itemType: ItemTypes.BOX,
 			index: item.parentId ? -1 : index,
@@ -22,7 +23,7 @@ const gripSource = {
 			col: item.col,
 			onDestroy,
 			setAsChild,
-			getDataById,
+			getItemById,
 			item,
 		};
 	},
