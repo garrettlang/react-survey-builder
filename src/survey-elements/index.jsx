@@ -441,8 +441,7 @@ export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) =>
 		type: 'text',
 		required: item?.required ?? false,
 		disabled: item?.disabled ?? false,
-		autoComplete: 'new-password', // hack to prevent auto-complete for form fields
-		formatMask: item?.formatMask || 'MM/DD/YYYY'
+		autoComplete: 'new-password' // hack to prevent auto-complete for form fields
 	};
 
 	if (item?.label) {
@@ -685,8 +684,7 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 		type: 'text',
 		required: item?.required ?? false,
 		disabled: item?.disabled ?? false,
-		autoComplete: 'new-password', // hack to prevent auto-complete for form fields
-		formatMask: item?.formatMask || 'MM/DD/YYYY'
+		autoComplete: 'new-password' // hack to prevent auto-complete for form fields
 	};
 
 	if (item?.label) {
@@ -708,17 +706,10 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 		fieldRules.required = 'Required Field';
 	}
 
-	// if (CustomDateInput !== undefined) {
-	// 	inputProps.as = CustomDateInput;
-	// }
-
 	let controllerProps = {
 		name: name,
 		rules: fieldRules
 	};
-
-	console.log('inputProps', inputProps);
-	console.log('iMaskInput', IMaskInput);
 
 	if (IMaskInput !== undefined && IMask !== undefined) {
 		controllerProps.render = ({
@@ -735,7 +726,7 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 				mask={Date}
 				lazy={false}
 				overwrite={true}
-				pattern={inputProps?.formatMask ?? 'MM/DD/YYYY'}
+				pattern={'MM/DD/YYYY'}
 				format={function (date) {
 					var day = date.getDate();
 					var month = date.getMonth() + 1;
