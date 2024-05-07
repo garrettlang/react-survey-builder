@@ -290,6 +290,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 						isInvalid={invalid}
 						item={item}
 						className={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
+						checkboxButtonClassName={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
 					/>
 				)}
 			/>
@@ -485,6 +486,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 								isInvalid={invalid}
 								item={item}
 								className={checkboxButtonClassName ?? null}
+								checkboxButtonClassName={checkboxButtonClassName ?? null}
 							/>
 						)}
 					/>
