@@ -130,7 +130,10 @@ const cleanUpSurveyItems = (items = []) => {
 		if (item.italic !== undefined && item.italic !== null) { dataItem.italic = item.italic; }
 		if (item.labelLocation !== undefined && item.labelLocation !== null) { dataItem.labelLocation = item.labelLocation; }
 		if (item.help !== undefined && item.help !== null) { dataItem.help = item.help; }
+		
 		if (item.hideLabel !== undefined && item.hideLabel !== null) { dataItem.hideLabel = item.hideLabel; }
+		if (props.hideLabels !== undefined && props.hideLabels !== null) { dataItem.hideLabel = props.hideLabels; }
+
 		if (item.readOnly !== undefined && item.readOnly !== null) { dataItem.readOnly = item.readOnly; }
 		if (item.defaultToday !== undefined && item.defaultToday !== null) { dataItem.defaultToday = item.defaultToday; }
 		if (item.content !== undefined && item.content !== null) { dataItem.content = item.content; }

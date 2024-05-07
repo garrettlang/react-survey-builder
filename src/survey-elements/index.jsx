@@ -406,9 +406,8 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 	);
 };
 
-export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) => {
+export const PhoneNumber = ({ name, onChange, value = '', style, item, ...props }) => {
 	const methods = useFormContext();
-	const inputField = React.useRef(null);
 
 	const onChangeHandler = (value) => {
 		if (onChange !== undefined) {
@@ -420,21 +419,29 @@ export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) =>
 		if (phoneNumberValue !== undefined && phoneNumberValue !== null) {
 			//Filter only numbers from the input
 			let cleaned = ('' + phoneNumberValue).replace(/\D/g, '');
-	
+
 			//Check if the input is of correct
 			let match = cleaned.match(/^(1|)?(\d{3})(\d{3})(\d{4})$/);
-	
+
 			if (match) {
 				//Remove the matched extension code
 				//Change this to format for any country code.
 				let intlCode = (match[1] ? '+1' : '+1')
 				return [intlCode, match[2], match[3], match[4]].join('');
 			}
-	
+
 			return '';
 		} else {
 			return '';
 		}
+	};
+
+	const validatePhoneNumber = (value) => {
+		if (value !== undefined && value !== null && value !== '') {
+			return isValidPhoneNumber(toE164PhoneNumber(value), 'US');
+		}
+
+		return true;
 	};
 
 	const inputProps = {
@@ -454,18 +461,12 @@ export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) =>
 		inputProps.placeholder = item?.label;
 	}
 
-	if (item?.mutable) { inputProps.ref = inputField; }
-
 	let fieldRules = {
-		validate: value => isValidPhoneNumber(toE164PhoneNumber(value), 'US') || `${item?.label} field requires a valid phone number`
+		validate: (value) => validatePhoneNumber(value) || `${item?.label} field requires a valid phone number`
 	};
 	if (item?.required ?? false) {
 		fieldRules.required = 'Required Field';
 	}
-
-	// if (CustomPhoneInput !== undefined) {
-	// 	inputProps.as = CustomPhoneInput;
-	// }
 
 	let controllerProps = {
 		name: name,
@@ -559,7 +560,6 @@ export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) =>
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -571,7 +571,6 @@ export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) =>
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -619,7 +618,6 @@ export const PhoneNumber = ({ name, onChange, value, style, item, ...props }) =>
 
 export const DatePicker = ({ name, onChange, value, style, item, ...props }) => {
 	const methods = useFormContext();
-	const inputField = React.useRef(null);
 
 	const onChangeHandler = (value) => {
 		if (onChange !== undefined) {
@@ -630,11 +628,11 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 	const validateDate = (dateString) => {
 		if (dateString !== undefined && dateString !== null && dateString !== "") {
 			let dateformat = /^(0?[1-9]|1[0-2])[\/](0?[1-9]|[1-2][0-9]|3[01])[\/]\d{4}$/;
-	
+
 			// Matching the date through regular expression      
 			if (dateString.match(dateformat)) {
 				let operator = dateString.split('/');
-	
+
 				// Extract the string into month, date and year      
 				let datepart = [];
 				if (operator.length > 1) {
@@ -643,16 +641,16 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 				let month = parseInt(datepart[0]);
 				let day = parseInt(datepart[1]);
 				let year = parseInt(datepart[2]);
-	
+
 				if (day > 31 || day < 1) {
 					return false;
 				}
-	
+
 				let currentYear = new Date().getFullYear();
 				if (year < 1900 || year > (currentYear + 5)) {
 					return false;
 				}
-	
+
 				// Create a list of days of a month      
 				let ListofDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 				if (month === 1 || month > 2) {
@@ -696,8 +694,6 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 	} else if (item?.label) {
 		inputProps.placeholder = item?.label;
 	}
-
-	if (item?.mutable) { inputProps.ref = inputField; }
 
 	let fieldRules = {
 		validate: value => validateDate(value) || 'Please enter a valid Date in the format MM/DD/YYYY'
@@ -808,7 +804,7 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 	let baseClasses = 'SortableItem rfb-item';
 	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-	console.log('controllerProps', controllerProps);
+	// console.log('controllerProps', controllerProps);
 
 	if (!methods) {
 		return (
@@ -820,7 +816,6 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -832,7 +827,6 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -880,7 +874,6 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 
 export const NumberInput = ({ name, onChange, value, style, item, ...props }) => {
 	const methods = useFormContext();
-	const inputField = React.useRef(null);
 
 	const onChangeHandler = (value) => {
 		if (onChange !== undefined) {
@@ -904,8 +897,6 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 	} else if (item?.label) {
 		inputProps.placeholder = item?.label;
 	}
-
-	if (item?.mutable) { inputProps.ref = inputField; }
 
 	let fieldRules = {};
 	if (item?.required ?? false) {
@@ -964,7 +955,6 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -976,7 +966,6 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -1024,7 +1013,6 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 
 export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 	const methods = useFormContext();
-	const inputField = React.useRef(null);
 
 	const onChangeHandler = (value) => {
 		if (onChange !== undefined) {
@@ -1048,8 +1036,6 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 	} else if (item?.label) {
 		inputProps.placeholder = item?.label;
 	}
-
-	if (item?.mutable) { inputProps.ref = inputField; }
 
 	let fieldRules = {};
 	if (item?.required ?? false) {
@@ -1109,7 +1095,6 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								as="textarea"
 								{...inputProps}
@@ -1122,7 +1107,6 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								as="textarea"
 								{...inputProps}
@@ -1171,7 +1155,6 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 
 export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 	const methods = useFormContext();
-	const inputField = React.useRef(null);
 
 	const onChangeHandler = (value) => {
 		if (onChange !== undefined) {
@@ -1195,8 +1178,6 @@ export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 	} else if (item?.label) {
 		inputProps.placeholder = item?.label;
 	}
-
-	if (item?.mutable) { inputProps.ref = inputField; }
 
 	let fieldRules = {};
 	if (item?.required ?? false) {
@@ -1258,7 +1239,7 @@ export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} ref={inputField} {...inputProps}>
+							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} {...inputProps}>
 								{inputProps.placeholder ? <option value="">{inputProps.placeholder}</option> : null}
 								{item?.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
@@ -1270,7 +1251,7 @@ export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 					) : (
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} ref={inputField} {...inputProps}>
+							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} {...inputProps}>
 								{inputProps.placeholder ? <option value="">{inputProps.placeholder}</option> : null}
 								{item?.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
@@ -1475,83 +1456,178 @@ export class Signature extends React.Component {
 	}
 }
 
-export class Tags extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
-	}
+export const Tags = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
 
-	getDefaultValue(val, options) {
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
+		}
+	};
+
+	const getDefaultValue = (val, options) => {
 		if (val) {
 			return options.filter((option) => val.indexOf(option.value) > -1);
 		}
 
 		return [];
+	};
+
+	const options = item?.options.map((option) => {
+		return {
+			value: option.value,
+			label: option.text,
+			key: option.value
+		};
+	});
+
+	const inputProps = {
+		multiple: true,
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false,
+		autoComplete: 'new-password', // hack to prevent auto-complete for form fields
+	};
+
+	if (item?.label) {
+		inputProps.label = item?.label;
 	}
 
-	render() {
-		const options = this.props.item.options.map((option) => {
-			return {
-				value: option.value,
-				label: option.text,
-				key: option.value
-			};
-		});
+	if (item?.placeholder) {
+		inputProps.placeholder = item?.placeholder;
+	} else if (item?.label) {
+		inputProps.placeholder = item?.label;
+	} else {
+		inputProps.placeholder = 'Select...';
+	}
 
-		const props = {};
-		props.name = this.props.name;
-		props.placeholder = this.props.item.placeholder || 'Select...';
-		props.onChange = (val) => { this.props.onChange(val !== undefined && val !== null && val.length > 0 ? val.map((i) => i.value) : []); };
-		props.isInvalid = this.props.isInvalid;
-		if (this.props.onBlur) { props.onBlur = this.props.onBlur; }
-		props.autoComplete = "new-password";
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
-		if (this.props.item.mutable) { props.ref = this.inputField; }
+	let fieldRules = {};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
 
-		props.multiple = true;
-		props.selected = this.getDefaultValue(this.props.value, options);
-		props.options = options;
-		// props.required = this.props.item.required;
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	controllerProps.render = ({
+		field: { onChange, onBlur, value, name, ref },
+		fieldState: { invalid, isTouched, isDirty, error },
+		formState,
+	}) => (
+		<Typeahead
+			labelKey={(option) => option.label}
+			onBlur={onBlur}
+			onChange={(selected) => {
+				// console.log(selected);
+				if (selected.length >= 1) {
+					//console.log(selected[0]);
+					onChange(selected.map((i) => i.value));
+					onChangeHandler(selected.map((i) => i.value));
+				} else if (selected.length === 0) {
+					onChange([]);
+					onChangeHandler([]);
+				}
+			}}
+			options={options}
+			selected={getDefaultValue(value, options)}
+			name={name}
+			ref={ref}
+			isInvalid={invalid}
+			id={name + '-' + ID.uuid()}
+			{...inputProps}
+		/>
+	)
 
-		let labelLocation = 'ABOVE';
-		if (this.props.item.labelLocation) { labelLocation = this.props.item.labelLocation; }
+	if (value !== undefined) {
+		controllerProps.defaultValue = value;
+	}
 
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.item.options.filter((option) => this.props.value.includes(option.value)).map((option) => option.text).join(', ')}</div>
-					</Form.Group>
-				</div>
-			);
-		}
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
 
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let labelLocation = 'ABOVE';
+	if (item?.labelLocation) {
+		labelLocation = item?.labelLocation;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Typeahead labelKey={(option) => option.label} id={props.name + '-' + ID.uuid()} {...props} />
-							<ComponentLabel {...this.props} htmlFor={props.name} />
+							<Typeahead
+								labelKey={(option) => option.label}
+								options={options}
+								selected={getDefaultValue(value, options)}
+								name={name}
+								id={name + '-' + ID.uuid()}
+								{...inputProps}
+							/>
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 						</Form.Floating>
 					) : (
 						<>
-							<ComponentLabel {...this.props} htmlFor={props.name} />
-							<Typeahead labelKey={(option) => option.label} id={props.name + '-' + ID.uuid()} {...props} />
+							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+							<Typeahead
+								labelKey={(option) => option.label}
+								options={options}
+								selected={getDefaultValue(value, options)}
+								name={name}
+								id={name + '-' + ID.uuid()}
+								{...inputProps}
+							/>
 						</>
 					)}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
 	}
-}
+
+	if (item?.print === true) {
+		return (
+			<div style={{ ...style }} className={baseClasses}>
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{item?.options.filter((option) => value?.includes(option.value)).map((option) => option.text).join(', ')}</div>
+				</Form.Group>
+			</div>
+		);
+	}
+
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				{labelLocation === "FLOATING" ? (
+					<Form.Floating>
+						<Controller control={methods.control} {...controllerProps} />
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					</Form.Floating>
+				) : (
+					<>
+						<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+						<Controller control={methods.control} {...controllerProps} />
+					</>
+				)}
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
 
 export class Checkboxes extends React.Component {
 	constructor(props) {
@@ -1592,6 +1668,7 @@ export class Checkboxes extends React.Component {
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...this.props} htmlFor={this.props.name} />
+					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
 					{this.props.item.options.map((option) => {
 						const props = {};
 						props.name = `option_${option.key}`;
@@ -1625,7 +1702,6 @@ export class Checkboxes extends React.Component {
 							</ToggleButton>
 						);
 					})}
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={this.props.name} />
 				</Form.Group>
 			</div>

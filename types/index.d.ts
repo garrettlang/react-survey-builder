@@ -165,6 +165,7 @@ export interface SurveyGeneratorProps {
   answerData?: any[];
   authenticity_token?: string;
   hideActions?: boolean;
+  hideLabels?: boolean;
   skipValidations?: boolean;
   displayShort?: boolean;
   readOnly?: boolean;

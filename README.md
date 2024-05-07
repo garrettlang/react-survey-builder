@@ -98,7 +98,7 @@ submitButton | ElementNode | Optional | If you would like to inject your own sub
 backButton | ElementNode | Optional | If you would like to inject your own back/cancel button.
 buttonClassName | string | Optional | CSS class(es) for the button container
 checkboxButtonClassName | string | Optional | CSS class(es) for the checkbox and radio buttons
-hideActions | boolean | Optional | If you would like to hide the submit / cancel buttons set to true.
+hideLabels | boolean | Optional | If you would like to hide field labels
 skipValidations | boolean | Optional | Suppress form validations on submit, if set to true.
 displayShort | boolean | Optional | Display an optional "shorter page/form" which is common for legal documents or situations where the user will just have to sign or fill out a shorter form with only the critical elements.
 readOnly | boolean | Optional | Shows a read only version which has fields disabled and removes "required" labels.

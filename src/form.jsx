@@ -8,7 +8,7 @@ import Registry from './stores/registry';
 import { Button, Form } from 'react-bootstrap/esm';
 import { Controller, FormProvider, useForm } from "react-hook-form";
 
-const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, variables, buttonClassName, checkboxButtonClassName, formId, print = false }) => {
+const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, formId, print = false }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -98,10 +98,12 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 			element: $dataItem.element,
 			value: '',
 		};
+
+		const $formData = methods?.getValues();
 		if ($dataItem.element === 'Rating') {
 			$item.value = ref.inputField.current.state.rating;
 		} else if ($dataItem.element === 'Tags') {
-			$item.value = ref.props.value;
+			$item.value = $formData[$dataItem.fieldName];
 			// } else if (item.element === 'DatePicker') {
 			// 	$item.value = ref.state.value;
 		} else if ($dataItem.element === 'Camera') {
@@ -110,11 +112,13 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 			$item.value = ref.state.fileUpload;
 		} else if ($dataItem.element === 'Signature') {
 			$item.value = ref.state.value;
-		} else if (ref && ref.inputField && ref.inputField.current) {
+		} else if (ref && ref?.inputField && ref?.inputField?.current) {
 			$item = ReactDOM.findDOMNode(ref.inputField.current);
 			if ($item && typeof $item.value === 'string') {
 				$item.value = $item.value.trim();
 			}
+		} else {
+			$item.value = $formData[$dataItem.fieldName];
 		}
 
 		return $item;
@@ -154,86 +158,17 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		return incorrect;
 	};
 
-	const _isInvalid = ($dataItem) => {
-		let invalid = false;
-		if ($dataItem.required === true) {
-			const ref = inputs.current[$dataItem.fieldName];
-			if ($dataItem.element === 'Checkboxes' || $dataItem.element === 'RadioButtons') {
-				let checked_options = 0;
-				$dataItem.options.forEach((option) => {
-					const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
-					if ($option.checked) {
-						checked_options += 1;
-					}
-				});
-				if (checked_options < 1) {
-					// errors.push(item.label + ' is required!');
-					invalid = true;
-				}
-			} else {
-				const $item = _getItemValue($dataItem, ref);
-				if ($dataItem.element === 'Rating') {
-					if ($item.value === 0) {
-						invalid = true;
-					}
-				} else if ($item.value === undefined || $item.value.length < 1) {
-					invalid = true;
-				}
-			}
-		}
-
-		return invalid;
-	};
-
-	const _collect = ($dataItem) => {
-		const itemData = {
-			id: $dataItem.id,
-			name: $dataItem.fieldName,
-			customName: $dataItem.customName || $dataItem.fieldName,
-			label: $dataItem.label !== null && $dataItem.label !== undefined && $dataItem.label !== '' ? $dataItem.label.trim() : ''
-		};
-
-		if (!itemData.name) return null;
-
-		const ref = inputs.current[$dataItem.fieldName];
-		if ($dataItem.element === 'Checkboxes') {
-			const checkedOptions = [];
-			$dataItem.options.forEach((option) => {
-				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
-				if ($option.checked) {
-					checkedOptions.push(option.value);
-				}
-			});
-
-			itemData.value = checkedOptions;
-		} else if ($dataItem.element === 'RadioButtons') {
-			$dataItem.options.forEach((option) => {
-				const $option = ReactDOM.findDOMNode(ref.options[`child_ref_${option.key}`]);
-				if ($option.checked) {
-					itemData.value = option.value;
-				}
-			});
-		} else if ($dataItem.element === 'Checkbox') {
-			if (!ref || !ref.inputField || !ref.inputField.current) {
-				itemData.value = false;
-			} else {
-				itemData.value = ref.inputField.current.checked;
-			}
-		} else {
-			if (!ref) return null;
-
-			itemData.value = _getItemValue($dataItem, ref).value;
-		}
-
-		itemData.required = $dataItem.required || false;
-
-		return itemData;
-	};
-
-	const _collectFormData = ($dataItems) => {
+	const _collectFormData = ($dataItems, $formData) => {
 		const formData = [];
 		$dataItems.forEach((item) => {
-			const itemData = _collect(item);
+			const itemData = {
+				id: item.id,
+				name: item.fieldName,
+				customName: item.customName || item.fieldName,
+				label: item.label !== null && item.label !== undefined && item.label !== '' ? item.label.trim() : '',
+				value: $formData[item.fieldName],
+				required: item.required || false
+			};
 			if (itemData) {
 				formData.push(itemData);
 			}
@@ -256,7 +191,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		// Only submit if there are no errors.
 		if (hasErrors === false) {
 			if (onSubmit) {
-				const $data = _collectFormData(items);
+				const $data = _collectFormData(items, $formData);
 				onSubmit({
 					formData: $formData,
 					answers: $data
@@ -272,7 +207,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		// console.log('handleChange');
 		// Call submit function on change
 		if (onChange) {
-			const $data = _collectFormData(items);
+			const $data = _collectFormData(items, methods?.getValues() || []);
 			onChange($data);
 		}
 	}
@@ -305,6 +240,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 				fieldRules: getFieldRules($dataItem),
 				print: print ?? false,
 				readOnly: (readOnly || $dataItem.readOnly) ?? false,
+				hideLabel: (hideLabels || $dataItem.hideLabel) ?? false,
 				disabled: (readOnly || $dataItem.readOnly) ?? false,
 				mutable: true
 			};
@@ -312,6 +248,21 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 
 		return null;
 	};
+
+	const getStandardElement = (item) => {
+		if (!item) return null;
+
+		if (item.custom) {
+			return getCustomElement(item);
+		}
+
+		const Input = SurveyElements[item.element];
+
+		return (
+			<Input name={item.fieldName} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />
+		);
+	};
+
 
 	const getInputElement = (item) => {
 		if (!item) return null;
@@ -460,29 +411,25 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		item.fieldRules = getFieldRules(item);
 		item.print = print ?? false;
 		item.readOnly = (readOnly || item.readOnly) ?? false;
+		item.hideLabel = (hideLabels || item.hideLabel) ?? false;
 		item.disabled = (readOnly || item.readOnly) ?? false;
 		item.mutable = true;
 
 		switch (item.element) {
-			case 'Dropdown':
 			case 'RadioButtons':
 			case 'Rating':
-			case 'Tags':
 			case 'Range':
 			case 'Checkbox':
 				return getInputElement(item);
+			case 'Tags':
+			case 'Dropdown':
 			case 'TextInput':
-				return <TextInput name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
 			case 'EmailInput':
-				return <EmailInput name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
 			case 'NumberInput':
-				return <NumberInput name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
 			case 'TextArea':
-				return <TextArea name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
 			case 'PhoneNumber':
-				return <PhoneNumber name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
 			case 'DatePicker':
-				return <DatePicker name={item.fieldName} ref={c => inputs.current[item.fieldName] = c} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />;
+				return getStandardElement(item);
 			case 'CustomElement':
 				return getCustomElement(item);
 			case 'MultiColumnRow':
