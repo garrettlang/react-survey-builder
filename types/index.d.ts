@@ -43,6 +43,9 @@ type BaseElement = {
   pageBreakBefore?: boolean;
   canPopulateFromApi: boolean;
   text: string;
+  conditional?: boolean;
+  conditionalFieldName?: string;
+  conditionalFieldValue?: string;
 };
 export type StaticElement = {
   bold: boolean;
@@ -176,6 +179,8 @@ export interface SurveyGeneratorProps {
   buttons?: JSX.Element;
   buttonClassName?: string;
   checkboxButtonClassName?: string;
+  headerClassName?: string;
+  labelClassName?: string;
   formId?: string;
   methods?: Record<any, any>;
   print?: boolean;

@@ -1,10 +1,12 @@
 import React from 'react';
-import { ReactSurveyFieldGenerator, ReactSurveyGenerator } from './src/index';
+import SurveyBuilders from './src';
 import { Button, Modal } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
 
+const { ReactSurveyFieldGenerator, ReactSurveyGenerator, ReactSurveyStepGenerator } = SurveyBuilders;
+
 const PreviewBlock = ({ variables, data }) => {
-	
+
 	console.log('dataItems', data);
 
 	//#region useForms
@@ -18,6 +20,7 @@ const PreviewBlock = ({ variables, data }) => {
 	const [shortPreviewVisible, setshortPreviewVisible] = React.useState(false);
 	const [readOnlyPreviewVisible, setReadOnlyPreviewVisible] = React.useState(false);
 	const [previewRHFVisible, setpreviewRHFVisible] = React.useState(false);
+	const [stepPreviewVisible, setStepPreviewVisible] = React.useState(false);
 
 	const showPreview = () => {
 		setpreviewVisible(true);
@@ -35,11 +38,16 @@ const PreviewBlock = ({ variables, data }) => {
 		setReadOnlyPreviewVisible(true);
 	};
 
+	const showStepPreview = () => {
+		setStepPreviewVisible(true);
+	};
+
 	const closePreview = () => {
 		setpreviewVisible(false);
 		setpreviewRHFVisible(false);
 		setshortPreviewVisible(false);
 		setReadOnlyPreviewVisible(false);
+		setStepPreviewVisible(false);
 	}
 
 	const _onChange = (dataArray) => {
@@ -56,16 +64,11 @@ const PreviewBlock = ({ variables, data }) => {
 
 	return (
 		<>
-			<div>
-				<h4 className="text-center">Previews</h4>
-				<div className="text-center"><small>Save the Survey prior to Previewing</small></div>
-				<div className="d-grid gap-2">
-					<Button variant="success" className="mx-1" onClick={() => { showRHFPreview(); }}>Survey with Injected React Hook Form</Button>
-					<Button variant="info" className="mx-1" onClick={() => { showPreview(); }}>Survey</Button>
-					<Button variant="secondary" className="mx-1" onClick={() => { showShortPreview(); }}>Alternate/Short Survey</Button>
-					<Button variant="warning" className="mx-1" onClick={() => { showReadOnlyPreview(); }}>Read Only Survey</Button>
-				</div>
-			</div>
+			<Button variant="success" className="mx-1" onClick={() => { showRHFPreview(); }}>Survey with Injected React Hook Form</Button>
+			<Button variant="info" className="mx-1" onClick={() => { showPreview(); }}>Survey</Button>
+			<Button variant="danger" className="mx-1" onClick={() => { showStepPreview(); }}>Steps</Button>
+			<Button variant="secondary" className="mx-1" onClick={() => { showShortPreview(); }}>Alternate/Short Survey</Button>
+			<Button variant="warning" className="mx-1" onClick={() => { showReadOnlyPreview(); }}>Read Only Survey</Button>
 
 			<Modal
 				show={previewRHFVisible}
@@ -87,6 +90,37 @@ const PreviewBlock = ({ variables, data }) => {
 						//formAction="/api/form"
 						//formMethod="POST"
 						// skipValidations={true}
+						onSubmit={_onSubmit}
+						onChange={_onChange}
+						variables={variables}
+						items={data}
+						buttonClassName="d-grid gap-2"
+						formId="test-form"
+						methods={methods}
+					/>
+				</Modal.Body>
+				<Modal.Footer className="p-0">
+					<Button variant="secondary" data-dismiss="modal" onClick={closePreview}>Close</Button>
+				</Modal.Footer>
+			</Modal>
+
+			<Modal
+				show={stepPreviewVisible}
+				dialogClassName="modal-lg"
+				size="lg"
+				contentClassName="border border-light"
+				onHide={closePreview}
+				backdrop="static"
+				scrollable
+				centered
+			>
+				<Modal.Body className="p-2">
+					<ReactSurveyStepGenerator
+						downloadPath=""
+						backAction={closePreview}
+						backName="Cancel"
+						answers={answers}
+						actionName="Save"
 						onSubmit={_onSubmit}
 						onChange={_onChange}
 						variables={variables}

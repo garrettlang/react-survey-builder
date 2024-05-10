@@ -2,13 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import SurveyElements, { Image, Checkboxes, Signature, Download, Camera, FileUpload, PhoneNumber, DatePicker, TextInput, EmailInput, NumberInput, TextArea, Dropdown, Tags } from './survey-elements';
 import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
-import FieldSet from './fieldset';
+import { FieldSet } from './fieldset';
+import { Step } from './step';
 import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
-import { Button, Form } from 'react-bootstrap/esm';
+import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider } from "react-hook-form";
 
-const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, formId, methods, print = false }) => {
+const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, formId, methods, print = false }) => {
 	//#region helper functions
 
 	const _convert = ($dataAnswers) => {
@@ -27,6 +28,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 	const form = React.useRef();
 	const inputs = React.useRef({});
 	const answerData = React.useRef(_convert(answers));
+	const [formAnswers, setFormAnswers] = React.useState(null);
 
 	const _getDefaultValue = ($dataItem) => {
 		let defaultValue = answerData.current[$dataItem.fieldName];
@@ -155,7 +157,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 
 	const _collectFormData = ($dataItems, $formData) => {
 		const formData = [];
-		$dataItems.forEach((item) => {
+		$dataItems.filter(i => i.static !== true).forEach((item) => {
 			const itemData = {
 				id: item.id,
 				name: item.fieldName,
@@ -191,6 +193,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 					formData: $formData,
 					answers: $data
 				});
+				setFormAnswers($data);
 			} else {
 				const $form = ReactDOM.findDOMNode(form.current);
 				$form.submit();
@@ -199,13 +202,15 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 	}
 
 	const handleChange = (event) => {
-		// console.log('handleChange');
 		// Call submit function on change
+		const $data = _collectFormData(items, methods?.getValues() || []);
+		// console.log('handleChange', $data);
+		
 		if (onChange) {
-			const $data = _collectFormData(items, methods?.getValues() || []);
 			onChange($data);
 		}
-	}
+		setFormAnswers($data);
+	};
 
 	const validateForm = () => {
 		let hasErrors = false;
@@ -237,7 +242,11 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 				readOnly: (readOnly || $dataItem.readOnly) ?? false,
 				hideLabel: (hideLabels || $dataItem.hideLabel) ?? false,
 				disabled: (readOnly || $dataItem.readOnly) ?? false,
-				mutable: true
+				mutable: true,
+				name: $dataItem.fieldName ?? $dataItem.name,
+				key: `form_${$dataItem.id}`,
+				item: $dataItem,
+				value: _getDefaultValue($dataItem)
 			};
 		}
 
@@ -254,7 +263,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 		const Input = SurveyElements[item.element];
 
 		return (
-			<Input name={item.fieldName} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} />
+			<Input name={item.fieldName} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} onChange={handleChange} />
 		);
 	};
 
@@ -298,7 +307,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 	};
 
 	const getContainerElement = (item, Element) => {
-		const controls = item.childItems.map((childItem) => (childItem ? getInputElement(getDataItemById(childItem)) : <div>&nbsp;</div>));
+		const controls = item?.childItems.map((childItem) => (childItem ? getInputElement(getDataItemById(childItem)) : <div>&nbsp;</div>));
 
 		return (
 			<Element
@@ -306,6 +315,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 				key={`form_${item.id}`}
 				item={item}
 				controls={controls}
+				items={items}
+				answers={formAnswers}
 			/>
 		);
 	};
@@ -318,6 +329,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 				mutable={true}
 				key={`form_${item.id}`}
 				item={item}
+				headerClassName={headerClassName}
+				labelClassName={labelClassName}
 			/>
 		);
 	};
@@ -412,10 +425,10 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 
 		switch (item.element) {
 			case 'RadioButtons':
-			case 'Rating':
 			case 'Range':
 			case 'Checkbox':
 				return getInputElement(item);
+			case 'Rating':
 			case 'Tags':
 			case 'Dropdown':
 			case 'TextInput':
@@ -433,6 +446,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 				return getContainerElement(item, ThreeColumnRow);
 			case 'TwoColumnRow':
 				return getContainerElement(item, TwoColumnRow);
+			case 'Step':
+				return getContainerElement(item, Step);
 			case 'FieldSet':
 				return getContainerElement(item, FieldSet);
 			case 'Signature':

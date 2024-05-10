@@ -32,6 +32,8 @@ const cardTarget = {
 		const hoverIndex = props.index;
 		const dragIndex = item.index;
 
+		// console.log('drop', props, hoverIndex, dragIndex, item);
+
 		if ((props.item && props.item.isContainer) || item.itemType === ItemTypes.CARD) {
 			// console.log('cardTarget -  Drop', item.itemType);
 			return;
@@ -45,6 +47,8 @@ const cardTarget = {
 	},
 	hover(props, monitor, component) {
 		const item = monitor.getItem();
+
+		// console.log('hover', props, item);
 
 		if (item.itemType === ItemTypes.BOX && item.index === -1) return;
 
@@ -61,11 +65,13 @@ const cardTarget = {
 
 		if (dragIndex === -1) {
 			if (props.item && props.item.isContainer) {
+				// console.log('hover over container');
 				return;
 			}
 			// console.log('CARD', item);
 			item.index = hoverIndex;
 			props.insertCard(item.onCreate(item.item), hoverIndex);
+			return; // fixed bug where cards were getting wiped out when you dragged another card over a card to insert it. card should be inserted, not replacing existing cards. If an existing card should be removed, the remove button should be used
 		}
 
 		// Determine rectangle on screen
@@ -128,12 +134,7 @@ export default function (ComposedComponent) {
 		};
 
 		render() {
-			const {
-				isDragging,
-				// connectDragSource,
-				connectDragPreview,
-				connectDropTarget,
-			} = this.props;
+			const { isDragging, connectDragSource, connectDragPreview, connectDropTarget } = this.props;
 			const opacity = isDragging ? 0 : 1;
 
 			return connectDragPreview(
@@ -145,7 +146,7 @@ export default function (ComposedComponent) {
 	const x = DropTarget([ItemTypes.CARD, ItemTypes.BOX], cardTarget, connect => ({
 		connectDropTarget: connect.dropTarget(),
 	}))(Card);
-	
+
 	return DragSource(ItemTypes.CARD, cardSource, (connect, monitor) => ({
 		connectDragSource: connect.dragSource(),
 		connectDragPreview: connect.dragPreview(),

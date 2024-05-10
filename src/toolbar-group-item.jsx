@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'react-bootstrap/esm';
+import { Button } from 'react-bootstrap';
 
 const ToolbarGroupItem = ({ name, group, renderItem }) => {
 	const [show, setShow] = React.useState(false);

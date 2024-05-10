@@ -15,101 +15,92 @@ import { getIPAddress } from '../utils/ipUtils';
 import moment from 'moment-timezone';
 import { RiCheckboxBlankLine, RiCheckboxFill } from "react-icons/ri";
 import { IoRadioButtonOff, IoRadioButtonOn } from 'react-icons/io5';
-import { ToggleButton, Col, Row, Form, Container, Button, Image as ImageComponent } from 'react-bootstrap/esm';
+import { ToggleButton, Col, Row, Form, Container, Button, Image as ImageComponent } from 'react-bootstrap';
 import { Controller, useFormContext } from 'react-hook-form';
-import { IMask, IMaskInput } from 'react-imask/esm';
+import { IMask, IMaskInput } from 'react-imask';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import ID from '../UUID';
 
 const SurveyElements = {};
 
-export class Header extends React.Component {
-	render() {
-		let classNames = 'static';
-		if (this.props.item.bold) { classNames += ' bold'; }
-		if (this.props.item.italic) { classNames += ' italic'; }
+export const Header = (props) => {
+	let classNames = 'static';
+	if (props.item.bold) { classNames += ' bold'; }
+	if (props.item.italic) { classNames += ' italic'; }
+	if (props.headerClassName) { classNames += ` ${props.headerClassName}`; }
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
-				<h3 className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
-			</div>
-		);
-	}
-}
+	return (
+		<div style={{ ...props.style }} className={baseClasses}>
+			<ComponentHeader {...props} />
+			<h3 className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(props.item.content) }} />
+		</div>
+	);
+};
 
-export class ContentBody extends React.Component {
-	render() {
-		let classNames = 'static';
+export const ContentBody = (props) => {
+	let classNames = 'static';
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
-				<div className={classNames} dangerouslySetInnerHTML={{ __html: myContentXSS.process(this.props.item.content) }} />
-			</div>
-		);
-	}
-}
+	return (
+		<div style={{ ...props.style }} className={baseClasses}>
+			<ComponentHeader {...props} />
+			<div className={classNames} dangerouslySetInnerHTML={{ __html: myContentXSS.process(props.item.content) }} />
+		</div>
+	);
+};
 
-export class Paragraph extends React.Component {
-	render() {
-		let classNames = 'static';
-		if (this.props.item.bold) { classNames += ' bold'; }
-		if (this.props.item.italic) { classNames += ' italic'; }
+export const Paragraph = (props) => {
+	let classNames = 'static';
+	if (props.item.bold) { classNames += ' bold'; }
+	if (props.item.italic) { classNames += ' italic'; }
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
-				<p className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
-			</div>
-		);
-	}
-}
+	return (
+		<div style={{ ...props.style }} className={baseClasses}>
+			<ComponentHeader {...props} />
+			<p className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(props.item.content) }} />
+		</div>
+	);
+};
 
-export class Label extends React.Component {
-	render() {
-		let classNames = 'static';
-		if (this.props.item.bold) { classNames += ' bold'; }
-		if (this.props.item.italic) { classNames += ' italic'; }
+export const Label = (props) => {
+	let classNames = 'static';
+	if (props.item.bold) { classNames += ' bold'; }
+	if (props.item.italic) { classNames += ' italic'; }
+	if (props.labelClassName) { classNames += ` ${props.labelClassName}`; }
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
-				<label className={`${classNames} form-label`} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
-			</div>
-		);
-	}
-}
+	return (
+		<div style={{ ...props.style }} className={baseClasses}>
+			<ComponentHeader {...props} />
+			<label className={`${classNames} form-label`} dangerouslySetInnerHTML={{ __html: myxss.process(props.item.content) }} />
+		</div>
+	);
+};
 
-export class LineBreak extends React.Component {
-	render() {
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+export const LineBreak = (props) => {
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
-				<hr />
-			</div>
-		);
-	}
-}
+	return (
+		<div style={{ ...props.style }} className={baseClasses}>
+			<ComponentHeader {...props} />
+			<hr />
+		</div>
+	);
+};
 
 export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 	const methods = useFormContext();
-	const inputField = React.useRef(null);
 
 	const onChangeHandler = (value) => {
 		if (onChange !== undefined) {
@@ -133,8 +124,6 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 	} else if (item?.label) {
 		inputProps.placeholder = item?.label;
 	}
-
-	if (item?.mutable) { inputProps.ref = inputField; }
 
 	let fieldRules = {};
 	if (item?.required ?? false) {
@@ -193,7 +182,6 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -205,7 +193,6 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -253,7 +240,6 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 
 export const EmailInput = ({ name, onChange, value, style, item, ...props }) => {
 	const methods = useFormContext();
-	const inputField = React.useRef(null);
 
 	const onChangeHandler = (value) => {
 		if (onChange !== undefined) {
@@ -282,8 +268,6 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 	} else if (item?.label) {
 		inputProps.placeholder = item?.label;
 	}
-
-	if (item?.mutable) { inputProps.ref = inputField; }
 
 	let fieldRules = {
 		minLength: {
@@ -348,7 +332,6 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -360,7 +343,6 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 							<Form.Control
 								value={value}
 								name={name}
-								ref={inputField}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
 							/>
@@ -558,7 +540,6 @@ export const PhoneNumber = ({ name, onChange, value = '', style, item, ...props 
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Form.Control
-								value={value}
 								name={name}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
@@ -569,7 +550,6 @@ export const PhoneNumber = ({ name, onChange, value = '', style, item, ...props 
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 							<Form.Control
-								value={value}
 								name={name}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
@@ -1569,7 +1549,6 @@ export const Tags = ({ name, onChange, value, style, item, ...props }) => {
 							<Typeahead
 								labelKey={(option) => option.label}
 								options={options}
-								selected={getDefaultValue(value, options)}
 								name={name}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
@@ -1582,7 +1561,6 @@ export const Tags = ({ name, onChange, value, style, item, ...props }) => {
 							<Typeahead
 								labelKey={(option) => option.label}
 								options={options}
-								selected={getDefaultValue(value, options)}
 								name={name}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
@@ -1648,6 +1626,7 @@ export class Checkboxes extends React.Component {
 
 	render() {
 		const self = this;
+		const name = self?.props?.name ?? self?.props?.item?.customName ?? self?.props?.item?.fieldName;
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -1656,7 +1635,7 @@ export class Checkboxes extends React.Component {
 			return (
 				<div style={{ ...this.props.style }} className={baseClasses}>
 					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={this.props.name} />
+						<ComponentLabel {...this.props} htmlFor={name} />
 						<div>{this.props.item.options.filter((option) => this.props.value.includes(option.value)).map((option) => option.text).join(', ')}</div>
 					</Form.Group>
 				</div>
@@ -1667,7 +1646,7 @@ export class Checkboxes extends React.Component {
 			<div style={{ ...this.props.style }} className={baseClasses}>
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} htmlFor={this.props.name} />
+					<ComponentLabel {...this.props} htmlFor={name} />
 					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
 					{this.props.item.options.map((option) => {
 						const props = {};
@@ -1680,10 +1659,10 @@ export class Checkboxes extends React.Component {
 						return (
 							<ToggleButton
 								type="checkbox"
-								variant={this.props.checkboxButtonClassName ?? "outline-light"}
+								variant={this.props.checkboxButtonClassName ?? "outline-light w-100"}
 								className="btn-survey-builder-checkbox"
 								key={`preview_${option.key}`}
-								id={self.props.name + '-' + ID.uuid()}
+								id={name + '-' + ID.uuid()}
 								inputRef={c => {
 									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
@@ -1692,7 +1671,7 @@ export class Checkboxes extends React.Component {
 								onChange={(e) => { self.onCheckboxChange(option.value, e); }}
 								{...props}
 							>
-								<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
+								<div className={`d-flex align-items-center justify-content-start text-black text-survey-builder-checkbox`}>
 									{(props.checked !== true) && <RiCheckboxBlankLine size={"40px"} className="me-3 flex-shrink-0" />}
 									{(props.checked === true) && <RiCheckboxFill size={"40px"} className="me-3 flex-shrink-0" />}
 									<div className="text-start">
@@ -1702,7 +1681,7 @@ export class Checkboxes extends React.Component {
 							</ToggleButton>
 						);
 					})}
-					<ComponentErrorMessage name={this.props.name} />
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
@@ -1720,7 +1699,8 @@ export class Checkbox extends React.Component {
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 		const props = {};
 		// eslint-disable-next-line no-undef
-		props.name = this.props.name;
+		props.name = this?.props?.name ?? this?.props?.item?.customName ?? this?.props?.item?.fieldName;
+
 		props.onChange = (event) => {
 			if (this.props.onChange) {
 				this.props.onChange(event.target.checked);
@@ -1783,6 +1763,7 @@ export class RadioButtons extends React.Component {
 
 	render() {
 		const self = this;
+		const name = self?.props?.name ?? self?.props?.item?.customName ?? self?.props?.item?.fieldName;
 
 		let baseClasses = 'SortableItem rfb-item';
 		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -1810,22 +1791,22 @@ export class RadioButtons extends React.Component {
 							<ToggleButton
 								label={option.text}
 								type="radio"
-								variant={self.props.checkboxButtonClassName ?? "outline-light"}
+								variant={self.props.checkboxButtonClassName ?? "outline-light w-100"}
 								className="btn-survey-builder-checkbox"
 								key={`preview_${option.key}`}
-								id={self.props.name + '-' + ID.uuid()}
+								id={name + '-' + ID.uuid()}
 								inputRef={c => {
 									if (c && self.props.item.mutable) {
 										self.options[`child_ref_${option.key}`] = c;
 									}
 								}}
 								disabled={self?.props?.item?.disabled}
-								name={self?.props?.name}
+								name={name}
 								value={option.value}
 								checked={self?.props?.value === option.value}
 								onChange={(e) => { if (self?.props?.onChange !== undefined) { console.log(e.target.value); self.props.onChange(e.target.value); } }}
 							>
-								<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
+								<div className={`d-flex align-items-center justify-content-start text-black text-survey-builder-checkbox`}>
 									{(self?.props?.value !== option.value) && <IoRadioButtonOff size={"40px"} className="me-3 flex-shrink-0" />}
 									{(self?.props?.value === option.value) && <IoRadioButtonOn size={"40px"} className="me-3 flex-shrink-0" />}
 									<div className="text-start">
@@ -1836,111 +1817,164 @@ export class RadioButtons extends React.Component {
 						);
 					})}
 					{self.props.item.help ? (<Form.Text muted>{self.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={self.props.name} />
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
 	}
 }
 
-export class Image extends React.Component {
-	render() {
-		const style = (this.props.item.center) ? { textAlign: 'center' } : null;
+export const Image = (props) => {
+	const style = (props.item.center) ? { textAlign: 'center' } : null;
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		return (
-			<div style={{ ...this.props.style, ...style }} className={baseClasses} >
-				<ComponentHeader {...this.props} />
-				{this.props.item.src && <ImageComponent src={this.props.item.src} width={this.props.item.width} height={this.props.item.height} />}
-				{!this.props.item.src && <div className="no-image">No Image</div>}
-			</div>
-		);
-	}
-}
+	return (
+		<div style={{ ...props.style, ...style }} className={baseClasses} >
+			<ComponentHeader {...props} />
+			{props.item.src && <ImageComponent src={props.item.src} width={props.item.width} height={props.item.height} />}
+			{!props.item.src && <div className="no-image">No Image</div>}
+		</div>
+	);
+};
 
-export class Rating extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
-	}
+export const Rating = ({ name, onChange, value, style, item, ...props }) => {
+	const methods = useFormContext();
 
-	render() {
-		const props = {};
-		props.name = this.props.name;
-		props.ratingAmount = 5;
-		props.rating = this.props.value !== undefined && this.props.value !== null && this.props.value !== '' ? parseFloat(this.props.value, 10) : 0;
-		props.disabled = this.props.item.readOnly;
-		if (this.props.item.disabled) { props.disabled = true; }
-		props.onRatingClick = (event, { rating }) => { this.props.onChange(rating); };
-
-		if (this.props.item.mutable) {
-			props.editing = true;
-			props.ref = this.inputField;
+	const onChangeHandler = (value) => {
+		if (onChange !== undefined) {
+			onChange(value);
 		}
+	};
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	const inputProps = {
+		required: item?.required ?? false,
+		disabled: item?.disabled ?? false
+	};
 
-		if (this.props.item.print === true) {
-			return (
-				<div style={{ ...this.props.style }} className={baseClasses}>
-					<Form.Group className="form-group mb-3">
-						<ComponentLabel {...this.props} htmlFor={props.name} />
-						<div>{this.props.value}</div>
-					</Form.Group>
-				</div>
-			);
-		}
+	if (item?.label) {
+		inputProps.label = item?.label;
+	}
 
+	let fieldRules = {};
+	if (item?.required ?? false) {
+		fieldRules.required = 'Required Field';
+	}
+
+	let controllerProps = {
+		name: name,
+		rules: fieldRules
+	};
+
+	controllerProps.render = ({
+		field: { onChange, onBlur, value, name, ref },
+		fieldState: { invalid, isTouched, isDirty, error },
+		formState,
+	}) => (
+		<StarRating
+			onBlur={onBlur}
+			onRatingClick={(event, { rating }) => { onChange(rating); onChangeHandler(rating); }}
+			rating={!isNaN(value) ? parseFloat(value, 10) : 0}
+			name={name}
+			editing={item.mutable}
+			// ref={ref}
+			isInvalid={invalid}
+			id={name + '-' + ID.uuid()}
+			{...inputProps}
+		/>
+
+	)
+
+	if (value !== undefined) {
+		controllerProps.defaultValue = !isNaN(value) ? parseFloat(value, 10) : 0;
+	}
+
+	if (item?.disabled !== undefined) {
+		controllerProps.disabled = item?.disabled ?? false;
+	}
+
+	if (item?.required !== undefined) {
+		controllerProps.required = item?.required ?? false;
+	}
+
+	let baseClasses = 'SortableItem rfb-item';
+	if (item?.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	if (!methods) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
+				<ComponentHeader item={item} {...props} />
 				<Form.Group className="form-group mb-3">
-					<ComponentLabel {...this.props} htmlFor={props.name} />
-					<StarRating {...props} />
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-					<ComponentErrorMessage name={props.name} />
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<StarRating
+						onRatingClick={(event, { rating }) => { onChange(rating); onChangeHandler(rating); }}
+						rating={!isNaN(value) ? Number(value) : 0}
+						name={name}
+						editing={false}
+						id={name + '-' + ID.uuid()}
+						{...inputProps}
+					/>
+					{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
 		);
 	}
-}
 
-export class HyperLink extends React.Component {
-	render() {
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
-
+	if (item?.print === true) {
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
-					<Form.Label>
-						<a target="_blank" href={this.props.item.href} dangerouslySetInnerHTML={{ __html: myxss.process(this.props.item.content) }} />
-					</Form.Label>
+					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+					<div>{value ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
 	}
-}
 
-export class Download extends React.Component {
-	render() {
+	return (
+		<div style={{ ...style }} className={baseClasses}>
+			<ComponentHeader item={item} {...props} />
+			<Form.Group className="form-group mb-3">
+				<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
+				<Controller control={methods.control} {...controllerProps} />
+				{item?.help ? (<Form.Text muted>{item?.help}</Form.Text>) : null}
+				<ComponentErrorMessage name={name} />
+			</Form.Group>
+		</div>
+	);
+};
+
+export const HyperLink = (props) => {
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	return (
+		<div style={{ ...props.style }} className={baseClasses}>
+			<ComponentHeader {...props} />
+			<Form.Group className="form-group mb-3">
+				<Form.Label>
+					<a target="_blank" href={props.item.href} dangerouslySetInnerHTML={{ __html: myxss.process(props.item.content) }} />
+				</Form.Label>
+			</Form.Group>
+		</div>
+	);
+};
+
+export const Download = (props) => {
 		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+		if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
 		return (
-			<div style={{ ...this.props.style }} className={baseClasses}>
-				<ComponentHeader {...this.props} />
+			<div style={{ ...props.style }} className={baseClasses}>
+				<ComponentHeader {...props} />
 				<Form.Group className="form-group mb-3">
-					<a href={`${this.props.downloadPath}?id=${this.props.item.filePath}`}>{this.props.item.content}</a>
+					<a href={`${props.downloadPath}?id=${props.item.filePath}`}>{props.item.content}</a>
 				</Form.Group>
 			</div>
 		);
-	}
-}
+};
 
 export class Camera extends React.Component {
 	constructor(props) {

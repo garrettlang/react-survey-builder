@@ -1,20 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import SurveyElements, { Image, Checkboxes, Signature, Download, Camera, FileUpload, PhoneNumber, DatePicker, TextInput, EmailInput, NumberInput, TextArea } from './survey-elements';
+import SurveyElements, { Image, Checkboxes, Signature, Download, Camera, FileUpload, PhoneNumber, DatePicker, TextInput, EmailInput, NumberInput, TextArea, Dropdown, Tags } from './survey-elements';
 import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
 import { FieldSet } from './fieldset';
 import { Step } from './step';
 import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
 import { Button, Form } from 'react-bootstrap';
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider } from "react-hook-form";
+import { addRecordToBottom, isListNotEmpty, isObjectNotEmpty, updateRecord } from './utils/objectUtils';
 
-const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, formId, print = false }) => {
-	//#region useForms
-
-	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
-
-	//#endregion
+const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, formId, methods, print = false }) => {
 	//#region helper functions
 
 	const _convert = ($dataAnswers) => {
@@ -34,6 +30,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 	const inputs = React.useRef({});
 	const answerData = React.useRef(_convert(answers));
 	const [formAnswers, setFormAnswers] = React.useState(null);
+	const [steps, setSteps] = React.useState([]);
+	const [activeStep, setActiveStep] = React.useState(null);
 
 	const _getDefaultValue = ($dataItem) => {
 		let defaultValue = answerData.current[$dataItem.fieldName];
@@ -268,10 +266,9 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		const Input = SurveyElements[item.element];
 
 		return (
-			<Input name={item.fieldName ?? item.name} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} onChange={handleChange} />
+			<Input name={item.fieldName} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} onChange={handleChange} />
 		);
 	};
-
 
 	const getInputElement = (item) => {
 		if (!item) return null;
@@ -407,6 +404,46 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 
 	//#endregion
 
+	const onBackStep = async () => {
+		let oldStep = steps.find(i => i.id === id);
+		let previousIndex = oldStep.index - 1;
+		setActiveStep(previousIndex > 0 ? steps[previousIndex] : null);
+	};
+
+	const onNextStep = async () => {
+		let oldStep = isObjectNotEmpty(activeStep) ? { ...activeStep } : null;
+		if (oldStep) {
+			console.log(oldStep);
+			// validate childItems of step
+			const clean = await methods.trigger(oldStep.childQuestions.map(i => i.name), true);
+			console.log(clean);
+			if (clean) {
+
+				let updatedSteps = updateRecord('id', {
+					...oldStep,
+					completed: true,
+					answers: _collectFormData(oldStep.childQuestions, methods?.getValues() || [])
+				}, [...steps]);
+
+				setSteps(updatedSteps);
+
+				// get next incomplete survey
+				const nextStep = steps.find(i => i.completed === false);
+				if (nextStep !== undefined) {
+					setActiveStep(nextStep);
+				} else {
+					if (onFinishedSurveys) {
+						onFinishedSurveys();
+					}
+				}
+			} else {
+				return;
+			}
+		}
+	};
+
+
+
 	let dataItems = items ? [...items] : [];
 
 	if (displayShort) {
@@ -419,7 +456,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		}
 	});
 
-	const fieldItems = dataItems.filter(x => !x.parentId).map((item) => {
+	const stepItems = dataItems.filter(x => !x.parentId && x.element === 'Step').map((item) => {
 		if (!item) return null;
 
 		item.fieldRules = getFieldRules(item);
@@ -579,6 +616,27 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		}
 	});
 
+	React.useMemo(() => {
+		if (isListNotEmpty(stepItems)) {
+			let surveySteps = stepItems.map((step, index) => {
+				return {
+					...step,
+					childQuestions: dataItems.filter(i => step.id === i.parentId),
+					completed: false,
+					answers: []
+				};
+			});
+
+			setSteps(surveySteps);
+
+			if (isListNotEmpty(surveySteps)) {
+				setActiveStep(surveySteps[0]);
+			} else {
+				setActiveStep(null);
+			}
+		}
+	}, []);
+
 	let formProps = {};
 	if (formId) { formProps.id = formId; }
 
@@ -587,10 +645,12 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 			<div className='react-survey-builder-form'>
 				<FormProvider {...methods}>
 					<Form onSubmit={methods.handleSubmit(handleSubmit)} {...formProps}>
-						{fieldItems}
+						{activeStep}
 						<div className={buttonClassName ? buttonClassName : 'btn-toolbar'}>
 							{!hideActions && handleRenderSubmit()}
 							{!hideActions && backAction && handleRenderBack()}
+							<Button variant='secondary' onClick={onBackStep}>Back</Button>
+							<Button variant='primary' onClick={onNextStep}>Next</Button>
 						</div>
 					</Form>
 				</FormProvider>
@@ -599,4 +659,4 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 	);
 };
 
-export default ReactSurvey;
+export default ReactSurveyFormSteps;

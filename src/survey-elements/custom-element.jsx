@@ -1,48 +1,44 @@
 import React from 'react';
 import ComponentHeader from './component-header';
 import ComponentLabel from './component-label';
-import { Form } from 'react-bootstrap/esm';
+import { Form } from 'react-bootstrap';
 import ComponentErrorMessage from './component-error-message';
 
-class CustomElement extends React.Component {
-	constructor(props) {
-		super(props);
-		this.inputField = React.createRef();
-	}
+const CustomElement = ({ item, defaultValue, style, ...props }) => {
+	const inputField = React.useRef();
 
-	render() {
-		const { bare } = this.props.item;
-		const props = {};
-		props.name = this.props.item.fieldName;
-		props.defaultValue = this.props.defaultValue;
+	const inputProps = {
+		name: item.fieldName ?? item.name,
+		defaultValue: defaultValue
+	};
 
-		if (this.props.item.forwardRef) { props.ref = this.inputField; }
-		if (this.props.item.disabled) { props.disabled = 'disabled'; }
+	if (item.forwardRef) { inputProps.ref = inputField; }
+	if (item.disabled) { inputProps.disabled = true; }
 
-		// Return if component is invalid.
-		if (!this.props.item.component) return null;
-		const Element = this.props.item.component;
+	// Return if component is invalid.
+	if (!item.component) return null;
 
-		let baseClasses = 'SortableItem rfb-item';
-		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	const Element = item.component;
 
-		return (
-			<div className={baseClasses} style={{ ...this.props.style }}>
-				<ComponentHeader {...this.props} />
-				{bare ? (
-					<Element id={props.name} item={this.props.item} {...this.props.item.props} {...props} />
-					) : (
-						<Form.Group className="form-group mb-3">
-							<ComponentLabel className="form-label" {...this.props} htmlFor={props.name} />
-							<Element id={props.name} item={this.props.item} {...this.props.item.props} {...props} />
-							{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
-							<ComponentErrorMessage name={props.name} />
-						</Form.Group>
-					)}
-			</div>
-		);
-	}
-}
+	let baseClasses = 'SortableItem rfb-item';
+	if (item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+	return (
+		<div className={baseClasses} style={{ ...style }}>
+			<ComponentHeader item={item} {...props} />
+			{item?.bare ? (
+				<Element id={inputProps.name} item={item} {...item.props} {...inputProps} />
+			) : (
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel className="form-label" item={item} {...props} htmlFor={inputProps.name} />
+					<Element id={inputProps.name} item={item} {...item.props} {...inputProps} />
+					{item?.help ? (<Form.Text muted>{item.help}</Form.Text>) : null}
+					<ComponentErrorMessage name={inputProps.name} />
+				</Form.Group>
+			)}
+		</div>
+	);
+};
 
 CustomElement.propTypes = {};
 

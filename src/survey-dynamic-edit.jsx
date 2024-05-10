@@ -1,10 +1,7 @@
 import React from 'react';
 
 const SurveyElementsEditor = (props) => {
-	const [
-		dynamic,
-		setDynamic,
-	] = React.useState(null);
+	const [dynamic, setDynamic] = React.useState(null);
 
 	React.useEffect(() => {
 		const loadDynamic = async () => {
@@ -17,6 +14,7 @@ const SurveyElementsEditor = (props) => {
 	if (!dynamic) {
 		return (<div>Loading...</div>);
 	}
+	
 	const Component = dynamic;
 	return <Component {...props} />;
 };

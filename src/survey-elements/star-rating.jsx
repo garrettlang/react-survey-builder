@@ -18,125 +18,83 @@ import cx from 'classnames';
  *   />
  */
 
-export default class StarRating extends React.Component {
-	constructor(props) {
-		super(props);
+const StarRating = ({ name, caption, rating: ratingVal, editing: editingVal, disabled, size, onRatingClick, min = 0, max = 5, step = 0.5, ratingAmount, ...otherProps }) => {
+	const rootRef = React.useRef();
+	const rootContainerRef = React.useRef();
 
-		this.min = 0;
-		this.max = props.ratingAmount || 5;
-
-		const ratingVal = props.rating;
-		const ratingCache = {
-			pos: ratingVal ? this.getStarRatingPosition(ratingVal) : 0,
-			rating: props.rating,
-		};
-
-		this.state = {
-			ratingCache,
-			editing: props.editing || !props.rating,
-			stars: 5,
-			rating: ratingCache.rating,
-			pos: ratingCache.pos,
-			glyph: this.getStars(),
-		};
-	}
+	max = ratingAmount || 5;
 
 	/**
 	 * Gets the stars based on ratingAmount
 	 * @return {string} stars
 	 */
-	getStars() {
+	const getStars = () => {
 		let stars = '';
-		const numRating = this.props.ratingAmount;
+		const numRating = ratingAmount;
 		for (let i = 0; i < numRating; i++) {
 			stars += '\u2605';
 		}
+
 		return stars;
+	};
+
+	const getPosition = (e) => {
+		return e.pageX - (rootRef?.current?.getBoundingClientRect()?.left ?? 0);
 	}
 
-	// componentWillMount() {
-	//   this.min = 0;
-	//   this.max = this.props.ratingAmount || 5;
-	//   if (this.props.rating) {
-	//     this.state.editing = this.props.editing || false;
-	//     const ratingVal = this.props.rating;
-	//     this.state.ratingCache.pos = this.getStarRatingPosition(ratingVal);
-	//     this.state.ratingCache.rating = ratingVal;
-
-	//     this.setState({
-	//       ratingCache: this.state.ratingCache,
-	//       rating: ratingVal,
-	//       pos: this.getStarRatingPosition(ratingVal),
-	//     });
-	//   }
-	// }
-
-	componentDidMount() {
-		this.root = ReactDOM.findDOMNode(this.rootNode);
-		this.ratingContainer = ReactDOM.findDOMNode(this.node);
-	}
-
-	componentWillUnmount() {
-		delete this.root;
-		delete this.ratingContainer;
-	}
-
-	getPosition(e) {
-		return e.pageX - this.root.getBoundingClientRect().left;
-	}
-
-	applyPrecision(val, precision) {
+	const applyPrecision = (val, precision) => {
 		return parseFloat(val.toFixed(precision));
-	}
+	};
 
-	getDecimalPlaces(num) {
+	const getDecimalPlaces = (num) => {
 		const match = (`${num}`).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+
 		return !match ? 0 : Math.max(0, (match[1] ? match[1].length : 0) - (match[2] ? +match[2] : 0));
-	}
+	};
 
-	getWidthFromValue(val) {
-		const min = this.min;
-		const max = this.max;
-
+	const getWidthFromValue = (val) => {
 		if (val <= min || min === max) {
 			return 0;
 		}
+
 		if (val >= max) {
 			return 100;
 		}
+
 		return (val / (max - min)) * 100;
-	}
+	};
 
-	getValueFromPosition(pos) {
-		const precision = this.getDecimalPlaces(this.props.step);
-		const maxWidth = this.ratingContainer.offsetWidth;
-		const diff = this.max - this.min;
-		let factor = (diff * pos) / (maxWidth * this.props.step);
+	const getValueFromPosition = (pos) => {
+		const precision = getDecimalPlaces(step);
+		const maxWidth = (rootContainerRef?.current?.offsetWidth ?? 30);
+		const diff = max - min;
+		let factor = (diff * pos) / (maxWidth * step);
 		factor = Math.ceil(factor);
-		let val = this.applyPrecision(parseFloat(this.min + factor * this.props.step), precision);
-		val = Math.max(Math.min(val, this.max), this.min);
-		return val;
-	}
+		let val = applyPrecision(parseFloat(min + factor * step), precision);
+		val = Math.max(Math.min(val, max), min);
 
-	calculate(pos) {
-		const val = this.getValueFromPosition(pos);
-		let width = this.getWidthFromValue(val);
+		return val;
+	};
+
+	const calculate = (pos) => {
+		const val = getValueFromPosition(pos);
+		let width = getWidthFromValue(val);
 
 		width += '%';
 		return { width, val };
-	}
+	};
 
-	getStarRatingPosition(val) {
-		const width = `${this.getWidthFromValue(val)}%`;
-		return width;
-	}
+	const getStarRatingPosition = (val) => {
+		return `${getWidthFromValue(val)}%`;
+	};
 
-	getRatingEvent(e) {
-		const pos = this.getPosition(e);
-		return this.calculate(pos);
-	}
+	const getRatingEvent = (e) => {
+		const pos = getPosition(e);
 
-	getSvg() {
+		return calculate(pos);
+	};
+
+	const getSvg = () => {
 		return (
 			<svg className="react-star-rating__star" viewBox="0 0 286 272" version="1.1" xmlns="http://www.w3.org/2000/svg">
 				<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -144,117 +102,124 @@ export default class StarRating extends React.Component {
 				</g>
 			</svg>
 		);
-	}
+	};
 
-	handleMouseLeave() {
-		this.setState({
-			pos: this.state.ratingCache.pos,
-			rating: this.state.ratingCache.rating,
-		});
-	}
+	const handleMouseLeave = () => {
+		setPos(ratingCache.pos);
+		setRating(!isNaN(ratingCache.rating) ? Number(ratingCache.rating) : 0);
+	};
 
-	handleMouseMove(e) {
+	const handleMouseMove = (e) => {
 		// get hover position
-		const ratingEvent = this.getRatingEvent(e);
-		this.updateRating(
+		const ratingEvent = getRatingEvent(e);
+
+		updateRating(
 			ratingEvent.width,
 			ratingEvent.val,
 		);
-	}
+	};
 
-	updateRating(width, val) {
-		this.setState({
-			pos: width,
-			rating: val,
-		});
-	}
+	const updateRating = (width, val) => {
+		setPos(width);
+		setRating(!isNaN(val) ? Number(val) : 0);
+	};
 
-	shouldComponentUpdate(nextProps, nextState) {
-		if (nextProps !== this.props) {
-			this.updateRating(
-				this.getStarRatingPosition(nextProps.rating),
-				nextProps.rating,
-			);
-			return true;
-		}
-		return nextState.ratingCache.rating !== this.state.ratingCache.rating || nextState.rating !== this.state.rating;
-	}
+	// React.memo(StarRating,)
 
-	handleClick(e) {
+	// const shouldComponentUpdate = (nextProps, nextState) => {
+	// 	if (nextProps !== props) {
+	// 		updateRating(getStarRatingPosition(nextProps.rating), nextProps.rating,);
+	// 		return true;
+	// 	}
+	// 	return nextState.ratingCache.rating !== this.state.ratingCache.rating || nextState.rating !== this.state.rating;
+	// }
+
+	const handleClick = (e) => {
 		// is it disabled?
-		if (this.props.disabled) {
+		if (disabled) {
 			e.stopPropagation();
 			e.preventDefault();
 			return false;
 		}
 
-		const ratingCache = {
-			pos: this.state.pos,
-			rating: this.state.rating,
-			caption: this.props.caption,
-			name: this.props.name,
+		const ratingCacheObj = {
+			pos: pos,
+			rating: rating,
+			caption: caption,
+			name: name
 		};
 
-		this.setState({
-			ratingCache,
-		});
+		setRatingCache(ratingCacheObj);
 
-		this.props.onRatingClick(e, ratingCache);
+		if (onRatingClick) {
+			onRatingClick(e, ratingCache);
+		}
+
 		return true;
 	}
 
-	treatName(title) {
+	const treatName = (title) => {
 		if (typeof title === 'string') {
 			return title.toLowerCase().split(' ').join('_');
 		}
+
 		return null;
-	}
+	};
 
-	render() {
-		// let caption = null;
-		const classes = cx({
-			'react-star-rating__root': true,
-			'rating-disabled': this.props.disabled,
-			[`react-star-rating__size--${this.props.size}`]: this.props.size,
-			'rating-editing': this.state.editing,
-		});
+	const [ratingCache, setRatingCache] = React.useState({
+		pos: ratingVal ? getStarRatingPosition(ratingVal) : 0,
+		rating: !isNaN(ratingVal) ? parseFloat(ratingVal, 10) : 0,
+	});
+	const [editing, setEditing] = React.useState(editingVal || !ratingVal);
+	const [stars, setStars] = React.useState(5);
+	const [rating, setRating] = React.useState(!isNaN(ratingCache.rating) ? parseFloat(ratingCache.rating, 10) : 0);
+	const [pos, setPos] = React.useState(ratingCache.pos);
+	const [glyph, setGlyph] = React.useState(getStars());
 
-		// is there a caption?
-		// if (this.props.caption) {
-		//   caption = (<span className="react-rating-caption">{this.props.caption}</span>);
-		// }
+	// let caption = null;
+	const classes = cx({
+		'react-star-rating__root': true,
+		'rating-disabled': disabled,
+		[`react-star-rating__size--${size}`]: size,
+		'rating-editing': editing,
+	});
 
-		// are we editing this rating?
-		let starRating;
-		if (this.state.editing) {
-			starRating = (
-				<div ref={c => this.node = c}
-					className="rating-container rating-gly-star"
-					data-content={this.state.glyph}
-					onMouseMove={this.handleMouseMove.bind(this)}
-					onMouseLeave={this.handleMouseLeave.bind(this)}
-					onClick={this.handleClick.bind(this)}>
-					<div className="rating-stars" data-content={this.state.glyph} style={{ width: this.state.pos }}></div>
-				</div>
-			);
-		} else {
-			starRating = (
-				<div ref={c => this.node = c} className="rating-container rating-gly-star" data-content={this.state.glyph}>
-					<div className="rating-stars" data-content={this.state.glyph} style={{ width: this.state.pos }}></div>
-				</div>
-			);
-		}
+	// is there a caption?
+	// if (caption) {
+	//   caption = (<span className="react-rating-caption">{caption}</span>);
+	// }
 
-		return (
-			<span className="react-star-rating">
-				<span ref={c => this.rootNode = c} style={{ cursor: 'pointer' }} className={classes}>
-					{starRating}
-					<input type="hidden" name={this.props.name} value={this.state.ratingCache.rating} style={{ display: 'none !important', width: 65 }} min={this.min} max={this.max} readOnly />
-				</span>
-			</span>
+
+	// are we editing this rating?
+	let starRating;
+	if (editing) {
+		starRating = (
+			<div ref={rootContainerRef}
+				className="rating-container rating-gly-star"
+				data-content={glyph}
+				onMouseMove={handleMouseMove}
+				onMouseLeave={handleMouseLeave}
+				onClick={handleClick}>
+				<div className="rating-stars" data-content={glyph} style={{ width: pos }}></div>
+			</div>
+		);
+	} else {
+		starRating = (
+			<div ref={rootContainerRef} className="rating-container rating-gly-star" data-content={glyph}>
+				<div className="rating-stars" data-content={glyph} style={{ width: pos }}></div>
+			</div>
 		);
 	}
-}
+
+	return (
+		<span className="react-star-rating">
+			<span ref={rootRef} style={{ cursor: 'pointer' }} className={classes}>
+				{starRating}
+				<input type="hidden" name={name} value={ratingCache.rating} style={{ display: 'none !important', width: 65 }} min={min} max={max} readOnly />
+			</span>
+		</span>
+	);
+};
 
 StarRating.propTypes = {
 	name: PropTypes.string.isRequired,
@@ -273,3 +238,5 @@ StarRating.defaultProps = {
 	onRatingClick() { },
 	disabled: false,
 };
+
+export default StarRating;

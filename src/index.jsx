@@ -5,113 +5,79 @@ import Preview from './preview';
 import Toolbar from './toolbar';
 import SurveyGenerator from './form';
 import SurveyFieldGenerator from './form-fields';
+import SurveyStepGenerator from './form-steps';
 import store from './stores/store';
 import Registry from './stores/registry';
-import { Button, Col, Container, Form, Row } from 'react-bootstrap/esm';
+import { Col, Container, Nav, Navbar, Row } from 'react-bootstrap';
 
-class ReactSurveyBuilder extends React.Component {
-	constructor(props) {
-		super(props);
+const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [], saveAlways = false, toolbarItems = [], customToolbarItems = [], showDescription = false, surveyName = null, saveSurveyName = null, previewSurveyBlock = null, renderEditForm, variables, onPost, onLoad, url, saveUrl }) => {
+	const [editMode, setEditMode] = React.useState(false);
+	const [editElement, setEditElement] = React.useState(null);
 
-		this.state = {
-			editMode: false,
-			editElement: null,
-		};
-		this.editModeOn = this.editModeOn.bind(this);
-	}
-
-	editModeOn($dataItem, e) {
-		e.preventDefault();
-		e.stopPropagation();
-		if (this.state.editMode) {
-			this.setState({ editMode: !this.state.editMode, editElement: null });
-		} else {
-			this.setState({ editMode: !this.state.editMode, editElement: $dataItem });
-		}
-	}
-
-	manualEditModeOff() {
-		if (this.state.editMode) {
-			this.setState({
-				editMode: false,
-				editElement: null,
-			});
-		}
-	}
-
-	saveFormData() {
+	const saveFormData = () => {
 		store.dispatch('post');
-	}
+	};
 
-	render() {
-		const toolbarProps = { showDescription: this.props.showDescription };
+	return (
+		<DndProvider backend={HTML5Backend}>
+			<Navbar expand="lg" bg="light" data-bs-theme="light" sticky='top'>
+				<Container fluid>
+					<Navbar.Brand>
+						{surveyName ?? 'Preview'}
+					</Navbar.Brand>
+					<Navbar.Toggle aria-controls="survey-builder-nav" />
+					<Navbar.Collapse id="survey-builder-nav">
+						<Nav className="me-auto">
+							{!!!saveAlways && <Nav.Link onClick={() => { saveFormData(); }}>{saveSurveyName || 'Save Survey'}</Nav.Link>}
+						</Nav>
 
-		if (this.props.toolbarItems) { toolbarProps.items = this.props.toolbarItems; }
+						{previewSurveyBlock ? previewSurveyBlock : null}
+					</Navbar.Collapse>
+				</Container>
+			</Navbar>
+			<Container fluid className="react-survey-builder position-absolute overflow-hidden" style={{ top: 56, height: 'calc(100% - 56px)' }}>
+				<Row className="overflow-hidden h-100">
+					<Col xs={9} className="overflow-hidden h-100">
+						<Preview
+							files={files}
+							showCorrectColumn={showCorrectColumn}
+							showDescription={showDescription}
+							items={items}
+							url={url}
+							saveUrl={saveUrl}
+							onLoad={onLoad}
+							onPost={onPost}
+							editMode={editMode}
+							setEditMode={setEditMode}
+							variables={variables}
+							registry={Registry}
+							editElement={editElement}
+							setEditElement={setEditElement}
+							renderEditForm={renderEditForm}
+							saveAlways={saveAlways}
+						/>
+					</Col>
+					<Col xs={3} className="overflow-hidden h-100">
+						<Toolbar showDescription={showDescription} items={toolbarItems} customItems={customToolbarItems} />
+					</Col>
+				</Row>
 
-		return (
-			<DndProvider backend={HTML5Backend}>
-					<div>
-						<Container fluid className="react-survey-builder">
-							<Row>
-								<Col md={9}>
-									<Preview
-										files={this.props.files}
-										manualEditModeOff={this.manualEditModeOff.bind(this)}
-										showCorrectColumn={this.props.showCorrectColumn}
-										parent={this}
-										items={this.props.items}
-										url={this.props.url}
-										saveUrl={this.props.saveUrl}
-										onLoad={this.props.onLoad}
-										onPost={this.props.onPost}
-										editModeOn={this.editModeOn}
-										editMode={this.state.editMode}
-										variables={this.props.variables}
-										registry={Registry}
-										editElement={this.state.editElement}
-										renderEditForm={this.props.renderEditForm}
-										saveAlways={this.props.saveAlways}
-									/>
-								</Col>
-								<Col md={3}>
-									{(!!!this.props.saveAlways || this.props.editSurveyBlock || this.props.previewSurveyBlock || this.props.surveyName) &&
-										<div className={this.props.surveyToolbarClassName}>
-											{(!!!this.props.saveAlways || this.props.editSurveyBlock || this.props.surveyName) &&
-												<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
-													{this.props.editSurveyBlock ?? (this.props.surveyName ? (
-														<div>
-															<h4>{this.props.surveyName}</h4>
-														</div>
-													) : null)}
-													{!!!this.props.saveAlways &&
-														<Button variant="primary" onClick={() => { this.saveFormData(); }}>{this.props.saveSurveyName ?? 'Save Survey'}</Button>
-													}
-												</div>
-											}
-											{this.props.previewSurveyBlock ? (
-												<div className="border border-light border-3 p-3 d-grid gap-1 mb-3">
-													{this.props.previewSurveyBlock}
-												</div>
-											) : null}
-										</div>
-									}
-									<Toolbar {...toolbarProps} customItems={this.props.customToolbarItems} />
-								</Col>
-							</Row>
-						</Container>
-					</div>
-			</DndProvider>
-		);
-	}
-}
+			</Container>
+		</DndProvider>
+	);
+};
 
-function ReactSurveyGenerator(props) {
+const ReactSurveyGenerator = (props) => {
 	return <SurveyGenerator {...props} />;
-}
+};
 
-function ReactSurveyFieldGenerator(props) {
+const ReactSurveyFieldGenerator = (props) => {
 	return <SurveyFieldGenerator {...props} />;
-}
+};
+
+const ReactSurveyStepGenerator = (props) => {
+	return <SurveyStepGenerator {...props} />;
+};
 
 const cleanUpSurveyItems = (items = []) => {
 	return items.map((item) => {
@@ -122,6 +88,12 @@ const cleanUpSurveyItems = (items = []) => {
 			static: item.static
 		};
 
+		if (item.childItems !== undefined && item.childItems !== null) { dataItem.childItems = item.childItems; }
+		if (item.name !== undefined && item.name !== null) { dataItem.name = item.name; }
+		if (item.conditional !== undefined && item.conditional !== null) { dataItem.conditional = item.conditional; }
+		if (item.conditionalFieldName !== undefined && item.conditionalFieldName !== null) { dataItem.conditionalFieldName = item.conditionalFieldName; }
+		if (item.conditionalFieldValue !== undefined && item.conditionalFieldValue !== null) { dataItem.conditionalFieldValue = item.conditionalFieldValue; }
+
 		if (item.groupName !== undefined && item.groupName !== null) { dataItem.groupName = item.groupName; }
 		if (item.required !== undefined && item.required !== null) { dataItem.required = item.required; }
 		if (item.description !== undefined && item.description !== null) { dataItem.description = item.description; }
@@ -130,9 +102,8 @@ const cleanUpSurveyItems = (items = []) => {
 		if (item.italic !== undefined && item.italic !== null) { dataItem.italic = item.italic; }
 		if (item.labelLocation !== undefined && item.labelLocation !== null) { dataItem.labelLocation = item.labelLocation; }
 		if (item.help !== undefined && item.help !== null) { dataItem.help = item.help; }
-		
+
 		if (item.hideLabel !== undefined && item.hideLabel !== null) { dataItem.hideLabel = item.hideLabel; }
-		if (props.hideLabels !== undefined && props.hideLabels !== null) { dataItem.hideLabel = props.hideLabels; }
 
 		if (item.readOnly !== undefined && item.readOnly !== null) { dataItem.readOnly = item.readOnly; }
 		if (item.defaultToday !== undefined && item.defaultToday !== null) { dataItem.defaultToday = item.defaultToday; }
@@ -140,7 +111,8 @@ const cleanUpSurveyItems = (items = []) => {
 		if (item.href !== undefined && item.href !== null) { dataItem.href = item.href; }
 		if (item.inherited !== undefined && item.inherited !== null) { dataItem.inherited = item.inherited; }
 
-
+		if (item.isContainer !== undefined && item.isContainer !== null) { dataItem.isContainer = item.isContainer; }
+		
 		if (item.type === 'custom') {
 			elementOptions.key = item.key;
 			elementOptions.custom = true;
@@ -171,16 +143,15 @@ const cleanUpSurveyItems = (items = []) => {
 
 		return dataItem;
 	});
-}
+};
 
 const SurveyBuilders = {};
 SurveyBuilders.ReactSurveyBuilder = ReactSurveyBuilder;
 SurveyBuilders.ReactSurveyGenerator = ReactSurveyGenerator;
 SurveyBuilders.ReactSurveyFieldGenerator = ReactSurveyFieldGenerator;
+SurveyBuilders.ReactSurveyStepGenerator = ReactSurveyStepGenerator;
 SurveyBuilders.ElementStore = store;
 SurveyBuilders.Registry = Registry;
 SurveyBuilders.cleanUpSurveyItems = cleanUpSurveyItems;
 
 export default SurveyBuilders;
-
-export { cleanUpSurveyItems, ReactSurveyBuilder, ReactSurveyGenerator, ReactSurveyFieldGenerator, store as ElementStore, Registry };

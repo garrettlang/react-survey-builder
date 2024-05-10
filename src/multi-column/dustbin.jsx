@@ -19,23 +19,26 @@ function getCustomElement(item, props) {
 			{...props}
 			mutable={false}
 			key={`form_${item.id}`}
-			item={item}
+			id={item.id}
+			name={item.fieldName ?? item.name}
+			item={{ ...item, mutable: false, readOnly: false, print: false }}
 		/>
 	);
 }
 
-function getElement(item, props) {
+const getElement = (item, props) => {
 	if (!item) return null;
 	if (item.custom) {
 		return getCustomElement(item, props);
 	}
+	console.log('getDustbinElement', item);
 	const Element = SurveyElements[item.element || item.key];
-	return <Element {...props} key={`form_${item.id}`} item={item} />;
-}
+	return <Element {...props} id={item.id} key={`form_${item.id}`} name={item.fieldName ?? item.name} mutable={false} item={{ ...item, mutable: false, readOnly: false, print: false }} />;
+};
 
-function getStyle(backgroundColor) {
+const getStyle = (backgroundColor) => {
 	return {
-		border: '1px solid rgba(0,0,0,0.2)',
+		border: '1px dashed rgba(0,0,0,0.2)',
 		minHeight: '2rem',
 		minWidth: '7rem',
 		width: '100%',
@@ -43,15 +46,16 @@ function getStyle(backgroundColor) {
 		padding: 0,
 		float: 'left',
 	};
-}
+};
 
-function isContainer($containerItem) {
-	if ($containerItem.itemType !== ItemTypes.CARD) {
-		const { item } = $containerItem;
+const isContainer = (containerItem) => {
+	if (containerItem.itemType !== ItemTypes.CARD) {
+		const { item } = containerItem;
 		if (item) {
 			if (item.isContainer) {
 				return true;
 			}
+
 			if (item.fieldName) {
 				return item.fieldName.indexOf('_col_row') > -1;
 			}
@@ -59,26 +63,26 @@ function isContainer($containerItem) {
 	}
 
 	return false;
-}
+};
 
-const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex, canDrop, isOver, isOverCurrent, connectDropTarget, items, col, getItemById, ...rest }, ref) => {
+const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex, canDrop, isOver, isOverCurrent, connectDropTarget, items, col, getItemById, ...otherProps }, ref) => {
 	const item = getItemById(items[col]);
-	React.useImperativeHandle(
-		ref,
-		() => ({
-			onDrop: (dropped) => {
-				console.log("dropped ites")
-				const { item } = dropped;
-				if (item) {
-					onDropSuccess && onDropSuccess();
-					store.dispatch('deleteLastItem');
-				}
-			},
-		}),
-		[],
-	);
 
-	const element = getElement(item, rest);
+	React.useImperativeHandle(ref, () => ({
+		onDrop: (dropped) => {
+			console.log("dropped item", dropped);
+			const { item } = dropped;
+			if (item) {
+				if (onDropSuccess) {
+					onDropSuccess();
+				}
+
+				store.dispatch('deleteLastItem');
+			}
+		},
+	}), []);
+
+	const element = getElement(item, otherProps);
 	const sameCard = draggedItem ? draggedItem.index === parentIndex : false;
 
 	// console.log('dragIndex:',draggedItem?.index)
@@ -94,17 +98,17 @@ const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex
 	// console.log('sameCard, canDrop', sameCard, canDrop);
 	return connectDropTarget(
 		<div style={!sameCard ? getStyle(backgroundColor) : getStyle('rgba(0, 0, 0, .03')}>
-			{!element && <span>Drop your element here </span>}
+			{!element && <div className="w-100 text-center" style={{ margin: 20 }}>Drop your element here </div>}
 			{element}
 		</div>,
 	);
-},
-);
+});
 
 export default DropTarget(
 	(props) => props.accepts,
 	{
 		drop(props, monitor, component) {
+			console.log('droptargetprops', props)
 			if (!component) {
 				return;
 			}
@@ -115,12 +119,16 @@ export default DropTarget(
 			const isBusy = !!props.items[props.col];
 			const item = monitor.getItem();
 
+			console.log('dustbin', props, item, isBusy);
+
 			// Do nothing when moving the box inside the same column
 			if (props.col === item.col && props.items[props.col] === item.id) return;
 
 			// Do not allow replace component other than both items in same multi column row
 			if (item.col === undefined && props.items[props.col]) {
-				store.dispatch('resetLastItem');
+				//store.dispatch('resetLastItem');
+				//console.log('dropping item in dustbin');
+				//store.dispatch('deleteLastItem');
 				return;
 			}
 
@@ -128,9 +136,10 @@ export default DropTarget(
 				(component).onDrop(item);
 				console.log("calling on Drop from 137", item)
 				if (item.item && typeof props.setAsChild === 'function') {
+					console.log('setAsChild function being called');
 					const isNew = !item.item.id;
 					const $dataItem = isNew ? item.onCreate(item.item) : item.item;
-					props.setAsChild(props.item, $dataItem, props.col, isBusy);
+					props.setAsChild(props.item, $dataItem, isNew, item.index, props.col, isBusy);
 				}
 			}
 		},

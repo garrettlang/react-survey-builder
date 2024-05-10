@@ -5,6 +5,337 @@ import store from './stores/store';
 import { FaArrowsAltH, FaBars, FaCamera, FaCaretSquareDown, FaCheckSquare, FaColumns, FaEnvelope, FaFile, FaFont, FaHeading, FaLink, FaParagraph, FaPenSquare, FaPhone, FaPlus, FaRegCalendarAlt, FaRegDotCircle, FaRegImage, FaSlidersH, FaStar, FaTags, FaTextHeight } from 'react-icons/fa';
 import { PiFileHtml } from 'react-icons/pi';
 import ID from './UUID';
+import { GrSteps } from 'react-icons/gr';
+import { isListNotEmpty } from './utils/objectUtils';
+
+const _defaultItems = [
+	{
+		key: 'Header',
+		name: "Header Text",
+		icon: FaHeading,
+		static: true,
+		content: "Text...",
+	},
+	{
+		key: 'Label',
+		name: "Label",
+		static: true,
+		icon: FaFont,
+		content: "Text...",
+	},
+	{
+		key: 'Paragraph',
+		name: "Paragraph",
+		static: true,
+		icon: FaParagraph,
+		content: "Text...",
+	},
+	{
+		key: 'ContentBody',
+		name: "Static Content",
+		static: true,
+		icon: PiFileHtml,
+		content: "Text...",
+	},
+	{
+		key: 'LineBreak',
+		name: "Line Break",
+		static: true,
+		icon: FaArrowsAltH,
+	},
+	{
+		key: 'Dropdown',
+		name: "Dropdown",
+		icon: FaCaretSquareDown,
+		label: "Label",
+		fieldName: 'dropdown_',
+		canHaveHelp: true,
+		options: [],
+		placeholder: 'Select One',
+		canHaveLabelLocation: true,
+		answerType: 'ARRAY',
+		hideLabel: false
+	},
+	{
+		key: 'Tags',
+		name: "Tags",
+		icon: FaTags,
+		label: "Label",
+		fieldName: 'tags_',
+		canHaveHelp: true,
+		options: [],
+		placeholder: 'Select...',
+		canHaveLabelLocation: true,
+		answerType: 'ARRAY',
+		hideLabel: false
+	},
+	{
+		key: 'Checkboxes',
+		name: "Checkboxes",
+		icon: FaCheckSquare,
+		label: "Label",
+		fieldName: 'checkboxes_',
+		canHaveHelp: true,
+		options: [],
+		answerType: 'ARRAY',
+		hideLabel: false
+	},
+	{
+		key: 'Checkbox',
+		name: "Checkbox",
+		icon: FaCheckSquare,
+		label: "Label",
+		fieldName: 'checkbox_',
+		canHaveHelp: true,
+		boxLabel: 'Pick me',
+		answerType: 'BOOLEAN',
+		canHideLabel: true,
+		hideLabel: true
+	},
+	{
+		key: 'RadioButtons',
+		name: "Radio Buttons",
+		icon: FaRegDotCircle,
+		label: "Label",
+		fieldName: 'radiobuttons_',
+		canHaveHelp: true,
+		options: [],
+		answerType: 'STRING',
+		hideLabel: false
+	},
+	{
+		key: 'TextInput',
+		name: "Text Input",
+		label: "Label",
+		icon: FaFont,
+		fieldName: 'text_input_',
+		canHaveHelp: true,
+		placeholder: "Label",
+		canHaveLabelLocation: true,
+		answerType: 'STRING',
+		hideLabel: false
+	},
+	{
+		key: 'EmailInput',
+		name: "Email Input",
+		label: "Email Address",
+		icon: FaEnvelope,
+		fieldName: 'email_input_',
+		canHaveHelp: true,
+		placeholder: "Email Address",
+		canHaveLabelLocation: true,
+		answerType: 'STRING',
+		hideLabel: false
+	},
+	{
+		key: 'PhoneNumber',
+		name: "Phone Number",
+		label: "Phone Number",
+		icon: FaPhone,
+		fieldName: 'phone_input_',
+		canHaveHelp: true,
+		canHaveLabelLocation: true,
+		answerType: 'STRING',
+		hideLabel: false
+	},
+	{
+		key: 'DatePicker',
+		canDefaultToday: true,
+		canReadOnly: true,
+		dateFormat: 'MM/DD/YYYY',
+		name: "Date",
+		icon: FaRegCalendarAlt,
+		label: "Label",
+		fieldName: 'date_picker_',
+		canHaveHelp: true,
+		canHaveLabelLocation: true,
+		answerType: 'STRING',
+		hideLabel: false
+	},
+	{
+		key: 'TextArea',
+		name: "Multi-line Input",
+		label: "Label",
+		icon: FaTextHeight,
+		fieldName: 'text_area_',
+		canHaveHelp: true,
+		canHaveLabelLocation: true,
+		answerType: 'STRING',
+		hideLabel: false
+	},
+	{
+		key: 'NumberInput',
+		name: "Numerical Input",
+		label: "Label",
+		icon: FaPlus,
+		fieldName: 'number_input_',
+		canHaveHelp: true,
+		step: 1,
+		minValue: 0,
+		maxValue: 5,
+		canHaveLabelLocation: true,
+		answerType: 'NUMBER',
+		hideLabel: false
+	},
+	{
+		key: 'Rating',
+		name: "Rating",
+		label: "Label",
+		icon: FaStar,
+		fieldName: 'rating_',
+		canHaveHelp: true,
+		answerType: 'NUMBER',
+		hideLabel: false
+	},
+	{
+		key: 'Range',
+		name: "Range",
+		icon: FaSlidersH,
+		label: "Label",
+		fieldName: 'range_',
+		step: 1,
+		defaultValue: 3,
+		minValue: 1,
+		maxValue: 5,
+		minLabel: "Easy",
+		maxLabel: "Difficult",
+		canHaveHelp: true,
+		answerType: 'NUMBER',
+		hideLabel: false
+	},
+	{
+		key: 'Signature',
+		canReadOnly: true,
+		name: "Signature",
+		icon: FaPenSquare,
+		label: "Signature",
+		fieldName: 'signature_',
+		canHaveHelp: true,
+		answerType: 'IMAGE',
+		hideLabel: false
+	},
+	{
+		key: 'Camera',
+		name: "Camera",
+		icon: FaCamera,
+		label: "Label",
+		fieldName: 'camera_',
+		answerType: 'IMAGE',
+		hideLabel: false
+	},
+	{
+		key: 'FileUpload',
+		name: "File Upload",
+		icon: FaFile,
+		label: "Label",
+		fieldName: 'file_upload_',
+		answerType: 'FILE',
+		hideLabel: false
+	},
+	{
+		key: 'FieldSet',
+		name: "Fieldset",
+		label: "Fieldset",
+		icon: FaBars,
+		fieldName: 'fieldset-element',
+		static: true,
+		isContainer: true,
+	},
+
+	{
+		key: 'Image',
+		name: "Image",
+		label: '',
+		icon: FaRegImage,
+		fieldName: 'image_',
+		src: '',
+		static: true,
+	},
+	{
+		key: 'HyperLink',
+		name: "Hyperlink",
+		icon: FaLink,
+		content: "Website Link...",
+		href: 'http://www.example.com',
+		static: true,
+	},
+	{
+		key: 'Download',
+		name: "File Attachment",
+		icon: FaFile,
+		content: "File name...",
+		fieldName: 'download_',
+		filePath: '',
+		href: '',
+		static: true,
+	},
+	{
+		key: 'TwoColumnRow',
+		name: "Two Column Row",
+		label: '',
+		icon: FaColumns,
+		fieldName: 'two_col_row_',
+		static: true,
+		isContainer: true,
+	},
+	{
+		key: 'ThreeColumnRow',
+		name: "Three Columns Row",
+		label: '',
+		icon: FaColumns,
+		fieldName: 'three_col_row_',
+		static: true,
+		isContainer: true,
+	},
+	{
+		key: 'FourColumnRow',
+		element: 'MultiColumnRow',
+		name: "Four Columns Row",
+		label: '',
+		icon: FaColumns,
+		fieldName: 'four_col_row_',
+		colCount: 4,
+		className: 'col-md-3',
+		static: true,
+		isContainer: true,
+	},
+	{
+		key: 'FiveColumnRow',
+		element: 'MultiColumnRow',
+		name: "Five Columns Row",
+		label: '',
+		icon: FaColumns,
+		fieldName: 'five_col_row_',
+		colCount: 5,
+		className: 'col',
+		static: true,
+		isContainer: true,
+	},
+	{
+		key: 'SixColumnRow',
+		element: 'MultiColumnRow',
+		name: "Six Columns Row",
+		label: '',
+		icon: FaColumns,
+		fieldName: 'six_col_row_',
+		colCount: 6,
+		className: 'col-md-2',
+		static: true,
+		isContainer: true,
+	},
+	{
+		key: 'Step',
+		name: "Step",
+		label: "Step",
+		icon: GrSteps,
+		fieldName: 'step_',
+		static: true,
+		conditional: false,
+		conditionalFieldName: '',
+		conditionalFieldValue: '',
+		isContainer: true,
+	},
+];
 
 const groupBy = (list, keyGetter) => {
 	const map = new Map();
@@ -21,15 +352,16 @@ const groupBy = (list, keyGetter) => {
 	return map;
 };
 
-const buildItems = (items, defaultItems) => {
-	if (!items) {
-		return defaultItems;
+const buildItems = (dataItems = [], defaultDataItems = [], customItems = []) => {
+	let allItems = [...defaultDataItems, ...customItems];
+	if (!isListNotEmpty(dataItems)) {
+		return allItems;
 	}
 
-	return items.map(x => {
-		let found = defaultItems.find(y => (x.element === y.element && y.key === x.key));
+	return dataItems.map(x => {
+		let found = allItems.find(y => (x.element === y.element && y.key === x.key));
 		if (!found) {
-			found = defaultItems.find(y => (x.element || x.key) === (y.element || y.key));
+			found = allItems.find(y => (x.element || x.key) === (y.element || y.key));
 		}
 		if (found) {
 			if (x.inherited !== false) {
@@ -42,28 +374,19 @@ const buildItems = (items, defaultItems) => {
 	});
 };
 
-const buildGroupItems = (allItems) => {
-	const items = allItems.filter(x => !x.groupName);
+const buildGroupItems = (allItems = []) => {
+	const ungroupedItems = allItems.filter(x => !x.groupName);
 	const gItems = allItems.filter(x => !!x.groupName);
 	const grouped = groupBy(gItems, x => x.groupName);
-	const groupKeys = gItems.map(x => x.groupName)
-		.filter((v, i, self) => self.indexOf(v) === i);
-	return { items, grouped, groupKeys };
+	const groupKeys = gItems.map(x => x.groupName).filter((v, i, self) => self.indexOf(v) === i);
+
+	return { ungroupedItems, grouped, groupKeys };
 };
 
-class Toolbar extends React.Component {
-	constructor(props) {
-		super(props);
-		const items = buildItems(props.items, this._defaultItems());
-		this.state = { items };
-		this.create = this.create.bind(this);
-	}
+const Toolbar = ({ items = [], customItems = [] }) => {
+	const [dataItems, setDataItems] = React.useState(isListNotEmpty(items) ? [...items] : []);
 
-	componentDidMount() {
-		store.subscribe(state => this.setState({ store: state }));
-	}
-
-	static _defaultItemOptions(element) {
+	const _defaultItemOptions = (element) => {
 		switch (element) {
 			case 'Dropdown':
 				return [
@@ -92,307 +415,9 @@ class Toolbar extends React.Component {
 			default:
 				return [];
 		}
-	}
+	};
 
-	_defaultItems() {
-		return [
-			{
-				key: 'Header',
-				name: "Header Text",
-				icon: FaHeading,
-				static: true,
-				content: "Text...",
-			},
-			{
-				key: 'Label',
-				name: "Label",
-				static: true,
-				icon: FaFont,
-				content: "Text...",
-			},
-			{
-				key: 'Paragraph',
-				name: "Paragraph",
-				static: true,
-				icon: FaParagraph,
-				content: "Text...",
-			},
-			{
-				key: 'ContentBody',
-				name: "Static Content",
-				static: true,
-				icon: PiFileHtml,
-				content: "Text...",
-			},
-			{
-				key: 'LineBreak',
-				name: "Line Break",
-				static: true,
-				icon: FaArrowsAltH,
-			},
-			{
-				key: 'Dropdown',
-				name: "Dropdown",
-				icon: FaCaretSquareDown,
-				label: "Label",
-				fieldName: 'dropdown_',
-				canHaveHelp: true,
-				options: [],
-				placeholder: 'Select One',
-				canHaveLabelLocation: true,
-				answerType: 'ARRAY'
-			},
-			{
-				key: 'Tags',
-				name: "Tags",
-				icon: FaTags,
-				label: "Label",
-				fieldName: 'tags_',
-				canHaveHelp: true,
-				options: [],
-				placeholder: 'Select...',
-				canHaveLabelLocation: true,
-				answerType: 'ARRAY'
-			},
-			{
-				key: 'Checkboxes',
-				name: "Checkboxes",
-				icon: FaCheckSquare,
-				label: "Label",
-				fieldName: 'checkboxes_',
-				canHaveHelp: true,
-				options: [],
-				answerType: 'ARRAY'
-			},
-			{
-				key: 'Checkbox',
-				name: "Checkbox",
-				icon: FaCheckSquare,
-				label: "Label",
-				fieldName: 'checkbox_',
-				canHaveHelp: true,
-				boxLabel: 'Pick me',
-				answerType: 'BOOLEAN',
-				canHideLabel: true,
-				hideLabel: true
-			},
-			{
-				key: 'RadioButtons',
-				name: "Radio Buttons",
-				icon: FaRegDotCircle,
-				label: "Label",
-				fieldName: 'radiobuttons_',
-				canHaveHelp: true,
-				options: [],
-				answerType: 'STRING'
-			},
-			{
-				key: 'TextInput',
-				name: "Text Input",
-				label: "Label",
-				icon: FaFont,
-				fieldName: 'text_input_',
-				canHaveHelp: true,
-				placeholder: "Label",
-				canHaveLabelLocation: true,
-				answerType: 'STRING'
-			},
-			{
-				key: 'EmailInput',
-				name: "Email Input",
-				label: "Email Address",
-				icon: FaEnvelope,
-				fieldName: 'email_input_',
-				canHaveHelp: true,
-				placeholder: "Email Address",
-				canHaveLabelLocation: true,
-				answerType: 'STRING'
-			},
-			{
-				key: 'PhoneNumber',
-				name: "Phone Number",
-				label: "Phone Number",
-				icon: FaPhone,
-				fieldName: 'phone_input_',
-				canHaveHelp: true,
-				canHaveLabelLocation: true,
-				answerType: 'STRING'
-			},
-			{
-				key: 'DatePicker',
-				canDefaultToday: true,
-				canReadOnly: true,
-				dateFormat: 'MM/DD/YYYY',
-				name: "Date",
-				icon: FaRegCalendarAlt,
-				label: "Label",
-				fieldName: 'date_picker_',
-				canHaveHelp: true,
-				canHaveLabelLocation: true,
-				answerType: 'STRING'
-			},
-			{
-				key: 'TextArea',
-				name: "Multi-line Input",
-				label: "Label",
-				icon: FaTextHeight,
-				fieldName: 'text_area_',
-				canHaveHelp: true,
-				canHaveLabelLocation: true,
-				answerType: 'STRING'
-			},
-			{
-				key: 'NumberInput',
-				name: "Numerical Input",
-				label: "Label",
-				icon: FaPlus,
-				fieldName: 'number_input_',
-				canHaveHelp: true,
-				step: 1,
-				minValue: 0,
-				maxValue: 5,
-				canHaveLabelLocation: true,
-				answerType: 'NUMBER'
-			},
-			{
-				key: 'Rating',
-				name: "Rating",
-				label: "Label",
-				icon: FaStar,
-				fieldName: 'rating_',
-				canHaveHelp: true,
-				answerType: 'NUMBER'
-			},
-			{
-				key: 'Range',
-				name: "Range",
-				icon: FaSlidersH,
-				label: "Label",
-				fieldName: 'range_',
-				step: 1,
-				defaultValue: 3,
-				minValue: 1,
-				maxValue: 5,
-				minLabel: "Easy",
-				maxLabel: "Difficult",
-				canHaveHelp: true,
-				answerType: 'NUMBER',
-			},
-			{
-				key: 'Signature',
-				canReadOnly: true,
-				name: "Signature",
-				icon: FaPenSquare,
-				label: "Signature",
-				fieldName: 'signature_',
-				canHaveHelp: true,
-				answerType: 'IMAGE'
-			},
-			{
-				key: 'Camera',
-				name: "Camera",
-				icon: FaCamera,
-				label: "Label",
-				fieldName: 'camera_',
-				answerType: 'IMAGE'
-			},
-			{
-				key: 'FileUpload',
-				name: "File Upload",
-				icon: FaFile,
-				label: "Label",
-				fieldName: 'file_upload_',
-				answerType: 'FILE'
-			},
-			{
-				key: 'FieldSet',
-				name: "Fieldset",
-				label: "Fieldset",
-				icon: FaBars,
-				fieldName: 'fieldset-element',
-				static: true,
-			},
-
-			{
-				key: 'Image',
-				name: "Image",
-				label: '',
-				icon: FaRegImage,
-				fieldName: 'image_',
-				src: '',
-				static: true,
-			},
-			{
-				key: 'HyperLink',
-				name: "Hyperlink",
-				icon: FaLink,
-				content: "Website Link...",
-				href: 'http://www.example.com',
-				static: true,
-			},
-			{
-				key: 'Download',
-				name: "File Attachment",
-				icon: FaFile,
-				content: "File name...",
-				fieldName: 'download_',
-				filePath: '',
-				href: '',
-				static: true,
-			},
-			{
-				key: 'TwoColumnRow',
-				name: "Two Column Row",
-				label: '',
-				icon: FaColumns,
-				fieldName: 'two_col_row_',
-				static: true,
-			},
-			{
-				key: 'ThreeColumnRow',
-				name: "Three Columns Row",
-				label: '',
-				icon: FaColumns,
-				fieldName: 'three_col_row_',
-				static: true,
-			},
-			{
-				key: 'FourColumnRow',
-				element: 'MultiColumnRow',
-				name: "Four Columns Row",
-				label: '',
-				icon: FaColumns,
-				fieldName: 'four_col_row_',
-				colCount: 4,
-				className: 'col-md-3',
-				static: true,
-			},
-			{
-				key: 'FiveColumnRow',
-				element: 'MultiColumnRow',
-				name: "Five Columns Row",
-				label: '',
-				icon: FaColumns,
-				fieldName: 'five_col_row_',
-				colCount: 5,
-				className: 'col',
-				static: true,
-			},
-			{
-				key: 'SixColumnRow',
-				element: 'MultiColumnRow',
-				name: "Six Columns Row",
-				label: '',
-				icon: FaColumns,
-				fieldName: 'six_col_row_',
-				colCount: 6,
-				className: 'col-md-2',
-				static: true,
-			},
-		];
-	}
-
-	addCustomOptions(item, elementOptions) {
+	const addCustomOptions = (item, elementOptions) => {
 		if (item.type === 'custom') {
 			const customOptions = { ...item, ...elementOptions };
 			customOptions.custom = true;
@@ -402,13 +427,13 @@ class Toolbar extends React.Component {
 			return customOptions;
 		}
 
-		return elementOptions;
-	}
+		return {  ...elementOptions, ...item };
+	};
 
-	create(item) {
+	const create = (item) => {
 		const element = item.element || item.key;
 
-		const elementOptions = this.addCustomOptions(item, {
+		const elementOptions = addCustomOptions(item, {
 			id: ID.uuid(),
 			element,
 			text: item.name,
@@ -419,6 +444,10 @@ class Toolbar extends React.Component {
 
 		if (!item.static) {
 			elementOptions.required = false;
+		}
+
+		if (item.isContainer) {
+			elementOptions.isContainer = true;
 		}
 
 		// add placeholder to form input
@@ -467,6 +496,12 @@ class Toolbar extends React.Component {
 			elementOptions.className = item.className;
 		}
 
+		if (element === 'Step') {
+			elementOptions.conditional = item.conditional;
+			elementOptions.conditionalFieldName = item.conditionalFieldName;
+			elementOptions.conditionalFieldValue = item.conditionalFieldValue;
+		}
+
 		if (element === 'Image') {
 			elementOptions.src = item.src;
 		}
@@ -509,34 +544,39 @@ class Toolbar extends React.Component {
 			if (item.options.length > 0) {
 				elementOptions.options = item.options.map(x => ({ ...x, key: `custom_option_${ID.uuid()}` }));
 			} else {
-				elementOptions.options = Toolbar._defaultItemOptions(elementOptions.element);
+				elementOptions.options = _defaultItemOptions(elementOptions.element);
 			}
 		}
 
 		return elementOptions;
-	}
+	};
 
-	_onClick(item) {
-		// ElementActions.createElement(this.create(item));
-		store.dispatch('create', this.create(item));
-	}
+	const _onClick = (item) => {
+		// ElementActions.createElement(create(item));
+		store.dispatch('create', create(item));
+	};
 
-	renderItem = (item) => (<ToolbarItem item={item} key={item.key} onClick={this._onClick.bind(this, item)} onCreate={this.create} />)
-
-	render() {
-		const { items, grouped, groupKeys } = buildGroupItems(this.state.items);
+	const renderItem = (item) => {
 		return (
-			<div className="react-survey-builder-toolbar">
-				<h4>Survey Blocks Toolbox</h4>
-				<ul>
-					{items.map(this.renderItem)}
-					{
-						groupKeys.map(k => <ToolbarGroupItem key={k} name={k} group={grouped.get(k)} renderItem={this.renderItem} />)
-					}
-				</ul>
-			</div>
+			<ToolbarItem item={item} key={item.key} onClick={() => { _onClick(item); }} onCreate={create} />
 		);
-	}
-}
+	};
+
+	React.useEffect(() => {
+		setDataItems(buildItems(dataItems, _defaultItems, customItems));
+	}, []);
+
+	const { ungroupedItems, grouped, groupKeys } = buildGroupItems(dataItems);
+
+	return (
+		<div className="react-survey-builder-toolbar">
+			<h4>Survey Blocks Toolbox</h4>
+			<ul>
+				{ungroupedItems.map(renderItem)}
+				{groupKeys.map(k => <ToolbarGroupItem key={k} name={k} group={grouped.get(k)} renderItem={renderItem} />)}
+			</ul>
+		</div>
+	);
+};
 
 export default Toolbar;

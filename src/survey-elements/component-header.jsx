@@ -1,21 +1,20 @@
 import React from 'react';
 import HeaderBar from './header-bar';
 
-const ComponentHeader = ({ item, ...props }) => {
+const ComponentHeader = ({ item, isFieldSet, index, editModeOn, setAsChild, _onDestroy, onEdit }) => {
 	if (item?.mutable) { return null; }
 
 	return (
 		<div>
 			{item?.pageBreakBefore && <div className="preview-page-break">Page Break</div>}
 			<HeaderBar
-				isFieldSet={props.isFieldSet}
-				parent={props.parent}
-				editModeOn={props.editModeOn}
+				isFieldSet={isFieldSet}
+				editModeOn={editModeOn}
 				item={item}
-				index={props.index}
-				setAsChild={props.setAsChild}
-				onDestroy={props._onDestroy}
-				onEdit={props.onEdit}
+				index={index}
+				setAsChild={setAsChild}
+				onDestroy={_onDestroy}
+				onEdit={onEdit}
 				static={item?.static}
 				required={item?.required}
 			/>

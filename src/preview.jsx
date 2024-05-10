@@ -1,297 +1,345 @@
 import React from 'react';
-import update from 'immutability-helper';
 import store from './stores/store';
 import SurveyElementsEdit from './survey-dynamic-edit';
 import SortableFormElements from './sortable-form-elements';
 import CustomDragLayer from './survey-elements/component-drag-layer';
+import { isListNotEmpty, isObjectNotEmpty, removeRecord, updateRecord } from './utils/objectUtils';
 
 const { PlaceHolder } = SortableFormElements;
 
-export default class Preview extends React.Component {
-	state = {
-		items: [],
-		answerData: {},
+const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescription = false, files = [], renderEditForm, onLoad, onPost, className, editMode = false, setEditMode, editElement = null, setEditElement, variables = {}, url, saveUrl, saveAlways = false, registry }) => {
+	const [items, setItems] = React.useState(isListNotEmpty(loadItems) ? [...loadItems] : []);
+	const [answerData, setAnswerData] = React.useState({});
+	const [seq, setSeq] = React.useState(0);
+
+	const editForm = React.useRef();
+
+	const editModeOn = (item, e) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (editMode) {
+			setEditMode(false);
+			setEditElement(null);
+		} else {
+			setEditMode(true);
+			setEditElement(item);
+		}
 	};
 
-	constructor(props) {
-		super(props);
-
-		const { onLoad, onPost } = props;
-		store.setExternalHandler(onLoad, onPost);
-
-		this.editForm = React.createRef();
-		this.state = {
-			items: props.items || [],
-			answerData: {},
-		};
-		this.seq = 0;
-
-		this._onUpdate = this._onChange.bind(this);
-		this.getItemById = this.getItemById.bind(this);
-		this.moveCard = this.moveCard.bind(this);
-		this.insertCard = this.insertCard.bind(this);
-		this.setAsChild = this.setAsChild.bind(this);
-		this.removeChild = this.removeChild.bind(this);
-		this._onDestroy = this._onDestroy.bind(this);
-	}
-
-	componentDidMount() {
-		const { items, url, saveUrl, saveAlways } = this.props;
-		store.subscribe(state => this._onUpdate(state.items));
-		store.dispatch('load', { loadUrl: url, saveUrl, items: items || [], saveAlways });
-		document.addEventListener('mousedown', this.editModeOff);
-	}
-
-	componentWillUnmount() {
-		document.removeEventListener('mousedown', this.editModeOff);
-	}
-
-	editModeOff = (e) => {
-		if (this.editForm.current && !this.editForm.current.contains(e.target)) {
-			this.manualEditModeOff();
+	const editModeOff = (e) => {
+		if (editForm.current && !editForm.current.contains(e.target)) {
+			manualEditModeOff();
 		}
-	}
+	};
 
-	manualEditModeOff = () => {
-		const { editElement } = this.props;
+	const manualEditModeOff = () => {
 		if (editElement && editElement.dirty) {
 			editElement.dirty = false;
-			this.updateElement(editElement);
+			updateElement({ ...editElement, dirty: false });
 		}
-		this.props.manualEditModeOff();
-	}
 
-	_setValue(text) {
-		return text.replace(/[^A-Z0-9]+/ig, '_').toLowerCase();
-	}
-
-	updateElement(element) {
-		const { items } = this.state;
-		let found = false;
-
-		for (let i = 0, len = items.length; i < len; i++) {
-			if (element.id === items[i].id) {
-				items[i] = element;
-				found = true;
-				break;
-			}
+		if (editMode) {
+			setEditMode(false);
+			setEditElement(null);
 		}
+	};
+
+	const updateElement = (element) => {
+		let updatedElement = isObjectNotEmpty(element) ? { ...element } : {};
+		let existingList = isListNotEmpty(items) ? [...items] : [];
+		let found = existingList.some(i => updatedElement && updatedElement.id && i.id === updatedElement.id);
+		let updatedList = updateRecord('id', updatedElement, existingList);
 
 		if (found) {
-			this.seq = this.seq > 100000 ? 0 : this.seq + 1;
-			store.dispatch('updateOrder', items);
+			setSeq(seq > 100000 ? 0 : seq + 1);
+			store.dispatch('updateOrder', updatedList);
+			setEditElement(updatedElement);
 		}
-	}
+	};
 
-	_onChange($dataItems) {
-		const answerData = {};
+	const _onChange = (stateItems) => {
+		// console.log('_onChange', stateItems);
+		let updatedItems = isListNotEmpty(stateItems) ? [...stateItems] : [];
+		const updatedAnswerData = { ...answerData };
 
-		$dataItems.forEach((item) => {
-			if (item && item.readOnly && this.props.variables[item.variableKey]) {
-				answerData[item.fieldName] = this.props.variables[item.variableKey];
+		updatedItems.forEach((item) => {
+			if (item && item.readOnly && variables[item.variableKey]) {
+				updatedAnswerData[item.fieldName] = variables[item.variableKey];
 			}
 		});
 
-		this.setState({
-			items: $dataItems,
-			answerData,
-		});
-	}
+		setItems(updatedItems);
+		setAnswerData(updatedAnswerData);
+	};
 
-	_onDestroy(item) {
-		if (item.childItems) {
+	const _onDestroy = (item) => {
+		// console.log('_onDestroy', item);
+		let updatedList = [...items];
+		if (isListNotEmpty(item.childItems)) {
 			item.childItems.forEach((childItem) => {
-				const child = this.getItemById(childItem);
-				if (child) {
-					store.dispatch('delete', child);
-				}
+				updatedList = removeRecord('id', childItem?.id, [...updatedList]);
 			});
 		}
-		store.dispatch('delete', item);
-	}
 
-	getItemById(id) {
-		const { items } = this.state;
+		updatedList = removeRecord('id', item.id, [...updatedList]);
 
+		store.dispatch('updateOrder', updatedList);
+		setItems([...updatedList]);
+	};
+
+	const getItemById = (id) => {
 		return items.find((x) => x && x.id === id);
-	}
+	};
 
-	swapChildren($dataItems, item, child, col) {
+	const swapChildren = (item, child, col) => {
+		// console.log('swapping children', item, child, col);
 		if (child.col !== undefined && item.id !== child.parentId) {
 			return false;
 		}
+
 		if (!(child.col !== undefined && child.col !== col && item.childItems[col])) {
 			// No child was assigned yet in both source and target.
 			return false;
 		}
+
+		let oldItems = [...items];
+
 		const oldId = item.childItems[col];
-		const oldItem = this.getItemById(oldId);
-		const oldCol = child.col;
+		const oldItem = oldItems.find(i => i.id === oldId);
+		//const oldCol = child.col;
 		// eslint-disable-next-line no-param-reassign
-		item.childItems[oldCol] = oldId; oldItem.col = oldCol;
-		// eslint-disable-next-line no-param-reassign
-		item.childItems[col] = child.id; child.col = col;
-		store.dispatch('updateOrder', $dataItems);
+		let updatedChildItems = [...item.childItems];
+		updatedChildItems[child.col] = oldId;
+		updatedChildItems[col] = child.id;
+		const updatedItem = { ...item, childItems: updatedChildItems };
+		const updatedOldItem = { ...oldItem, col: child.col };
+		const updatedChild = { ...child, col: col };
+
+		let updatedItems = updateRecord('id', updatedItem, oldItems);
+		updatedItems = updateRecord('id', updatedOldItem, [...updatedItems]);
+		updatedItems = updateRecord('id', updatedChild, [...updatedItems]);
+
+		store.dispatch('updateOrder', updatedItems);
+		setItems(updatedItems);
 
 		return true;
 	}
 
-	setAsChild(item, child, col, isBusy) {
-		const { items } = this.state;
-
-		if (this.swapChildren(items, item, child, col)) {
+	const setAsChild = (item, child, childIsNew, childIndex, col, isBusy) => {
+		// console.log('saveAsChild', item, child, childIsNew, childIndex, col, isBusy);
+		if (swapChildren(item, child, col)) {
 			return;
 		}
 
 		if (isBusy) {
 			return;
 		}
+		
+		let oldItems = [...items];
 
-		const oldParent = this.getItemById(child.parentId);
-		const oldCol = child.col;
 		// eslint-disable-next-line no-param-reassign
-		item.childItems[col] = child.id; child.col = col;
-		// eslint-disable-next-line no-param-reassign
-		child.parentId = item.id;
-		// eslint-disable-next-line no-param-reassign
-		child.parentIndex = items.indexOf(item);
+		let updatedChildItems = isListNotEmpty(item.childItems) ? [...item.childItems] : [];
+		updatedChildItems[col] = child.id;
 
+		const updatedItem = { ...item, childItems: updatedChildItems };
+		const updatedChild = { ...child, col: col, parentId: item.id, parentIndex: oldItems.indexOf(item) };
+
+		const oldParent = oldItems.find(i => i.id === child.parentId);
+		let updatedParent = null;
 		if (oldParent) {
-			oldParent.childItems[oldCol] = null;
+			updatedParent = { ...oldParent };
+			let updatedParentChildItems = [...oldParent.childItems];
+			updatedParentChildItems[child.col] = null;
 		}
 
-		const list = items.filter((x) => x && x.parentId === item.id);
-		const toRemove = list.filter((x) => item.childItems.indexOf(x.id) === -1);
-		let newData = items;
+		const list = oldItems.filter((x) => x && x.parentId === item.id);
+		let toRemove = list.filter((x) => item.childItems.indexOf(x.id) === -1);
+
+		let updatedList = [...items];
 		if (toRemove.length) {
-			// console.log('toRemove', toRemove);
-			newData = items.filter((x) => toRemove.indexOf(x) === -1);
+			console.log('toRemove', toRemove);
+			updatedList = updatedList.filter((x) => toRemove.indexOf(x) === -1);
 		}
-		if (!this.getItemById(child.id)) {
-			newData.push(child);
+		if (!updatedList.find(i => i.id === child.id)) {
+			updatedList.push(updatedChild);
 		}
-		store.dispatch('updateOrder', newData);
-	}
+		if (childIsNew && childIndex > -1) {
+			// Instance where child was hovered over main drop zone first and then
+			// dropped into a container, it will not be created yet due to race condition but will
+			// have an index equal to the position in the main drop zone where it was hovering prior 
+			// to being dropped in the container. Therefore, we need to delete the item in the main 
+			// drop zone so that there aren't duplicates since it was intended to go into the container.
 
-	removeChild(item, col) {
-		const { items } = this.state;
+			// add item to toRemove list to be removed
+			updatedList = removeRecord('id', oldItems[childIndex]?.id, [...updatedList]);
+		}
+
+		updatedList = updateRecord('id', updatedItem, [...updatedList]);
+		updatedList = updateRecord('id', updatedChild, [...updatedList]);
+		if (updatedParent) {
+			updatedList = updateRecord('id', updatedParent, [...updatedList]);
+		}
+
+		store.dispatch('updateOrder', updatedList);
+		setItems(updatedList);
+	};
+
+	const removeChild = (item, col) => {
+		console.log('removeChild', item, col);
+		const existingList = [...items];
+
 		const oldId = item.childItems[col];
-		const oldItem = this.getItemById(oldId);
+		const oldItem = existingList.find(i => i.id === oldId);
 		if (oldItem) {
-			const newData = items.filter(x => x !== oldItem);
+			const updatedListWithoutChild = existingList.filter(x => x !== oldItem);
 			// eslint-disable-next-line no-param-reassign
-			item.childItems[col] = null;
+			let updatedItem = { ...item };
+			// for multi-column containers, set back to null
+			// for fieldsets and steps, delete it
+			if (updatedItem.element === 'FieldSet' || updatedItem.element === 'Step') {
+				updatedItem.childItems.splice(col, 1);
+			} else {
+				updatedItem.childItems[col] = null;
+			}
+
 			// delete oldItem.parentId;
-			this.seq = this.seq > 100000 ? 0 : this.seq + 1;
-			store.dispatch('updateOrder', newData);
-			this.setState({ items: newData });
-		}
-	}
+			setSeq(seq > 100000 ? 0 : seq + 1);
 
-	restoreCard(item, id) {
-		const { items } = this.state;
-		const parent = this.getItemById(item.item.parentId);
-		const oldItem = this.getItemById(id);
+			let updatedItems = updateRecord('id', updatedItem, [...updatedListWithoutChild]);
+
+			store.dispatch('updateOrder', updatedItems);
+			setItems(updatedItems);
+		}
+	};
+
+	const restoreCard = (item, id) => {
+		// console.log('restoreCard', item, id);
+		const existingItems = [...items];
+
+		const parent = existingItems.find(i => i.id === item.item.parentId);
+		const oldItem = existingItems.find(i => i.id === id);
 		if (parent && oldItem) {
-			const newIndex = items.indexOf(oldItem);
-			const newData = [...items]; // items.filter(x => x !== oldItem);
-			// eslint-disable-next-line no-param-reassign
-			parent.childItems[oldItem.col] = null;
-			delete oldItem.parentId;
-			// eslint-disable-next-line no-param-reassign
-			delete item.setAsChild;
-			// eslint-disable-next-line no-param-reassign
-			delete item.parentIndex;
-			// eslint-disable-next-line no-param-reassign
-			item.index = newIndex;
-			this.seq = this.seq > 100000 ? 0 : this.seq + 1;
-			store.dispatch('updateOrder', newData);
-			this.setState({ items: newData });
-		}
-	}
+			let updatedParent = { ...parent };
+			let updatedOldItem = { ...oldItem };
 
-	insertCard(item, hoverIndex, id) {
-		const { items } = this.state;
+			// for multi-column containers, set back to null
+			// for fieldsets and steps, delete it
+			if (updatedParent.element === 'FieldSet' || updatedParent.element === 'Step') {
+				updatedParent.childItems.splice(oldItem.col, 1);
+			} else {
+				updatedParent.childItems[oldItem.col] = null;
+			}
+
+			// eslint-disable-next-line no-param-reassign
+			delete updatedOldItem.parentId;
+			// eslint-disable-next-line no-param-reassign
+			delete updatedOldItem.setAsChild;
+			// eslint-disable-next-line no-param-reassign
+			delete updatedOldItem.parentIndex;
+			// eslint-disable-next-line no-param-reassign
+			delete updatedOldItem.col;
+			setSeq(seq > 100000 ? 0 : seq + 1);
+
+			let updatedItems = updateRecord('id', updatedOldItem, [...items]);
+			updatedItems = updateRecord('id', updatedParent, [...updatedItems]);
+
+			store.dispatch('updateOrder', updatedItems);
+			setItems(updatedItems);
+		}
+	};
+
+	const insertCard = (item, hoverIndex, id) => {
+		// console.log('insertCard', item, hoverIndex, id);
+		const $dataItems = [...items];
 		if (id) {
-			this.restoreCard(item, id);
+			restoreCard(item, id);
 		} else {
-			items.splice(hoverIndex, 0, item);
-			this.saveData(item, hoverIndex, hoverIndex);
-			store.dispatch('insertItem', item);
-		}
-	}
+			// fixed bug where cards were getting wiped out when you dragged another card over a card to insert it. card should be inserted, not replacing existing cards. If an existing card should be removed, the remove button should be used
+			$dataItems.splice(hoverIndex, 0, item);
 
-	moveCard(dragIndex, hoverIndex) {
-		const { items } = this.state;
-		const dragCard = items[dragIndex];
-		this.saveData(dragCard, dragIndex, hoverIndex);
-	}
+			setItems($dataItems);
+			store.dispatch('updateOrder', $dataItems);
+			// store.dispatch('insertItem', { ...item });
+		}
+	};
+
+	const moveCard = (dragIndex, hoverIndex) => {
+		// console.log('moveCard', dragIndex, hoverIndex);
+		const $dataItems = [...items];
+
+		const dragCard = $dataItems[dragIndex];
+
+		$dataItems.splice(dragIndex, 1);
+		$dataItems.splice(hoverIndex, 0, dragCard);
+
+		setItems($dataItems);
+		store.dispatch('updateOrder', $dataItems);
+	};
 
 	// eslint-disable-next-line no-unused-vars
-	cardPlaceHolder(dragIndex, hoverIndex) {
+	const cardPlaceHolder = (dragIndex, hoverIndex) => {
 		// Dummy
-	}
+	};
 
-	saveData(dragCard, dragIndex, hoverIndex) {
-		const newData = update(this.state, {
-			items: {
-				$splice: [[dragIndex, 1], [hoverIndex, 0, dragCard]],
-			},
-		});
-		this.setState(newData);
-		store.dispatch('updateOrder', newData.items);
-	}
-
-	getElement(item, index) {
+	const getElement = (item, index) => {
 		if (item.custom) {
 			if (!item.component || typeof item.component !== 'function') {
 				// eslint-disable-next-line no-param-reassign
-				item.component = this.props.registry.get(item.key);
+				item.component = registry.get(item.key);
 			}
 		}
-		console.log('getElement', item);
+
 		const SortableFormElement = SortableFormElements[item.element];
 
 		if (SortableFormElement === null) {
 			return null;
 		}
-		return <SortableFormElement id={item.id} name={item.fieldName} seq={this.seq} index={index} moveCard={this.moveCard} insertCard={this.insertCard} mutable={false} parent={this.props.parent} editModeOn={this.props.editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, mutable: false, readOnly: false, print: false }} getDataById={this.getItemById} setAsChild={this.setAsChild} removeChild={this.removeChild} _onDestroy={this._onDestroy} />;
-	}
 
-	showEditForm() {
-		const handleUpdateElement = (element) => this.updateElement(element);
-		handleUpdateElement.bind(this);
+		return <SortableFormElement id={item.id} name={item.fieldName ?? item.name} seq={seq} index={index} moveCard={moveCard} insertCard={insertCard} mutable={false} editModeOn={editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, mutable: false, readOnly: false, print: false }} getItemById={getItemById} setAsChild={setAsChild} removeChild={removeChild} _onDestroy={_onDestroy} />;
+	};
 
-		const formElementEditProps = {
-			showCorrectColumn: this.props.showCorrectColumn,
-			files: this.props.files,
-			manualEditModeOff: this.manualEditModeOff,
-			preview: this,
-			element: this.props.editElement,
-			updateElement: handleUpdateElement,
+	const showEditForm = () => {
+		const editFormProps = {
+			showCorrectColumn: showCorrectColumn,
+			showDescription: showDescription,
+			files: files,
+			manualEditModeOff: manualEditModeOff,
+			element: editElement,
+			setElement: setEditElement,
+			updateElement: (element) => updateElement(element)
 		};
 
-		return this.props.renderEditForm(formElementEditProps);
-	}
+		return renderEditForm(editFormProps);
+	};
 
-	render() {
-		let classes = this.props.className;
-		if (this.props.editMode) { classes += ' is-editing'; }
-		const $dataItems = this.state.items.filter(x => !!x && !x.parentId);
-		const items = $dataItems.map((item, index) => this.getElement(item, index));
+	React.useEffect(() => {
+		store.setExternalHandler(onLoad, onPost);
+	}, [onLoad, onPost]);
 
-		return (
-			<div className={classes}>
-				<div className="edit-form" ref={this.editForm}>
-					{this.props.editElement !== null && this.showEditForm()}
-				</div>
-				<div className="Sortable">{items}</div>
-				<PlaceHolder id="form-place-holder" show={items.length === 0} index={items.length} moveCard={this.cardPlaceHolder} insertCard={this.insertCard} />
-				<CustomDragLayer />
+	React.useEffect(() => {
+		setItems(loadItems);
+		store.subscribe(state => { _onChange(state.items); });
+		store.dispatch('load', { loadUrl: url, saveUrl: saveUrl, items: loadItems, saveAlways: saveAlways });
+		document.addEventListener('mousedown', editModeOff);
+
+		return () => { document.removeEventListener('mousedown', editModeOff); };
+	}, []);
+
+	const dataItems = items.filter(x => !!x && !x.parentId);
+	const elementItems = dataItems.map((item, index) => getElement(item, index));
+
+	return (
+		<div className={editMode ? className + ' is-editing' : className}>
+			<div className="edit-form" ref={editForm}>
+				{editElement !== undefined && editElement !== null && showEditForm()}
 			</div>
-		);
-	}
-}
+			<div className="Sortable">{elementItems}</div>
+			<PlaceHolder id="form-place-holder" show={true} index={elementItems.length} moveCard={cardPlaceHolder} insertCard={insertCard} />
+			<CustomDragLayer />
+		</div>
+	);
+};
 
 Preview.defaultProps = {
 	showCorrectColumn: false,
@@ -299,5 +347,7 @@ Preview.defaultProps = {
 	editMode: false,
 	editElement: null,
 	className: 'react-survey-builder-preview',
-	renderEditForm: props => <SurveyElementsEdit {...props} />,
+	renderEditForm: (editFormProps) => <SurveyElementsEdit {...editFormProps} />,
 };
+
+export default Preview;

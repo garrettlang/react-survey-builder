@@ -1,7 +1,7 @@
 import React from 'react';
 import xss from 'xss';
 import { FaExclamationTriangle } from 'react-icons/fa';
-import { Alert, Button } from 'react-bootstrap/esm';
+import { Alert, Button } from 'react-bootstrap';
 
 const myxss = new xss.FilterXSS({
 	whiteList: {
@@ -22,48 +22,40 @@ const myxss = new xss.FilterXSS({
 	},
 });
 
-export default class SurveyValidator extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			errors: [],
-		};
-	}
+const SurveyValidator = (props) => {
+	const [errors, setErrors] = React.useState([]);
 
-	componentDidMount() {
-		this.subscription = this.props.emitter.addListener('surveyValidation', (errors) => {
-			this.setState({ errors });
+	React.useEffect(() => {
+		const subscription = props.emitter.addListener('surveyValidation', (errorsList) => {
+			setErrors(errorsList);
 		});
-	}
 
-	componentWillUnmount() {
-		this.subscription.remove();
-	}
+		return () => { subscription.remove() };
+	}, []);
 
-	dismissModal(e) {
+
+	const dismissModal = (e) => {
 		e.preventDefault();
-		this.setState({ errors: [] });
+		setErrors([]);
 	}
 
-	render() {
-		const errors = this.state.errors.map((error, index) => <li key={`error_${index}`} dangerouslySetInnerHTML={{ __html: myxss.process(error) }} />);
+	return (
+		<div>
+			{errors.length > 0 &&
+				<Alert variant="danger" className="validation-error d-flex-inline justify-content-between">
+					<div>
+						<FaExclamationTriangle className="float-start" />
+						<ul className="float-start">
+							{errors.map((error, index) => <li key={`error_${index}`} dangerouslySetInnerHTML={{ __html: myxss.process(error) }} />)}
+						</ul>
+					</div>
+					<div>
+						<Button variant="danger" size="sm" className="float-end" onClick={dismissModal}>Dismiss</Button>
+					</div>
+				</Alert>
+			}
+		</div>
+	);
+};
 
-		return (
-			<div>
-				{this.state.errors.length > 0 &&
-					<Alert variant="danger" className="validation-error d-flex-inline justify-content-between">
-						<div>
-							<FaExclamationTriangle className="float-start" />
-							<ul className="float-start">
-								{errors}
-							</ul>
-						</div>
-						<div>
-							<Button variant="danger" size="sm" className="float-end" onClick={this.dismissModal.bind(this)}>Dismiss</Button>
-						</div>
-					</Alert>
-				}
-			</div>
-		);
-	}
-}
+export default SurveyValidator;

@@ -1,13 +1,14 @@
 .react-survey-builder {
 	.react-survey-builder-preview {
 		// position: relative;
-		// width: 70%;
+		width: 100%;
 		border: 1px solid #ddd;
 		background: #fafafa;
 		padding: 10px;
 		box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.1);
-		min-height: 750px;
-		// width:100%;
+		// min-height: 750px;
+		overflow-y: scroll;
+		height: 100%;
 
 		.preview-page-break {
 			padding: 5px 0;
@@ -46,11 +47,11 @@
 				height: calc(3.5rem + 2px);
 				line-height: 1.25;
 			}
-			
+
 			& .rbt-input {
 				padding: 1.625rem 0.75rem 0.625rem 0.75rem;
 			}
-			
+
 			& .rbt~label {
 				opacity: 0.65;
 				transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
@@ -304,13 +305,18 @@
 	}
 
 	.react-survey-builder-toolbar {
-		// width: 100%;
+		width: 100%;
 		background: #fff;
 		// margin-top: -30px;
+		overflow-y: scroll;
+		height: 100%;
 
 		h4 {
 			margin-top: 0;
 			text-align: center;
+			padding: 10px;
+			background: #7a0019;
+			color: #fff;
 		}
 
 		.form-group {
@@ -377,7 +383,7 @@
 
 @media (max-width: $screen-sm-min ) {
 	.react-survey-builder {
-		position: relative;
+		// position: relative;
 
 		.react-survey-builder-preview {
 			width: 100%;
@@ -418,28 +424,28 @@
 
 			// width: 100%;
 			// position: fixed;
-			z-index: 900;
-			bottom: -320px;
+			// z-index: 900;
+			// bottom: -320px;
 
-			-webkit-transition: transform 0.5s;
-			transition: transform 0.5s;
+			// -webkit-transition: transform 0.5s;
+			// transition: transform 0.5s;
 
-			-webkit-transform: translate(0, 0);
-			transform: translate(0, 0);
+			// -webkit-transform: translate(0, 0);
+			// transform: translate(0, 0);
 
-			right: 0;
-			border-top: 2px solid #ccc;
+			//right: 0;
+			//border-top: 2px solid #ccc;
 
-			ul {
-				height: 300px;
-				overflow-x: scroll;
-			}
+			// ul {
+			// 	height: 300px;
+			// 	overflow-x: scroll;
+			// }
 		}
 
-		.active-toolbar {
-			-webkit-transform: translate(0, -300px);
-			transform: translate(0, -300px);
-		}
+		// .active-toolbar {
+		// 	-webkit-transform: translate(0, -300px);
+		// 	transform: translate(0, -300px);
+		// }
 	}
 
 	.m-signature-pad {

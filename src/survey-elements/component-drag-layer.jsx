@@ -13,13 +13,13 @@ const layerStyles = {
 	height: '100%',
 };
 
-const getItemStyles = ({ initialOffset, currentOffset }) => {
+const getItemStyles = (initialOffset, currentOffset) => {
 	if (!initialOffset || !currentOffset) {
 		return {
 			display: 'none',
 		};
 	}
-	
+
 	let { x, y } = currentOffset;
 
 	const transform = `translate(${x}px, ${y}px)`;
@@ -27,21 +27,21 @@ const getItemStyles = ({ initialOffset, currentOffset }) => {
 	return { transform, WebkitTransform: transform };
 };
 
-const CustomDragLayer = (props) => {
+const CustomDragLayer = ({ itemType, item, isDragging = false, initialOffset, currentOffset }) => {
 	const renderItem = () => {
-		switch (props.itemType) {
+		switch (itemType) {
 			case ItemTypes.BOX:
-				return <BoxDragPreview item={props.item} />;
+				return <BoxDragPreview item={item} />;
 			default:
 				return null;
 		}
 	};
 
-	if (!props.isDragging) { return null; }
+	if (!isDragging) { return null; }
 
 	return (
-		<div style={layerStyles}>
-			<div style={getItemStyles(props)}>{renderItem()}</div>
+		<div id="custom-drag-layer" style={layerStyles}>
+			<div style={getItemStyles(initialOffset, currentOffset)}>{renderItem()}</div>
 		</div>
 	);
 };
