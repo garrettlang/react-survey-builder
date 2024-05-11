@@ -155,3 +155,5 @@ SurveyBuilders.Registry = Registry;
 SurveyBuilders.cleanUpSurveyItems = cleanUpSurveyItems;
 
 export default SurveyBuilders;
+
+export { cleanUpSurveyItems, ReactSurveyBuilder, ReactSurveyGenerator, ReactSurveyFieldGenerator, store as ElementStore, Registry };
