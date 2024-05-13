@@ -141,6 +141,9 @@ export interface SurveyBuilderProps {
   saveAlways?: boolean;
   editMode?: boolean;
   renderEditForm?: (props: BaseElement) => React.ReactNode;
+  checkboxButtonClassName?: string;
+  headerClassName?: string;
+  labelClassName?: string;
 }
 
 export class ReactSurveyBuilder extends React.Component<SurveyBuilderProps> {}

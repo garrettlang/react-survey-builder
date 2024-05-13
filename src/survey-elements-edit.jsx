@@ -405,7 +405,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 			{element.hasOwnProperty('conditional') &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Step is Conditional and Display is Dependent on Answers to another Survey Block:</Form.Label>
-					<Form.Check id="conditional" label="Conditional" type="checkbox" checked={thisCheckedConditional} value={true} onChange={(e) => { editElementProp('conditional', 'checked', e); }} />
+					<Form.Check id="conditional" label="Conditional" type="checkbox" checked={thisCheckedConditional} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('conditional', 'checked', e); }} />
 				</Form.Group>
 			}
 			{element.hasOwnProperty('conditionalFieldName') &&

@@ -310,7 +310,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 	};
 
 	const getContainerElement = (item, Element) => {
-		const controls = item?.childItems.map((childItem) => (childItem ? getInputElement(getDataItemById(childItem)) : <div>&nbsp;</div>));
+		const controls = isObjectNotEmpty(item) && isListNotEmpty(item.childItems) ? item?.childItems?.map((childItem) => (childItem ? getFieldElement(getDataItemById(childItem)) : <div>&nbsp;</div>)) : [];
 
 		return (
 			<Element
@@ -402,61 +402,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 		return backButton || <Button variant="secondary" onClick={backAction} className='btn-cancel'>{backName}</Button>;
 	};
 
-	//#endregion
-
-	const onBackStep = async () => {
-		let oldStep = steps.find(i => i.id === id);
-		let previousIndex = oldStep.index - 1;
-		setActiveStep(previousIndex > 0 ? steps[previousIndex] : null);
-	};
-
-	const onNextStep = async () => {
-		let oldStep = isObjectNotEmpty(activeStep) ? { ...activeStep } : null;
-		if (oldStep) {
-			console.log(oldStep);
-			// validate childItems of step
-			const clean = await methods.trigger(oldStep.childQuestions.map(i => i.name), true);
-			console.log(clean);
-			if (clean) {
-
-				let updatedSteps = updateRecord('id', {
-					...oldStep,
-					completed: true,
-					answers: _collectFormData(oldStep.childQuestions, methods?.getValues() || [])
-				}, [...steps]);
-
-				setSteps(updatedSteps);
-
-				// get next incomplete survey
-				const nextStep = steps.find(i => i.completed === false);
-				if (nextStep !== undefined) {
-					setActiveStep(nextStep);
-				} else {
-					if (onFinishedSurveys) {
-						onFinishedSurveys();
-					}
-				}
-			} else {
-				return;
-			}
-		}
-	};
-
-
-
-	let dataItems = items ? [...items] : [];
-
-	if (displayShort) {
-		dataItems = items ? [...items].filter((i) => i.alternateForm === true) : [];
-	}
-
-	dataItems.forEach((item) => {
-		if (item && item.readOnly && item.variableKey && variables[item.variableKey]) {
-			answerData.current[item.fieldName] = variables[item.variableKey];
-		}
-	});
-
-	const stepItems = dataItems.filter(x => !x.parentId && x.element === 'Step').map((item) => {
+	const getFieldElement = (item) => {
 		if (!item) return null;
 
 		item.fieldRules = getFieldRules(item);
@@ -614,7 +560,63 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 			default:
 				return getSimpleElement(item);
 		}
+	};
+
+	//#endregion
+
+	const onBackStep = async () => {
+		let oldStep = steps.find(i => i.id === id);
+		let previousIndex = oldStep.index - 1;
+		setActiveStep(previousIndex > 0 ? steps[previousIndex] : null);
+	};
+
+	const onNextStep = async () => {
+		let oldStep = isObjectNotEmpty(activeStep) ? { ...activeStep } : null;
+		if (oldStep) {
+			console.log(oldStep);
+			// validate childItems of step
+			const clean = await methods.trigger(oldStep.childQuestions.map(i => i.name), true);
+			console.log(clean);
+			if (clean) {
+
+				let updatedSteps = updateRecord('id', {
+					...oldStep,
+					completed: true,
+					answers: _collectFormData(oldStep.childQuestions, methods?.getValues() || [])
+				}, [...steps]);
+
+				setSteps(updatedSteps);
+
+				// get next incomplete survey
+				const nextStep = steps.find(i => i.completed === false);
+				if (nextStep !== undefined) {
+					setActiveStep(nextStep);
+				} else {
+					if (onFinishedSurveys) {
+						onFinishedSurveys();
+					}
+				}
+			} else {
+				return;
+			}
+		}
+	};
+
+
+
+	let dataItems = items ? [...items] : [];
+
+	if (displayShort) {
+		dataItems = items ? [...items].filter((i) => i.alternateForm === true) : [];
+	}
+
+	dataItems.forEach((item) => {
+		if (item && item.readOnly && item.variableKey && variables[item.variableKey]) {
+			answerData.current[item.fieldName] = variables[item.variableKey];
+		}
 	});
+
+	const stepItems = dataItems.filter(x => !x.parentId && x.element === 'Step').map((item) => getFieldElement(item));
 
 	React.useMemo(() => {
 		if (isListNotEmpty(stepItems)) {

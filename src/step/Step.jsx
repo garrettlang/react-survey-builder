@@ -15,7 +15,7 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 		baseClasses += " alwaysbreak";
 	}
 
-	const [hidden, setHidden] = React.useState(item?.conditional ?? false);
+	// const [hidden, setHidden] = React.useState(item?.conditional ?? false);
 	const [childItemIds, setChildItemIds] = React.useState(isObjectNotEmpty(item) && isListNotEmpty(item?.childItems) ? [...item?.childItems] : [null]);
 
 	const onDropSuccess = (droppedIndex) => {
@@ -38,44 +38,45 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 		}
 	}, [item]);
 
-	React.useEffect(() => {
-		// console.log('all items', items);
-		let hideStep = false;
-		if (item?.conditional === true) {
-			hideStep = true;
-			if (item.conditionalFieldName && item.conditionalFieldValue && answers !== undefined && answers !== null && answers.length > 0) {
-				const answerField = answers.find(i => i.name === item.conditionalFieldName);
-				if (answerField !== undefined && answerField?.value !== undefined) {
-					if (Array.isArray(item.conditionalFieldValue)) {
-						if (Array.isArray(answerField?.value)) {
-							let match = item.conditionalFieldValue.some(i => answerField.value.includes(i));
-							if (match) {
-								hideStep = false;
-							}
-						} else if (item.conditionalFieldValue.includes(answerField.value)) {
-							hideStep = false;
-						}
-					} else {
-						if (Array.isArray(answerField?.value)) {
-							let match = answerField.value.includes(item.conditionalFieldValue);
-							if (match) {
-								hideStep = false;
-							}
-						} else if (item.conditionalFieldValue === answerField.value) {
-							hideStep = false;
-						}
-					}
-				}
-			}
-		}
+	// React.useEffect(() => {
+	// 	// console.log('all items', items);
+	// 	let hideStep = false;
+	// 	if (item?.conditional === true) {
+	// 		hideStep = true;
+	// 		if (item.conditionalFieldName && item.conditionalFieldValue && answers !== undefined && answers !== null && answers.length > 0) {
+	// 			const answerField = answers.find(i => i.name === item.conditionalFieldName);
+	// 			if (answerField !== undefined && answerField?.value !== undefined) {
+	// 				if (Array.isArray(item.conditionalFieldValue)) {
+	// 					if (Array.isArray(answerField?.value)) {
+	// 						let match = item.conditionalFieldValue.some(i => answerField.value.includes(i));
+	// 						if (match) {
+	// 							hideStep = false;
+	// 						}
+	// 					} else if (item.conditionalFieldValue.includes(answerField.value)) {
+	// 						hideStep = false;
+	// 					}
+	// 				} else {
+	// 					if (Array.isArray(answerField?.value)) {
+	// 						let match = answerField.value.includes(item.conditionalFieldValue);
+	// 						if (match) {
+	// 							hideStep = false;
+	// 						}
+	// 					} else if (item.conditionalFieldValue === answerField.value) {
+	// 						hideStep = false;
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
-		setHidden(hideStep);
-	}, [item, answers]);
+	// 	setHidden(hideStep);
+	// }, [item, answers]);
 
+	console.log('controls', controls);
 	return (
 		<div style={{ ...style }} className={baseClasses}>
-			<ComponentHeader item={item} index={index} editModeOn={editModeOn} setAsChild={setAsChild} {...otherProps} />
-			<fieldset className={hidden ? 'w-100 d-none' : 'w-100'}>
+			<ComponentHeader item={item} index={index} editModeOn={editModeOn} setAsChild={setAsChild} isStep={true} {...otherProps} />
+			<div className={'d-grid w-100'}>
 				{/* <Row> */}
 				{childItemIds?.map((childItemId, childItemIndex) => (
 					<div key={`${childItemIndex}_${childItemId || "_"}`}>
@@ -100,7 +101,7 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 					</div>
 				))}
 				{/* </Row> */}
-			</fieldset>
+			</div>
 		</div>
 	);
 };

@@ -5,6 +5,7 @@ import ItemTypes from '../ItemTypes';
 import CustomElement from '../survey-elements/custom-element';
 import Registry from '../stores/registry';
 import store from '../stores/store';
+import { isListNotEmpty } from '../utils/objectUtils';
 
 function getCustomElement(item, props) {
 	if (!item.component || typeof item.component !== 'function') {
@@ -66,7 +67,7 @@ const isContainer = (containerItem) => {
 };
 
 const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex, canDrop, isOver, isOverCurrent, connectDropTarget, items, col, getItemById, ...otherProps }, ref) => {
-	const item = getItemById(items[col]);
+	const item = isListNotEmpty(items) ? getItemById(items[col]) : null;
 
 	React.useImperativeHandle(ref, () => ({
 		onDrop: (dropped) => {

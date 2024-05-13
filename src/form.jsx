@@ -8,6 +8,7 @@ import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
 import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider, useForm } from "react-hook-form";
+import { isListNotEmpty, isObjectNotEmpty } from './utils/objectUtils';
 
 const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, formId, print = false }) => {
 	//#region useForms
@@ -313,7 +314,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 	};
 
 	const getContainerElement = (item, Element) => {
-		const controls = item?.childItems.map((childItem) => (childItem ? getInputElement(getDataItemById(childItem)) : <div>&nbsp;</div>));
+		const controls = isObjectNotEmpty(item) && isListNotEmpty(item.childItems) ? item?.childItems?.map((childItem) => (childItem ? getFieldElement(getDataItemById(childItem)) : <div>&nbsp;</div>)) : [];
 
 		return (
 			<Element
@@ -405,21 +406,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		return backButton || <Button variant="secondary" onClick={backAction} className='btn-cancel'>{backName}</Button>;
 	};
 
-	//#endregion
-
-	let dataItems = items ? [...items] : [];
-
-	if (displayShort) {
-		dataItems = items ? [...items].filter((i) => i.alternateForm === true) : [];
-	}
-
-	dataItems.forEach((item) => {
-		if (item && item.readOnly && item.variableKey && variables[item.variableKey]) {
-			answerData.current[item.fieldName] = variables[item.variableKey];
-		}
-	});
-
-	const fieldItems = dataItems.filter(x => !x.parentId).map((item) => {
+	const getFieldElement = (item) => {
 		if (!item) return null;
 
 		item.fieldRules = getFieldRules(item);
@@ -577,7 +564,23 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 			default:
 				return getSimpleElement(item);
 		}
+	};
+
+	//#endregion
+
+	let dataItems = items ? [...items] : [];
+
+	if (displayShort) {
+		dataItems = items ? [...items].filter((i) => i.alternateForm === true) : [];
+	}
+
+	dataItems.forEach((item) => {
+		if (item && item.readOnly && item.variableKey && variables[item.variableKey]) {
+			answerData.current[item.fieldName] = variables[item.variableKey];
+		}
 	});
+
+	const fieldItems = dataItems.filter(x => !x.parentId).map((item) => getFieldElement(item));
 
 	let formProps = {};
 	if (formId) { formProps.id = formId; }

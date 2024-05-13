@@ -20,22 +20,7 @@ const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [],
 
 	return (
 		<DndProvider backend={HTML5Backend}>
-			<Navbar expand="lg" bg="light" data-bs-theme="light" sticky='top'>
-				<Container fluid>
-					<Navbar.Brand>
-						{surveyName ?? 'Preview'}
-					</Navbar.Brand>
-					<Navbar.Toggle aria-controls="survey-builder-nav" />
-					<Navbar.Collapse id="survey-builder-nav">
-						<Nav className="me-auto">
-							{!!!saveAlways && <Nav.Link onClick={() => { saveFormData(); }}>{saveSurveyName || 'Save Survey'}</Nav.Link>}
-						</Nav>
-
-						{previewSurveyBlock ? previewSurveyBlock : null}
-					</Navbar.Collapse>
-				</Container>
-			</Navbar>
-			<Container fluid className="react-survey-builder position-absolute overflow-hidden" style={{ top: 56, height: 'calc(100% - 56px)' }}>
+			<Container fluid className="react-survey-builder position-absolute overflow-hidden" style={{ height: '100%' }}>
 				<Row className="overflow-hidden h-100">
 					<Col xs={9} className="overflow-hidden h-100">
 						<Preview
@@ -58,7 +43,18 @@ const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [],
 						/>
 					</Col>
 					<Col xs={3} className="overflow-hidden h-100">
-						<Toolbar showDescription={showDescription} items={toolbarItems} customItems={customToolbarItems} />
+						<Toolbar toolbarTop={
+							<>
+								<div>
+									<h3>{surveyName ?? 'Preview'}</h3>
+								</div>
+
+								<div className="d-grid gap-3 mb-3">
+									{!!!saveAlways ? (<Button onClick={() => { saveFormData(); }}>{saveSurveyName || 'Save Survey'}</Button>) : null}
+									{previewSurveyBlock ? previewSurveyBlock : null}
+								</div>
+							</>
+						} showDescription={showDescription} items={toolbarItems} customItems={customToolbarItems} />
 					</Col>
 				</Row>
 
@@ -112,7 +108,7 @@ const cleanUpSurveyItems = (items = []) => {
 		if (item.inherited !== undefined && item.inherited !== null) { dataItem.inherited = item.inherited; }
 
 		if (item.isContainer !== undefined && item.isContainer !== null) { dataItem.isContainer = item.isContainer; }
-		
+
 		if (item.type === 'custom') {
 			elementOptions.key = item.key;
 			elementOptions.custom = true;
@@ -156,4 +152,4 @@ SurveyBuilders.cleanUpSurveyItems = cleanUpSurveyItems;
 
 export default SurveyBuilders;
 
-export { cleanUpSurveyItems, ReactSurveyBuilder, ReactSurveyGenerator, ReactSurveyFieldGenerator, store as ElementStore, Registry };
+export { cleanUpSurveyItems, ReactSurveyBuilder, ReactSurveyGenerator, ReactSurveyFieldGenerator, ReactSurveyStepGenerator, store as ElementStore, Registry };

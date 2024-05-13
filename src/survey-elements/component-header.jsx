@@ -1,7 +1,7 @@
 import React from 'react';
 import HeaderBar from './header-bar';
 
-const ComponentHeader = ({ item, isFieldSet, index, editModeOn, setAsChild, _onDestroy, onEdit }) => {
+const ComponentHeader = ({ item, isFieldSet = false, isStep = false, index, editModeOn, setAsChild, _onDestroy, onEdit }) => {
 	if (item?.mutable) { return null; }
 
 	return (
@@ -9,6 +9,7 @@ const ComponentHeader = ({ item, isFieldSet, index, editModeOn, setAsChild, _onD
 			{item?.pageBreakBefore && <div className="preview-page-break">Page Break</div>}
 			<HeaderBar
 				isFieldSet={isFieldSet}
+				isStep={isStep}
 				editModeOn={editModeOn}
 				item={item}
 				index={index}

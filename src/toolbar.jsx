@@ -383,7 +383,7 @@ const buildGroupItems = (allItems = []) => {
 	return { ungroupedItems, grouped, groupKeys };
 };
 
-const Toolbar = ({ items = [], customItems = [] }) => {
+const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 	const [dataItems, setDataItems] = React.useState(isListNotEmpty(items) ? [...items] : []);
 
 	const _defaultItemOptions = (element) => {
@@ -570,6 +570,7 @@ const Toolbar = ({ items = [], customItems = [] }) => {
 
 	return (
 		<div className="react-survey-builder-toolbar">
+			{toolbarTop}
 			<h4>Survey Blocks Toolbox</h4>
 			<ul>
 				{ungroupedItems.map(renderItem)}
