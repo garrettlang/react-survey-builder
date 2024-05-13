@@ -1779,7 +1779,7 @@ export class RadioButtons extends React.Component {
 				</div>
 			);
 		}
-		console.log('self.props', self.props);
+		// console.log('self.props', self.props);
 
 		return (
 			<div style={{ ...self.props.style }} className={baseClasses}>

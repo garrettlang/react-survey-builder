@@ -32,6 +32,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 	const [formAnswers, setFormAnswers] = React.useState(null);
 
 	const _getDefaultValue = ($dataItem) => {
+		console.log("_getDefaultValue", $dataItem);
 		let defaultValue = answerData.current[$dataItem.fieldName];
 		if ($dataItem.element === 'DatePicker') {
 			const defaultToday = $dataItem.defaultToday ?? false;
@@ -579,6 +580,10 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 
 	let formProps = {};
 	if (formId) { formProps.id = formId; }
+
+	React.useEffect(() => {
+		answerData.current = _convert(answers);
+	}, [answers]);
 
 	return (
 		<div>

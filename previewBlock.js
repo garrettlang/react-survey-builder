@@ -73,7 +73,6 @@ const PreviewBlock = ({ variables, data }) => {
 				return {
 					...step,
 					completed: false,
-					answers: [],
 					hidden: step.conditional === true
 				};
 			});
@@ -108,9 +107,11 @@ const PreviewBlock = ({ variables, data }) => {
 
 	const onNextStep = async (e) => {
 		let currentAnswers = isListNotEmpty(e.answers) ? [...e.answers] : [];
-		let currentAllAnswers = [];
+		let currentAllAnswers = [...allAnswers];
 		currentAnswers.forEach((answer) => {
-			currentAllAnswers = updateRecord('name', answer, [...currentAllAnswers]);
+			if (answer.value !== undefined) {
+				currentAllAnswers = updateRecord('name', answer, [...currentAllAnswers]);
+			}
 		});
 		setAllAnswers(currentAllAnswers);
 
@@ -120,8 +121,7 @@ const PreviewBlock = ({ variables, data }) => {
 				if (step.id === oldStep.id) {
 					return {
 						...step,
-						completed: true,
-						answers: e.answers
+						completed: true
 					};
 				} else {
 					let hideStep = false;
@@ -164,8 +164,11 @@ const PreviewBlock = ({ variables, data }) => {
 
 			// get next incomplete step
 
-			const nextStep = updatedSteps.find(i => i.completed === false && i.hidden === false);
-			if (nextStep !== undefined) {
+			let availableSteps = updatedSteps.filter(i => i.hidden === false);
+			let currentIndex = availableSteps.findIndex(i => i.id === oldStep.id);
+			let nextIndex = currentIndex + 1;
+			let nextStep = currentIndex < availableSteps.length ? availableSteps[nextIndex] : null;
+			if (isObjectNotEmpty(nextStep)) {
 				setActiveStep(nextStep);
 			} else {
 				console.log('Done');
@@ -176,7 +179,8 @@ const PreviewBlock = ({ variables, data }) => {
 	};
 
 	console.log('activeStep', activeStep);
-	console.log('steps', steps)
+	console.log('steps', steps);
+	console.log('allAnswers', allAnswers);
 	return (
 		<>
 			<Button variant="success" className="mx-1" onClick={() => { showRHFPreview(); }}>Survey with Injected React Hook Form</Button>
@@ -234,7 +238,7 @@ const PreviewBlock = ({ variables, data }) => {
 						downloadPath=""
 						//backAction={closePreview}
 						//backName="Cancel"
-						answers={activeStep?.answers ?? []}
+						answers={allAnswers}
 						//actionName="Save"
 						onSubmit={onNextStep}
 						onChange={_onChange}
