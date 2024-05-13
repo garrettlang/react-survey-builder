@@ -4,16 +4,13 @@ import { Button, Col, Form, Row } from 'react-bootstrap';
 import ID from './UUID';
 import { isObjectNotEmpty } from './utils/objectUtils';
 
-const DynamicOptionList = (props) => {
-	const [element, setElement] = React.useState(props.element ?? {});
-	const [dirty, setDirty] = React.useState(false);
-
+const DynamicOptionList = ({ dirty, setDirty, element, setElement, updateElement, ...props }) => {
 	const _setValue = (text) => {
-		return text.replace(/[^A-Z0-9]+/ig, '_').toLowerCase();
+		return text.replace(/[^A-Z0-9]+/ig, '_').toUpperCase();
 	};
 
 	const editOption = (optionIndex, e) => {
-		const thisElement = isObjectNotEmpty(element) ? {...element} : {};
+		const thisElement = isObjectNotEmpty(element) ? { ...element } : {};
 		const val = (thisElement.options[optionIndex].value !== _setValue(thisElement.options[optionIndex].text)) ? thisElement.options[optionIndex].value : _setValue(e.target.value);
 
 		thisElement.options[optionIndex].text = e.target.value;
@@ -24,7 +21,7 @@ const DynamicOptionList = (props) => {
 	};
 
 	const editValue = (optionIndex, e) => {
-		const thisElement = isObjectNotEmpty(element) ? {...element} : {};
+		const thisElement = isObjectNotEmpty(element) ? { ...element } : {};
 		const val = (e.target.value === '') ? _setValue(thisElement.options[optionIndex].text) : e.target.value;
 		thisElement.options[optionIndex].value = val;
 
@@ -34,44 +31,36 @@ const DynamicOptionList = (props) => {
 
 	// eslint-disable-next-line no-unused-vars
 	const editOptionCorrect = (optionIndex, e) => {
-		const thisElement = isObjectNotEmpty(element) ? {...element} : {};
+		const thisElement = isObjectNotEmpty(element) ? { ...element } : {};
 		if (thisElement.options[optionIndex].hasOwnProperty('correct')) {
 			delete (thisElement.options[optionIndex].correct);
 		} else {
 			thisElement.options[optionIndex].correct = true;
 		}
 		setElement(thisElement);
-		props.updateElement(thisElement);
+		updateElement(thisElement);
 	};
 
 	const updateOption = () => {
-		const thisElement = isObjectNotEmpty(element) ? {...element} : {};
+		const thisElement = isObjectNotEmpty(element) ? { ...element } : {};
 		// to prevent ajax calls with no change
 		if (dirty) {
-			props.updateElement(thisElement);
+			updateElement(thisElement);
 			setDirty(false);
 		}
 	};
 
 	const addOption = (index) => {
-		const thisElement = isObjectNotEmpty(element) ? {...element} : {};
+		const thisElement = isObjectNotEmpty(element) ? { ...element } : {};
 		thisElement.options.splice(index + 1, 0, { value: '', text: '', key: ID.uuid() });
-		props.updateElement(thisElement);
+		updateElement(thisElement);
 	};
 
 	const removeOption = (index) => {
-		const thisElement = isObjectNotEmpty(element) ? {...element} : {};
+		const thisElement = isObjectNotEmpty(element) ? { ...element } : {};
 		thisElement.options.splice(index, 1);
-		props.updateElement(thisElement);
+		updateElement(thisElement);
 	};
-
-	React.useEffect(() => {
-		if (dirty) {
-			const thisElement = isObjectNotEmpty(element) ? { ...element, dirty: true } : { dirty: true };
-
-			props.updateElement(thisElement);
-		}
-	}, []);
 
 	return (
 		<div className="dynamic-option-list">
@@ -85,8 +74,7 @@ const DynamicOptionList = (props) => {
 							<Col sm={4}><b>Correct</b></Col>}
 					</Row>
 				</li>
-				{props.element.options.map((option, index) => {
-					const val = (option.value !== _setValue(option.text)) ? option.value : '';
+				{element.options.map((option, index) => {
 					return (
 						<li className="clearfix" key={`edit_${option.key}`}>
 							<Row>
@@ -95,7 +83,7 @@ const DynamicOptionList = (props) => {
 								</Col>
 								{props.canHaveOptionValue &&
 									<Col sm={2}>
-										<Form.Control type="text" name={`value_${index}`} value={val} onChange={(e) => { editValue(index, e); }} />
+										<Form.Control type="text" name={`value_${index}`} value={option.value} onChange={(e) => { editValue(index, e); }} />
 									</Col>}
 								{props.canHaveOptionValue && props.canHaveOptionCorrect &&
 									<Col sm={1}>

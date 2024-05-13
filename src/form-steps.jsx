@@ -10,7 +10,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider } from "react-hook-form";
 import { addRecordToBottom, isListNotEmpty, isObjectNotEmpty, updateRecord } from './utils/objectUtils';
 
-const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, formId, methods, print = false }) => {
+const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, activeStep, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, formId, methods, print = false }) => {
 	//#region helper functions
 
 	const _convert = ($dataAnswers) => {
@@ -30,8 +30,6 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 	const inputs = React.useRef({});
 	const answerData = React.useRef(_convert(answers));
 	const [formAnswers, setFormAnswers] = React.useState(null);
-	const [steps, setSteps] = React.useState([]);
-	const [activeStep, setActiveStep] = React.useState(null);
 
 	const _getDefaultValue = ($dataItem) => {
 		let defaultValue = answerData.current[$dataItem.fieldName];
@@ -217,13 +215,13 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 
 	const validateForm = () => {
 		let hasErrors = false;
-		let dataItems = items;
+		let $dataItems = [...items];
 
 		if (displayShort) {
-			dataItems = items.filter((i) => i.alternateForm === true);
+			$dataItems = $dataItems.filter((i) => i.alternateForm === true);
 		}
 
-		dataItems.forEach((item) => {
+		$dataItems.forEach((item) => {
 			if (_isIncorrect(item)) {
 				if (methods) {
 					methods.setError(item.fieldName, { type: 'incorrect', message: `${item.label} was answered incorrectly` });
@@ -334,6 +332,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 				item={item}
 				headerClassName={headerClassName}
 				labelClassName={labelClassName}
+				paragraphClassName={paragraphClassName}
 			/>
 		);
 	};
@@ -564,50 +563,10 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 
 	//#endregion
 
-	const onBackStep = async () => {
-		let oldStep = steps.find(i => i.id === id);
-		let previousIndex = oldStep.index - 1;
-		setActiveStep(previousIndex > 0 ? steps[previousIndex] : null);
-	};
-
-	const onNextStep = async () => {
-		let oldStep = isObjectNotEmpty(activeStep) ? { ...activeStep } : null;
-		if (oldStep) {
-			console.log(oldStep);
-			// validate childItems of step
-			const clean = await methods.trigger(oldStep.childQuestions.map(i => i.name), true);
-			console.log(clean);
-			if (clean) {
-
-				let updatedSteps = updateRecord('id', {
-					...oldStep,
-					completed: true,
-					answers: _collectFormData(oldStep.childQuestions, methods?.getValues() || [])
-				}, [...steps]);
-
-				setSteps(updatedSteps);
-
-				// get next incomplete survey
-				const nextStep = steps.find(i => i.completed === false);
-				if (nextStep !== undefined) {
-					setActiveStep(nextStep);
-				} else {
-					if (onFinishedSurveys) {
-						onFinishedSurveys();
-					}
-				}
-			} else {
-				return;
-			}
-		}
-	};
-
-
-
-	let dataItems = items ? [...items] : [];
+	let dataItems = activeStep ? [activeStep] : [];
 
 	if (displayShort) {
-		dataItems = items ? [...items].filter((i) => i.alternateForm === true) : [];
+		dataItems = activeStep ? [activeStep].filter((i) => i.alternateForm === true) : [];
 	}
 
 	dataItems.forEach((item) => {
@@ -618,27 +577,6 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 
 	const stepItems = dataItems.filter(x => !x.parentId && x.element === 'Step').map((item) => getFieldElement(item));
 
-	React.useMemo(() => {
-		if (isListNotEmpty(stepItems)) {
-			let surveySteps = stepItems.map((step, index) => {
-				return {
-					...step,
-					childQuestions: dataItems.filter(i => step.id === i.parentId),
-					completed: false,
-					answers: []
-				};
-			});
-
-			setSteps(surveySteps);
-
-			if (isListNotEmpty(surveySteps)) {
-				setActiveStep(surveySteps[0]);
-			} else {
-				setActiveStep(null);
-			}
-		}
-	}, []);
-
 	let formProps = {};
 	if (formId) { formProps.id = formId; }
 
@@ -647,12 +585,10 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 			<div className='react-survey-builder-form'>
 				<FormProvider {...methods}>
 					<Form onSubmit={methods.handleSubmit(handleSubmit)} {...formProps}>
-						{activeStep}
+						{stepItems}
 						<div className={buttonClassName ? buttonClassName : 'btn-toolbar'}>
 							{!hideActions && handleRenderSubmit()}
 							{!hideActions && backAction && handleRenderBack()}
-							<Button variant='secondary' onClick={onBackStep}>Back</Button>
-							<Button variant='primary' onClick={onNextStep}>Next</Button>
 						</div>
 					</Form>
 				</FormProvider>

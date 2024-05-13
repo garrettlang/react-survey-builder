@@ -10,7 +10,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider } from "react-hook-form";
 import { isListNotEmpty, isObjectNotEmpty } from './utils/objectUtils';
 
-const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, formId, methods, print = false }) => {
+const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, formId, methods, print = false }) => {
 	//#region helper functions
 
 	const _convert = ($dataAnswers) => {
@@ -332,6 +332,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 				item={item}
 				headerClassName={headerClassName}
 				labelClassName={labelClassName}
+				paragraphClassName={paragraphClassName}
 			/>
 		);
 	};

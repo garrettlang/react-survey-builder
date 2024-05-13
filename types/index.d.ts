@@ -144,6 +144,7 @@ export interface SurveyBuilderProps {
   checkboxButtonClassName?: string;
   headerClassName?: string;
   labelClassName?: string;
+  paragraphClassName?: string;
 }
 
 export class ReactSurveyBuilder extends React.Component<SurveyBuilderProps> {}

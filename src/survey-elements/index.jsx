@@ -58,6 +58,7 @@ export const Paragraph = (props) => {
 	let classNames = 'static';
 	if (props.item.bold) { classNames += ' bold'; }
 	if (props.item.italic) { classNames += ' italic'; }
+	if (props.paragraphClassName) { classNames += ` ${props.paragraphClassName}`; }
 
 	let baseClasses = 'SortableItem rfb-item';
 	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
@@ -1786,7 +1787,7 @@ export class RadioButtons extends React.Component {
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...self.props} />
 					{self.props.item.options.map((option) => {
-						console.log('option', option);
+						// console.log('option', option);
 						return (
 							<ToggleButton
 								label={option.text}

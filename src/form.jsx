@@ -10,7 +10,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { isListNotEmpty, isObjectNotEmpty } from './utils/objectUtils';
 
-const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, formId, print = false }) => {
+const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, formId, print = false }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -338,6 +338,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 				item={item}
 				headerClassName={headerClassName}
 				labelClassName={labelClassName}
+				paragraphClassName={paragraphClassName}
 			/>
 		);
 	};

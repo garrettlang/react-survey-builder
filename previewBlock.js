@@ -2,6 +2,7 @@ import React from 'react';
 import SurveyBuilders from './src';
 import { Button, Modal } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
+import { isListNotEmpty, isObjectNotEmpty, updateRecord } from './src/utils/objectUtils';
 
 const { ReactSurveyFieldGenerator, ReactSurveyGenerator, ReactSurveyStepGenerator } = SurveyBuilders;
 
@@ -21,6 +22,10 @@ const PreviewBlock = ({ variables, data }) => {
 	const [readOnlyPreviewVisible, setReadOnlyPreviewVisible] = React.useState(false);
 	const [previewRHFVisible, setpreviewRHFVisible] = React.useState(false);
 	const [stepPreviewVisible, setStepPreviewVisible] = React.useState(false);
+
+	const [steps, setSteps] = React.useState([]);
+	const [activeStep, setActiveStep] = React.useState(null);
+	const [allAnswers, setAllAnswers] = React.useState([]);
 
 	const showPreview = () => {
 		setpreviewVisible(true);
@@ -62,6 +67,116 @@ const PreviewBlock = ({ variables, data }) => {
 		// Place code to post json data to server here
 	};
 
+	React.useMemo(() => {
+		if (isListNotEmpty(data.filter(x => !x.parentId && x.element === 'Step'))) {
+			let surveySteps = data.filter(x => !x.parentId && x.element === 'Step').map((step, index) => {
+				return {
+					...step,
+					completed: false,
+					answers: [],
+					hidden: step.conditional === true
+				};
+			});
+			let firstStep = surveySteps[0];
+
+			setSteps(surveySteps);
+
+			if (isListNotEmpty(surveySteps)) {
+				setActiveStep(firstStep);
+			} else {
+				setActiveStep(null);
+			}
+		}
+	}, [data]);
+
+	const onBackStep = async () => {
+		let oldStep = isObjectNotEmpty(activeStep) ? { ...activeStep } : null;
+		if (isObjectNotEmpty(oldStep)) {
+			let availableSteps = steps.filter(i => i.hidden === false);
+			let currentIndex = availableSteps.findIndex(i => i.id === oldStep.id);
+			let previousIndex = currentIndex - 1;
+			let previousStep = previousIndex >= 0 ? availableSteps[previousIndex] : null;
+			if (isObjectNotEmpty(previousStep)) {
+				setActiveStep(previousStep);
+			} else {
+				closePreview();
+			}
+		} else {
+			closePreview();
+		}
+	};
+
+	const onNextStep = async (e) => {
+		let currentAnswers = isListNotEmpty(e.answers) ? [...e.answers] : [];
+		let currentAllAnswers = [];
+		currentAnswers.forEach((answer) => {
+			currentAllAnswers = updateRecord('name', answer, [...currentAllAnswers]);
+		});
+		setAllAnswers(currentAllAnswers);
+
+		let oldStep = isObjectNotEmpty(activeStep) ? { ...activeStep } : null;
+		if (isObjectNotEmpty(oldStep)) {
+			let updatedSteps = [...steps].map((step) => {
+				if (step.id === oldStep.id) {
+					return {
+						...step,
+						completed: true,
+						answers: e.answers
+					};
+				} else {
+					let hideStep = false;
+					if (step.conditional === true) {
+						hideStep = true;
+						if (step.conditionalFieldName && step.conditionalFieldValue && isListNotEmpty(currentAllAnswers)) {
+							const answerField = currentAllAnswers.find(i => i.name === step.conditionalFieldName);
+							if (answerField !== undefined && answerField?.value !== undefined) {
+								if (Array.isArray(step.conditionalFieldValue)) {
+									if (Array.isArray(answerField?.value)) {
+										let match = step.conditionalFieldValue.some(i => answerField.value.includes(i));
+										if (match) {
+											hideStep = false;
+										}
+									} else if (step.conditionalFieldValue.includes(answerField.value)) {
+										hideStep = false;
+									}
+								} else {
+									if (Array.isArray(answerField?.value)) {
+										let match = answerField.value.includes(step.conditionalFieldValue);
+										if (match) {
+											hideStep = false;
+										}
+									} else if (step.conditionalFieldValue === answerField.value) {
+										hideStep = false;
+									}
+								}
+							}
+						}
+					}
+
+					return {
+						...step,
+						hidden: hideStep
+					};
+				}
+			});
+
+			setSteps(updatedSteps);
+
+			// get next incomplete step
+
+			const nextStep = updatedSteps.find(i => i.completed === false && i.hidden === false);
+			if (nextStep !== undefined) {
+				setActiveStep(nextStep);
+			} else {
+				console.log('Done');
+				setAnswers(allAnswers);
+				console.log('onSubmit', allAnswers);
+			}
+		}
+	};
+
+	console.log('activeStep', activeStep);
+	console.log('steps', steps)
 	return (
 		<>
 			<Button variant="success" className="mx-1" onClick={() => { showRHFPreview(); }}>Survey with Injected React Hook Form</Button>
@@ -117,18 +232,24 @@ const PreviewBlock = ({ variables, data }) => {
 				<Modal.Body className="p-2">
 					<ReactSurveyStepGenerator
 						downloadPath=""
-						backAction={closePreview}
-						backName="Cancel"
-						answers={answers}
-						actionName="Save"
-						onSubmit={_onSubmit}
+						//backAction={closePreview}
+						//backName="Cancel"
+						answers={activeStep?.answers ?? []}
+						//actionName="Save"
+						onSubmit={onNextStep}
 						onChange={_onChange}
 						variables={variables}
+						activeStep={activeStep}
 						items={data}
-						buttonClassName="d-grid gap-2"
+						hideActions={true}
+						//buttonClassName="d-grid gap-2"
 						formId="test-form"
 						methods={methods}
 					/>
+					<div className="d-grid gap-2">
+						<Button variant='secondary' onClick={onBackStep}>Back</Button>
+						<Button variant='primary' type="submit" form="test-form">Next</Button>
+					</div>
 				</Modal.Body>
 				<Modal.Footer className="p-0">
 					<Button variant="secondary" data-dismiss="modal" onClick={closePreview}>Close</Button>

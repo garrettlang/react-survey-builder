@@ -88,13 +88,13 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 		}
 	};
 
-	React.useEffect(() => {
-		if (dirty) {
-			const thisElement = isObjectNotEmpty(element) ? { ...element, dirty: true } : { dirty: true };
+	// React.useEffect(() => {
+	// 	if (dirty) {
+	// 		const thisElement = isObjectNotEmpty(element) ? { ...element, dirty: true } : { dirty: true };
 
-			updateElement(thisElement);
-		}
-	}, [dirty, element]);
+	// 		updateElement(thisElement);
+	// 	}
+	// }, [dirty, element]);
 
 	const thisRequiredChecked = element.hasOwnProperty('required') ? element.required : false;
 	const thisDefaultChecked = element.hasOwnProperty('defaultChecked') ? element.defaultChecked : false;
@@ -123,6 +123,10 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 			<div className="clearfix">
 				<h4 className="float-start">{element.text}</h4>
 				<FaTimes className="float-end dismiss-edit" onClick={manualEditModeOff} />
+			</div>
+
+			<div className="clearfix">
+				<Form.Label className="fw-bold">Field Id: {element.fieldName}</Form.Label>
 			</div>
 
 			{element.hasOwnProperty('content') && (element.element === 'Header' || element.element === 'Label' || element.element === 'Paragraph' || element.element === 'ContentBody') &&
@@ -182,21 +186,21 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Field Properties:</Form.Label>
 					{element.hasOwnProperty('required') &&
-						<Form.Check id="is-required" label="Required" type="checkbox" checked={thisRequiredChecked} value={true} onChange={(e) => { editElementProp('required', 'checked', e); }} />
+						<Form.Check id="is-required" label="Required" type="checkbox" checked={thisRequiredChecked} onBlur={onUpdateElement} value={true} onChange={(e) => { editElementProp('required', 'checked', e); }} />
 					}
 					{element.hasOwnProperty('readOnly') &&
-						<Form.Check id="is-read-only" label="Read Only" type="checkbox" checked={thisReadOnly} value={true} onChange={(e) => { editElementProp('readOnly', 'checked', e); }} />
+						<Form.Check id="is-read-only" label="Read Only" type="checkbox" checked={thisReadOnly} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('readOnly', 'checked', e); }} />
 					}
 					{element.hasOwnProperty('defaultToday') &&
-						<Form.Check id="is-default-to-today" label="Default to Today" type="checkbox" checked={thisDefaultToday} value={true} onChange={(e) => { editElementProp('defaultToday', 'checked', e); }} />
+						<Form.Check id="is-default-to-today" label="Default to Today" type="checkbox" checked={thisDefaultToday} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('defaultToday', 'checked', e); }} />
 					}
 
 					{(['Checkboxes', 'Checkbox'].indexOf(element.element) !== -1) &&
-						<Form.Check id="default-checked" label="Default Checked" type="checkbox" checked={thisDefaultChecked} value={true} onChange={(e) => { editElementProp('defaultChecked', 'checked', e); }} />
+						<Form.Check id="default-checked" label="Default Checked" type="checkbox" checked={thisDefaultChecked} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('defaultChecked', 'checked', e); }} />
 					}
 
 					{((element.element === 'RadioButtons' || element.element === 'Checkboxes') && element.hasOwnProperty('inline')) &&
-						<Form.Check id="display-horizontal" label="Display Horizontal" type="checkbox" checked={thisCheckedInline} value={true} onChange={(e) => { editElementProp('inline', 'checked', e); }} />
+						<Form.Check id="display-horizontal" label="Display Horizontal" type="checkbox" checked={thisCheckedInline} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('inline', 'checked', e); }} />
 					}
 				</Form.Group>
 			}
@@ -230,7 +234,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 					<Row>
 						<Col sm={3}>
 							<Form.Label className="fw-bold" htmlFor="do-center">Alignment:</Form.Label>
-							<Form.Check id="do-center" label="Center" type="checkbox" checked={thisCheckedCenter} value={true} onChange={(e) => { editElementProp('center', 'checked', e); }} />
+							<Form.Check id="do-center" label="Center" type="checkbox" checked={thisCheckedCenter} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('center', 'checked', e); }} />
 						</Col>
 						<Col sm={3}>
 							<Form.Label className="fw-bold" htmlFor="elementWidth">Width:</Form.Label>
@@ -298,14 +302,14 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 			{element.hasOwnProperty('pageBreakBefore') &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Print options:</Form.Label>
-					<Form.Check id="page-break-before-element" label="Page Break Before Element" type="checkbox" checked={thisCheckedPageBreak} value={true} onChange={(e) => { editElementProp('pageBreakBefore', 'checked', e); }} />
+					<Form.Check id="page-break-before-element" label="Page Break Before Element" type="checkbox" checked={thisCheckedPageBreak} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('pageBreakBefore', 'checked', e); }} />
 				</Form.Group>
 			}
 
 			{element.hasOwnProperty('alternateForm') &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Alternate/Signature Page:</Form.Label>
-					<Form.Check id="display-on-alternate" label="Display on alternate/signature Page" type="checkbox" checked={thisCheckedAlternateForm} value={true} onChange={(e) => { editElementProp('alternateForm', 'checked', e); }} />
+					<Form.Check id="display-on-alternate" label="Display on alternate/signature Page" type="checkbox" checked={thisCheckedAlternateForm} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('alternateForm', 'checked', e); }} />
 				</Form.Group>
 			}
 
@@ -366,8 +370,8 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 			{element.hasOwnProperty('static') && element.static && element.hasOwnProperty('bold') && element.hasOwnProperty('italic') &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Text Style:</Form.Label>
-					<Form.Check id="do-bold" inline label={"Bold"} type="checkbox" checked={thisCheckedBold} value={true} onChange={(e) => { editElementProp('bold', 'checked', e); }} />
-					<Form.Check id="do-italic" inline label={"Italic"} type="checkbox" checked={thisCheckedItalic} value={true} onChange={(e) => { editElementProp('italic', 'checked', e); }} />
+					<Form.Check id="do-bold" inline label={"Bold"} type="checkbox" checked={thisCheckedBold} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('bold', 'checked', e); }} />
+					<Form.Check id="do-italic" inline label={"Italic"} type="checkbox" checked={thisCheckedItalic} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('italic', 'checked', e); }} />
 				</Form.Group>
 			}
 
@@ -398,7 +402,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 			{element.hasOwnProperty('hideLabel') &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Hide Label:</Form.Label>
-					<Form.Check id="hide-label" label="Hide Label" type="checkbox" checked={thisCheckedHideLabel} value={true} onChange={(e) => { editElementProp('hideLabel', 'checked', e); }} />
+					<Form.Check id="hide-label" label="Hide Label" type="checkbox" checked={thisCheckedHideLabel} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('hideLabel', 'checked', e); }} />
 				</Form.Group>
 			}
 
@@ -463,6 +467,9 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 					canHaveOptionValue={canHaveOptionValue}
 					updateElement={updateElement}
 					element={element}
+					setElement={setElement}
+					dirty={dirty}
+					setDirty={setDirty}
 					key={element?.options?.length}
 				/>
 			}
