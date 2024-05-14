@@ -74,6 +74,11 @@ const FieldsetBase = ({ item, controls, items, editModeOn, getItemById, setAsChi
                                 setAsChild={setAsChild}
                                 seq={seq}
                                 rowNo={childItemIndex}
+								checkboxButtonClassName={item?.checkboxButtonClassName}
+								headerClassName={item?.headerClassName}
+								labelClassName={item?.labelClassName}
+								paragraphClassName={item?.paragraphClassName}
+								staticVariables={item?.staticVariables}
                             />
                         )}
                     </div>

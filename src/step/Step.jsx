@@ -61,6 +61,11 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 								setAsChild={setAsChild}
 								seq={seq}
 								rowNo={childItemIndex}
+								checkboxButtonClassName={item?.checkboxButtonClassName}
+								headerClassName={item?.headerClassName}
+								labelClassName={item?.labelClassName}
+								paragraphClassName={item?.paragraphClassName}
+								staticVariables={item?.staticVariables}
 							/>
 						)}
 					</div>

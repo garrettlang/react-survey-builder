@@ -34,7 +34,7 @@ const getElement = (item, props) => {
 	}
 	// console.log('getDustbinElement', item);
 	const Element = SurveyElements[item.element || item.key];
-	return <Element {...props} id={item.id} key={`form_${item.id}`} name={item.fieldName ?? item.name} mutable={false} item={{ ...item, mutable: false, readOnly: false, print: false }} />;
+	return <Element {...props} id={item.id} key={`form_${item.id}`} name={item.fieldName ?? item.name} mutable={false} item={{ ...item, staticVariables: props?.staticVariables, checkboxButtonClassName: props?.checkboxButtonClassName, headerClassName: props?.headerClassName, labelClassName: props?.labelClassName, paragraphClassName: props?.paragraphClassName, mutable: false, readOnly: false, print: false }} />;
 };
 
 const getStyle = (backgroundColor) => {

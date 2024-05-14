@@ -35,6 +35,11 @@ const MultiColumnRowBase = ({ controls, item, items, editModeOn, getItemById, se
 									getItemById={getItemById}
 									setAsChild={setAsChild}
 									seq={seq}
+									checkboxButtonClassName={item?.checkboxButtonClassName}
+									headerClassName={item?.headerClassName}
+									labelClassName={item?.labelClassName}
+									paragraphClassName={item?.paragraphClassName}
+									staticVariables={item?.staticVariables}
 								/>}
 						</div>
 					))}
