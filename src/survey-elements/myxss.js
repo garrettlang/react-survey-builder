@@ -22,6 +22,7 @@ const myxss = new xss.FilterXSS({
 });
 
 export const myContentXSS = new xss.FilterXSS({
+	css: false,
 	whiteList: {
 		a: ['href', 'title', 'target', 'style', 'class'],
 		abbr: ["title"],
@@ -33,6 +34,7 @@ export const myContentXSS = new xss.FilterXSS({
 		big: [],
 		blockquote: ["cite"],
 		br: [],
+		button: ['href', 'title', 'target', 'style', 'class', 'type'],
 		caption: [],
 		center: [],
 		cite: [],
@@ -42,7 +44,7 @@ export const myContentXSS = new xss.FilterXSS({
 		dd: [],
 		del: ["datetime"],
 		details: ["open"],
-		div: ['style', 'class'],
+		div: ['style', 'class', 'id'],
 		dl: ['style', 'class'],
 		dt: ['style', 'class'],
 		em: [],
@@ -50,12 +52,12 @@ export const myContentXSS = new xss.FilterXSS({
 		figure: [],
 		font: ["color", "size", "face"],
 		footer: [],
-		h1: ['style', 'class'],
-		h2: ['style', 'class'],
-		h3: ['style', 'class'],
-		h4: ['style', 'class'],
-		h5: ['style', 'class'],
-		h6: ['style', 'class'],
+		h1: ['style', 'class', 'id'],
+		h2: ['style', 'class', 'id'],
+		h3: ['style', 'class', 'id'],
+		h4: ['style', 'class', 'id'],
+		h5: ['style', 'class', 'id'],
+		h6: ['style', 'class', 'id'],
 		header: [],
 		hr: [],
 		i: [],
@@ -86,6 +88,12 @@ export const myContentXSS = new xss.FilterXSS({
 		tt: [],
 		u: [],
 		ul: ['style', 'class'],
+	},
+	onIgnoreTagAttr: function (tag, name, value, isWhiteAttr) {
+		if (name.substr(0, 5) === "data-") {
+			// escape its value using built-in escapeAttrValue function
+			return name + '="' + xss.escapeAttrValue(value) + '"';
+		}
 	},
 });
 
