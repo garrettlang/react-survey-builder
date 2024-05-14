@@ -233,7 +233,7 @@ const _defaultItems = [
 		hideLabel: false
 	},
 	{
-		key: 'FieldSet',
+		key: 'Fieldset',
 		name: "Fieldset",
 		label: "Fieldset",
 		icon: FaBars,
@@ -427,7 +427,7 @@ const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 			return customOptions;
 		}
 
-		return {  ...elementOptions, ...item };
+		return elementOptions;
 	};
 
 	const create = (item) => {

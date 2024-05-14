@@ -20,6 +20,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { IMask, IMaskInput } from 'react-imask';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import ID from '../UUID';
+import { replaceInText } from '../utils/objectUtils';
 
 const SurveyElements = {};
 
@@ -35,7 +36,7 @@ export const Header = (props) => {
 	return (
 		<div style={{ ...props.style }} className={baseClasses}>
 			<ComponentHeader {...props} />
-			<h3 className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(props.item.content) }} />
+			<h3 className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(replaceInText(props.item.content, props.item?.staticVariables)) }} />
 		</div>
 	);
 };
@@ -49,7 +50,7 @@ export const ContentBody = (props) => {
 	return (
 		<div style={{ ...props.style }} className={baseClasses}>
 			<ComponentHeader {...props} />
-			<div className={classNames} dangerouslySetInnerHTML={{ __html: myContentXSS.process(props.item.content) }} />
+			<div className={classNames} dangerouslySetInnerHTML={{ __html: myContentXSS.process(replaceInText(props.item.content, props.item?.staticVariables)) }} />
 		</div>
 	);
 };
@@ -66,7 +67,7 @@ export const Paragraph = (props) => {
 	return (
 		<div style={{ ...props.style }} className={baseClasses}>
 			<ComponentHeader {...props} />
-			<p className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(props.item.content) }} />
+			<p className={classNames} dangerouslySetInnerHTML={{ __html: myxss.process(replaceInText(props.item.content, props.item?.staticVariables)) }} />
 		</div>
 	);
 };
@@ -83,7 +84,7 @@ export const Label = (props) => {
 	return (
 		<div style={{ ...props.style }} className={baseClasses}>
 			<ComponentHeader {...props} />
-			<label className={`${classNames} form-label`} dangerouslySetInnerHTML={{ __html: myxss.process(props.item.content) }} />
+			<label className={`form-label ${classNames}`} dangerouslySetInnerHTML={{ __html: myxss.process(replaceInText(props.item.content, props.item?.staticVariables)) }} />
 		</div>
 	);
 };
@@ -100,7 +101,7 @@ export const LineBreak = (props) => {
 	);
 };
 
-export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
+export const TextInput = ({ name, onChange, defaultValue, style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -153,8 +154,8 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 		/>
 	)
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -181,7 +182,7 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
@@ -192,7 +193,7 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
@@ -211,7 +212,7 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{value ?? ''}</div>
+					<div>{defaultValue ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
@@ -239,7 +240,7 @@ export const TextInput = ({ name, onChange, value, style, item, ...props }) => {
 	);
 };
 
-export const EmailInput = ({ name, onChange, value, style, item, ...props }) => {
+export const EmailInput = ({ name, onChange, defaultValue, style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -303,8 +304,8 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 		/>
 	)
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -331,7 +332,7 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
@@ -342,7 +343,7 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
@@ -361,7 +362,7 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{value ?? ''}</div>
+					<div>{defaultValue ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
@@ -389,7 +390,7 @@ export const EmailInput = ({ name, onChange, value, style, item, ...props }) => 
 	);
 };
 
-export const PhoneNumber = ({ name, onChange, value = '', style, item, ...props }) => {
+export const PhoneNumber = ({ name, onChange, defaultValue = '', style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -513,8 +514,8 @@ export const PhoneNumber = ({ name, onChange, value = '', style, item, ...props 
 		);
 	}
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -569,7 +570,7 @@ export const PhoneNumber = ({ name, onChange, value = '', style, item, ...props 
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{value ?? ''}</div>
+					<div>{defaultValue ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
@@ -597,7 +598,7 @@ export const PhoneNumber = ({ name, onChange, value = '', style, item, ...props 
 	);
 };
 
-export const DatePicker = ({ name, onChange, value, style, item, ...props }) => {
+export const DatePicker = ({ name, onChange, defaultValue, style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -765,8 +766,8 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 		);
 	}
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -795,7 +796,7 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
@@ -806,7 +807,7 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-' + ID.uuid()}
 								{...inputProps}
@@ -825,7 +826,7 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{value ?? ''}</div>
+					<div>{defaultValue ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
@@ -853,7 +854,7 @@ export const DatePicker = ({ name, onChange, value, style, item, ...props }) => 
 	);
 };
 
-export const NumberInput = ({ name, onChange, value, style, item, ...props }) => {
+export const NumberInput = ({ name, onChange, defaultValue, style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -906,8 +907,8 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 		/>
 	)
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -934,7 +935,7 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
@@ -945,7 +946,7 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								{...inputProps}
@@ -964,7 +965,7 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{value ?? ''}</div>
+					<div>{defaultValue ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
@@ -992,7 +993,7 @@ export const NumberInput = ({ name, onChange, value, style, item, ...props }) =>
 	);
 };
 
-export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
+export const TextArea = ({ name, onChange, defaultValue, style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -1046,8 +1047,8 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 		/>
 	)
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -1074,7 +1075,7 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								as="textarea"
@@ -1086,7 +1087,7 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 							<Form.Control
-								value={value}
+								value={defaultValue}
 								name={name}
 								id={name + '-2-' + ID.uuid()}
 								as="textarea"
@@ -1106,7 +1107,7 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{value ?? ''}</div>
+					<div>{defaultValue ?? ''}</div>
 				</Form.Group>
 			</div>
 		);
@@ -1134,7 +1135,7 @@ export const TextArea = ({ name, onChange, value, style, item, ...props }) => {
 	);
 };
 
-export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
+export const Dropdown = ({ name, onChange, defaultValue, style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -1193,8 +1194,8 @@ export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 		</Form.Select>
 	)
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -1220,7 +1221,7 @@ export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 				<Form.Group className="form-group mb-3">
 					{labelLocation === "FLOATING" ? (
 						<Form.Floating>
-							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} {...inputProps}>
+							<Form.Select id={name + '-' + ID.uuid()} value={defaultValue} name={name} {...inputProps}>
 								{inputProps.placeholder ? <option value="">{inputProps.placeholder}</option> : null}
 								{item?.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
@@ -1232,7 +1233,7 @@ export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 					) : (
 						<>
 							<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-							<Form.Select id={name + '-' + ID.uuid()} value={value} name={name} {...inputProps}>
+							<Form.Select id={name + '-' + ID.uuid()} value={defaultValue} name={name} {...inputProps}>
 								{inputProps.placeholder ? <option value="">{inputProps.placeholder}</option> : null}
 								{item?.options.map((option) => {
 									const thisKey = `preview_${option.key}`;
@@ -1253,7 +1254,7 @@ export const Dropdown = ({ name, onChange, value, style, item, ...props }) => {
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{item?.options.find((option) => option.value === value)?.text}</div>
+					<div>{item?.options.find((option) => option.value === defaultValue)?.text}</div>
 				</Form.Group>
 			</div>
 		);
@@ -1437,7 +1438,7 @@ export class Signature extends React.Component {
 	}
 }
 
-export const Tags = ({ name, onChange, value, style, item, ...props }) => {
+export const Tags = ({ name, onChange, defaultValue, style, item, ...props }) => {
 	const methods = useFormContext();
 
 	const onChangeHandler = (value) => {
@@ -1520,8 +1521,8 @@ export const Tags = ({ name, onChange, value, style, item, ...props }) => {
 		/>
 	)
 
-	if (value !== undefined) {
-		controllerProps.defaultValue = value;
+	if (defaultValue !== undefined) {
+		controllerProps.defaultValue = defaultValue;
 	}
 
 	if (item?.disabled !== undefined) {
@@ -1580,7 +1581,7 @@ export const Tags = ({ name, onChange, value, style, item, ...props }) => {
 			<div style={{ ...style }} className={baseClasses}>
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
-					<div>{item?.options.filter((option) => value?.includes(option.value)).map((option) => option.text).join(', ')}</div>
+					<div>{item?.options.filter((option) => defaultValue?.includes(option.value)).map((option) => option.text).join(', ')}</div>
 				</Form.Group>
 			</div>
 		);
@@ -1648,7 +1649,7 @@ export class Checkboxes extends React.Component {
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...this.props} htmlFor={name} />
-					{this.props.item.help ? (<Form.Text muted>{this.props.item.help}</Form.Text>) : null}
+					{this.props.item.help ? (<div><Form.Text muted>{this.props.item.help}</Form.Text></div>) : null}
 					{this.props.item.options.map((option) => {
 						const props = {};
 						props.name = `option_${option.key}`;
@@ -1786,6 +1787,7 @@ export class RadioButtons extends React.Component {
 				<ComponentHeader {...self.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...self.props} />
+					{self.props.item.help ? (<div><Form.Text muted>{self.props.item.help}</Form.Text></div>) : null}
 					{self.props.item.options.map((option) => {
 						// console.log('option', option);
 						return (
@@ -1817,7 +1819,6 @@ export class RadioButtons extends React.Component {
 							</ToggleButton>
 						);
 					})}
-					{self.props.item.help ? (<Form.Text muted>{self.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>

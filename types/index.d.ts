@@ -178,6 +178,7 @@ export interface SurveyGeneratorProps {
   readOnly?: boolean;
   // eslint-disable-next-line no-undef
   variables?: Record<any, any>;
+  staticVariables?: Record<any, any>;
   submitButton?: JSX.Element;
   backButton?: JSX.Element;
   buttons?: JSX.Element;
@@ -185,6 +186,7 @@ export interface SurveyGeneratorProps {
   checkboxButtonClassName?: string;
   headerClassName?: string;
   labelClassName?: string;
+  paragraphClassName?: string;
   formId?: string;
   methods?: Record<any, any>;
   print?: boolean;

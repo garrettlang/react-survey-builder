@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import SurveyElements, { Image, Checkboxes, Signature, Download, Camera, FileUpload, PhoneNumber, DatePicker, TextInput, EmailInput, NumberInput, TextArea } from './survey-elements';
 import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
-import { FieldSet } from './fieldset';
+import { Fieldset } from './fieldset';
 import { Step } from './step';
 import CustomElement from './survey-elements/custom-element';
 import Registry from './stores/registry';
@@ -10,7 +10,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { isListNotEmpty, isObjectNotEmpty } from './utils/objectUtils';
 
-const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, formId, print = false }) => {
+const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, staticVariables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, formId, print = false }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -252,7 +252,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 				name: $dataItem.fieldName ?? $dataItem.name,
 				key: `form_${$dataItem.id}`,
 				item: $dataItem,
-				value: _getDefaultValue($dataItem)
+				defaultValue: _getDefaultValue($dataItem),
+				staticVariables: staticVariables
 			};
 		}
 
@@ -269,7 +270,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		const Input = SurveyElements[item.element];
 
 		return (
-			<Input name={item.fieldName ?? item.name} key={`form_${item.id}`} item={item} value={_getDefaultValue(item)} onChange={handleChange} />
+			<Input name={item.fieldName ?? item.name} key={`form_${item.id}`} item={item} defaultValue={_getDefaultValue(item)} onChange={handleChange} />
 		);
 	};
 
@@ -416,6 +417,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		item.hideLabel = (hideLabels || item.hideLabel) ?? false;
 		item.disabled = (readOnly || item.readOnly) ?? false;
 		item.mutable = true;
+		item.staticVariables = staticVariables;
 
 		switch (item.element) {
 			case 'RadioButtons':
@@ -442,8 +444,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 				return getContainerElement(item, TwoColumnRow);
 			case 'Step':
 				return getContainerElement(item, Step);
-			case 'FieldSet':
-				return getContainerElement(item, FieldSet);
+			case 'Fieldset':
+				return getContainerElement(item, Fieldset);
 			case 'Signature':
 				return (
 					<Controller

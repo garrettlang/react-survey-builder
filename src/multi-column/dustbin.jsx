@@ -32,7 +32,7 @@ const getElement = (item, props) => {
 	if (item.custom) {
 		return getCustomElement(item, props);
 	}
-	console.log('getDustbinElement', item);
+	// console.log('getDustbinElement', item);
 	const Element = SurveyElements[item.element || item.key];
 	return <Element {...props} id={item.id} key={`form_${item.id}`} name={item.fieldName ?? item.name} mutable={false} item={{ ...item, mutable: false, readOnly: false, print: false }} />;
 };
@@ -71,7 +71,7 @@ const Dustbin = React.forwardRef(({ onDropSuccess, seq, draggedItem, parentIndex
 
 	React.useImperativeHandle(ref, () => ({
 		onDrop: (dropped) => {
-			console.log("dropped item", dropped);
+			// console.log("dropped item", dropped);
 			const { item } = dropped;
 			if (item) {
 				if (onDropSuccess) {
@@ -109,18 +109,18 @@ export default DropTarget(
 	(props) => props.accepts,
 	{
 		drop(props, monitor, component) {
-			console.log('droptargetprops', props)
+			// console.log('droptargetprops', props)
 			if (!component) {
 				return;
 			}
 
-			// //Do nothing whith busy dustbin
+			// //Do nothing with busy dustbin
 			// if(props.items[props.col]) return;
 			// Allow swap column if target and source are in same multi column row
 			const isBusy = !!props.items[props.col];
 			const item = monitor.getItem();
 
-			console.log('dustbin', props, item, isBusy);
+			// console.log('dustbin', props, item, isBusy);
 
 			// Do nothing when moving the box inside the same column
 			if (props.col === item.col && props.items[props.col] === item.id) return;
@@ -133,11 +133,16 @@ export default DropTarget(
 				return;
 			}
 
+			// do not allow an existing child to be dropped in the dropzone as it will duplicate the child with the same id for both instances
+			if ((props.item.element === 'Fieldset' || props.item.element === 'Step') && isListNotEmpty(props.item.childItems) && item.col === props.item.childItems.length) {
+				return;
+			}
+
 			if (!isContainer(item)) {
 				(component).onDrop(item);
-				console.log("calling on Drop from 137", item)
+				// console.log("calling on Drop from 137", item)
 				if (item.item && typeof props.setAsChild === 'function') {
-					console.log('setAsChild function being called');
+					// console.log('setAsChild function being called');
 					const isNew = !item.item.id;
 					const $dataItem = isNew ? item.onCreate(item.item) : item.item;
 					props.setAsChild(props.item, $dataItem, isNew, item.index, props.col, isBusy);

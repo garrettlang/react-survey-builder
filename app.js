@@ -39,7 +39,7 @@ const TestComponent = () => <h2>Hello</h2>;
 //     key: 'Image',
 //   },
 //   {
-//     key: 'FieldSet',
+//     key: 'Fieldset',
 //     label:"Field Set",
 //     name:"Field Set",
 
@@ -96,6 +96,8 @@ const TestComponent = () => <h2>Hello</h2>;
 //   },
 // ];
 
+const staticVariables = { firstName: 'John', lastName: 'Doe' };
+
 const App = () => {
 	const [data, setData] = React.useState([]);
 
@@ -103,10 +105,11 @@ const App = () => {
 		<>
 			<SurveyBuilder.ReactSurveyBuilder
 				surveyName={'Test Survey'}
-				previewSurveyBlock={<PreviewBlock variables={variables} data={data} />}
+				previewSurveyBlock={<PreviewBlock staticVariables={staticVariables} variables={variables} data={data} />}
 				saveSurveyName="Save Survey Blocks"
 				surveyToolbarClassName="bg-white sticky-top"
 				// variables={variables}
+				staticVariables={staticVariables}
 				// url={url}
 				// saveUrl={saveUrl}
 				saveAlways

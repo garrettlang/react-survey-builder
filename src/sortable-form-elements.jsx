@@ -2,7 +2,7 @@ import SortableElement from './sortable-element';
 import PlaceHolder from './survey-place-holder';
 import BaseSurveyElements from './survey-elements';
 import { TwoColumnRow, ThreeColumnRow, MultiColumnRow } from './multi-column';
-import { FieldSet } from './fieldset';
+import { Fieldset } from './fieldset';
 import { Step } from './step';
 import CustomElement from './survey-elements/custom-element';
 
@@ -35,7 +35,7 @@ SortableFormElements.Camera = SortableElement(Camera);
 SortableFormElements.FileUpload = SortableElement(FileUpload);
 SortableFormElements.Range = SortableElement(Range);
 SortableFormElements.PlaceHolder = SortableElement(PlaceHolder);
-SortableFormElements.FieldSet = SortableElement(FieldSet);
+SortableFormElements.Fieldset = SortableElement(Fieldset);
 SortableFormElements.TwoColumnRow = SortableElement(TwoColumnRow);
 SortableFormElements.ThreeColumnRow = SortableElement(ThreeColumnRow);
 SortableFormElements.MultiColumnRow = SortableElement(MultiColumnRow);

@@ -8,9 +8,9 @@ import SurveyFieldGenerator from './form-fields';
 import SurveyStepGenerator from './form-steps';
 import store from './stores/store';
 import Registry from './stores/registry';
-import { Col, Container, Nav, Navbar, Row } from 'react-bootstrap';
+import { Button, Col, Container, Nav, Navbar, Row } from 'react-bootstrap';
 
-const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [], saveAlways = false, toolbarItems = [], customToolbarItems = [], showDescription = false, surveyName = null, saveSurveyName = null, previewSurveyBlock = null, renderEditForm, variables, onPost, onLoad, url, saveUrl }) => {
+const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [], saveAlways = false, toolbarItems = [], customToolbarItems = [], showDescription = false, surveyName = null, saveSurveyName = null, previewSurveyBlock = null, renderEditForm, variables, staticVariables, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, onPost, onLoad, url, saveUrl }) => {
 	const [editMode, setEditMode] = React.useState(false);
 	const [editElement, setEditElement] = React.useState(null);
 
@@ -35,11 +35,16 @@ const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [],
 							editMode={editMode}
 							setEditMode={setEditMode}
 							variables={variables}
+							staticVariables={staticVariables}
 							registry={Registry}
 							editElement={editElement}
 							setEditElement={setEditElement}
 							renderEditForm={renderEditForm}
 							saveAlways={saveAlways}
+							checkboxButtonClassName={checkboxButtonClassName}
+							headerClassName={headerClassName} 
+							labelClassName={labelClassName} 
+							paragraphClassName={paragraphClassName} 
 						/>
 					</Col>
 					<Col xs={3} className="overflow-hidden h-100">

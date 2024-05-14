@@ -6,10 +6,7 @@ import { isListNotEmpty, isObjectNotEmpty, updateRecord } from './src/utils/obje
 
 const { ReactSurveyFieldGenerator, ReactSurveyGenerator, ReactSurveyStepGenerator } = SurveyBuilders;
 
-const PreviewBlock = ({ variables, data }) => {
-
-	console.log('dataItems', data);
-
+const PreviewBlock = ({ staticVariables, variables, data }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -178,9 +175,11 @@ const PreviewBlock = ({ variables, data }) => {
 		}
 	};
 
-	console.log('activeStep', activeStep);
-	console.log('steps', steps);
-	console.log('allAnswers', allAnswers);
+	// console.log('dataItems', data);
+	// console.log('activeStep', activeStep);
+	// console.log('steps', steps);
+	// console.log('allAnswers', allAnswers);
+
 	return (
 		<>
 			<Button variant="success" className="mx-1" onClick={() => { showRHFPreview(); }}>Survey with Injected React Hook Form</Button>
@@ -212,6 +211,7 @@ const PreviewBlock = ({ variables, data }) => {
 						onSubmit={_onSubmit}
 						onChange={_onChange}
 						variables={variables}
+						staticVariables={staticVariables}
 						items={data}
 						buttonClassName="d-grid gap-2"
 						formId="test-form"
@@ -243,6 +243,7 @@ const PreviewBlock = ({ variables, data }) => {
 						onSubmit={onNextStep}
 						onChange={_onChange}
 						variables={variables}
+						staticVariables={staticVariables}
 						activeStep={activeStep}
 						items={data}
 						hideActions={true}
@@ -276,6 +277,7 @@ const PreviewBlock = ({ variables, data }) => {
 						backAction={closePreview}
 						backName="Cancel"
 						answers={answers}
+						staticVariables={staticVariables}
 						actionName="Save"
 						// formAction="/api/form"
 						// formMethod="POST"
@@ -311,6 +313,7 @@ const PreviewBlock = ({ variables, data }) => {
 						// formMethod="POST"
 						readOnly={false}
 						variables={variables}
+						staticVariables={staticVariables}
 						hideActions={true}
 						items={data}
 						print={true}
@@ -341,6 +344,7 @@ const PreviewBlock = ({ variables, data }) => {
 						items={data}
 						displayShort={true}
 						variables={variables}
+						staticVariables={staticVariables}
 						hideActions={false}
 						buttonClassName="d-grid gap-2"
 					/>

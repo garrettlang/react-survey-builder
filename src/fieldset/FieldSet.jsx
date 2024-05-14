@@ -20,7 +20,7 @@ const ComponentLegend = ({ item }) => {
     );
 };
 
-const FieldSetBase = ({ item, controls, items, editModeOn, getItemById, setAsChild, removeChild, seq, index, style, ...otherProps }) => {
+const FieldsetBase = ({ item, controls, items, editModeOn, getItemById, setAsChild, removeChild, seq, index, style, ...otherProps }) => {
     const { pageBreakBefore } = item;
     let baseClasses = "SortableItem rfb-item";
     if (pageBreakBefore) {
@@ -85,4 +85,4 @@ const FieldSetBase = ({ item, controls, items, editModeOn, getItemById, setAsChi
     );
 };
 
-export default FieldSetBase;
+export default FieldsetBase;

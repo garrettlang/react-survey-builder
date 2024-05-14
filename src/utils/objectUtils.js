@@ -1,5 +1,14 @@
 import { isArrayLikeObject, isEmpty } from 'lodash';
 
+export const replaceInText = (content, staticVariables = {}) => {
+    return content.replace(
+        /{{(\w*)}}/g,
+        function (m, key) {
+            return (isObjectNotEmpty(staticVariables) && staticVariables?.hasOwnProperty(key)) ? staticVariables[key] : "";
+        }
+    ).replace('\t', '').replace('\n', '').replace('\r', '');
+}
+
 export const isListNotEmpty = (list) => {
     return isArrayLikeObject(list) && list !== undefined && list !== null && list.length > 0;
 };

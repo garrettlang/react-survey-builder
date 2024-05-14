@@ -7,7 +7,7 @@ import { isListNotEmpty, isObjectNotEmpty, removeRecord, updateRecord } from './
 
 const { PlaceHolder } = SortableFormElements;
 
-const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescription = false, files = [], renderEditForm, onLoad, onPost, className, editMode = false, setEditMode, editElement = null, setEditElement, variables = {}, url, saveUrl, saveAlways = false, registry }) => {
+const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescription = false, files = [], renderEditForm, onLoad, onPost, className, editMode = false, setEditMode, editElement = null, setEditElement, variables = {}, staticVariables = {}, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, url, saveUrl, saveAlways = false, registry }) => {
 	const [items, setItems] = React.useState(isListNotEmpty(loadItems) ? [...loadItems] : []);
 	const [answerData, setAnswerData] = React.useState({});
 	const [seq, setSeq] = React.useState(0);
@@ -100,8 +100,13 @@ const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescrip
 
 		if (!(child.col !== undefined && child.col !== col && item.childItems[col])) {
 			// No child was assigned yet in both source and target.
+			console.log('No child was assigned yet in both source and target.');
 			return false;
 		}
+
+		// if ((item.element === 'Fieldset' || item.element === 'Step') && isListNotEmpty(item.childItems) && child.col === item.childItems.length) {
+		// 	return false;
+		// }
 
 		let oldItems = [...items];
 
@@ -128,6 +133,7 @@ const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescrip
 
 	const setAsChild = (item, child, childIsNew, childIndex, col, isBusy) => {
 		// console.log('saveAsChild', item, child, childIsNew, childIndex, col, isBusy);
+
 		if (swapChildren(item, child, col)) {
 			return;
 		}
@@ -135,7 +141,12 @@ const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescrip
 		if (isBusy) {
 			return;
 		}
-		
+
+		if (isListNotEmpty(item.childItems) && child.col !== undefined && col === item.childItems.length) {
+			// console.log('Cannot drop in the dropzone');
+			return;
+		}
+
 		let oldItems = [...items];
 
 		// eslint-disable-next-line no-param-reassign
@@ -197,7 +208,7 @@ const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescrip
 			let updatedItem = { ...item };
 			// for multi-column containers, set back to null
 			// for fieldsets and steps, delete it
-			if (updatedItem.element === 'FieldSet' || updatedItem.element === 'Step') {
+			if (updatedItem.element === 'Fieldset' || updatedItem.element === 'Step') {
 				updatedItem.childItems.splice(col, 1);
 			} else {
 				updatedItem.childItems[col] = null;
@@ -225,7 +236,7 @@ const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescrip
 
 			// for multi-column containers, set back to null
 			// for fieldsets and steps, delete it
-			if (updatedParent.element === 'FieldSet' || updatedParent.element === 'Step') {
+			if (updatedParent.element === 'Fieldset' || updatedParent.element === 'Step') {
 				updatedParent.childItems.splice(oldItem.col, 1);
 			} else {
 				updatedParent.childItems[oldItem.col] = null;
@@ -296,7 +307,7 @@ const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescrip
 			return null;
 		}
 
-		return <SortableFormElement id={item.id} name={item.fieldName ?? item.name} seq={seq} index={index} moveCard={moveCard} insertCard={insertCard} mutable={false} editModeOn={editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, mutable: false, readOnly: false, print: false }} getItemById={getItemById} setAsChild={setAsChild} removeChild={removeChild} _onDestroy={_onDestroy} />;
+		return <SortableFormElement id={item.id} name={item.fieldName ?? item.name} seq={seq} index={index} moveCard={moveCard} insertCard={insertCard} mutable={false} editModeOn={editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, staticVariables: staticVariables, checkboxButtonClassName: checkboxButtonClassName, headerClassName: headerClassName, labelClassName: labelClassName, paragraphClassName: paragraphClassName, mutable: false, readOnly: false, print: false }} getItemById={getItemById} setAsChild={setAsChild} removeChild={removeChild} _onDestroy={_onDestroy} />;
 	};
 
 	const showEditForm = () => {
