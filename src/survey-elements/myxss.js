@@ -94,6 +94,10 @@ export const myContentXSS = new xss.FilterXSS({
 			// escape its value using built-in escapeAttrValue function
 			return name + '="' + xss.escapeAttrValue(value) + '"';
 		}
+		if (name.substr(0, 5) === "aria-") {
+			// escape its value using built-in escapeAttrValue function
+			return name + '="' + xss.escapeAttrValue(value) + '"';
+		}
 	},
 });
 
