@@ -406,6 +406,15 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				</Form.Group>
 			}
 
+			{element.hasOwnProperty('rows') &&
+				<Form.Group className="form-group mb-5">
+					<div className="form-group-range">
+						<Form.Label className="fw-bold" htmlFor="rows">Rows:</Form.Label>
+						<Form.Control id="rows" type="number" defaultValue={element.rows} onBlur={onUpdateElement} onChange={(e) => { editElementProp('rows', 'value', e); }} />
+					</div>
+				</Form.Group>
+			}
+
 			{element.hasOwnProperty('conditional') &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Step is Conditional and Display is Dependent on Answers to another Survey Block:</Form.Label>

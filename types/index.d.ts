@@ -46,6 +46,7 @@ type BaseElement = {
   conditional?: boolean;
   conditionalFieldName?: string;
   conditionalFieldValue?: string;
+  rows?: number;
 };
 export type StaticElement = {
   bold: boolean;

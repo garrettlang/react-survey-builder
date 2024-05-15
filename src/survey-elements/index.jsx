@@ -1003,7 +1003,7 @@ export const TextArea = ({ name, onChange, defaultValue, style, item, ...props }
 	};
 
 	const inputProps = {
-		type: 'number',
+		rows: item?.rows ?? 5,
 		required: item?.required ?? false,
 		disabled: item?.disabled ?? false,
 		autoComplete: 'new-password' // hack to prevent auto-complete for form fields
@@ -1661,8 +1661,8 @@ export class Checkboxes extends React.Component {
 						return (
 							<ToggleButton
 								type="checkbox"
-								variant={this.props.checkboxButtonClassName ?? "outline-light w-100"}
-								className="btn-survey-builder-checkbox"
+								variant={this.props.checkboxButtonClassName ?? "outline-light"}
+								className="btn-survey-builder-checkbox w-100"
 								key={`preview_${option.key}`}
 								id={name + '-' + ID.uuid()}
 								inputRef={c => {
@@ -1736,7 +1736,7 @@ export class Checkbox extends React.Component {
 					<ToggleButton
 						type="checkbox"
 						variant={this.props.checkboxButtonClassName ?? "outline-light"}
-						className="btn-survey-builder-checkbox"
+						className="btn-survey-builder-checkbox w-100"
 						value={props.name}
 						id={props.name + '-' + ID.uuid()}
 						{...props}
@@ -1794,8 +1794,8 @@ export class RadioButtons extends React.Component {
 							<ToggleButton
 								label={option.text}
 								type="radio"
-								variant={self.props.checkboxButtonClassName ?? "outline-light w-100"}
-								className="btn-survey-builder-checkbox"
+								variant={self.props.checkboxButtonClassName ?? "outline-light"}
+								className="btn-survey-builder-checkbox w-100"
 								key={`preview_${option.key}`}
 								id={name + '-' + ID.uuid()}
 								inputRef={c => {
@@ -2069,11 +2069,10 @@ export class Camera extends React.Component {
 									className="image-upload"
 									{...props}
 								/>
-								<div className="image-upload-control">
-									<Button variant="light">
-										<FaCamera /> Upload Photo
+								<div className="image-upload-control d-grid gap-2 w-100">
+									<Button variant={this.props?.checkboxButtonClassName ?? "outline-dark"} className="d-flex align-items-center justify-content-between fw-bold" size="lg">
+										Take Photo <FaCamera />
 									</Button>
-									<span>Select an image from your computer or device.</span>
 								</div>
 							</div>
 

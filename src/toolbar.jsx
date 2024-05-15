@@ -161,7 +161,8 @@ const _defaultItems = [
 		canHaveHelp: true,
 		canHaveLabelLocation: true,
 		answerType: 'STRING',
-		hideLabel: false
+		hideLabel: false,
+		rows: 5
 	},
 	{
 		key: 'NumberInput',
@@ -492,6 +493,8 @@ const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 		if (item.canHaveOptionValue) { elementOptions.canHaveOptionValue = item.canHaveOptionValue ?? false; }
 		if (item.canPopulateFromApi) { elementOptions.canPopulateFromApi = item.canPopulateFromApi ?? false; }
 
+		if (item.rows) { elementOptions.rows = item.rows; }
+		
 		if (item.className) {
 			elementOptions.className = item.className;
 		}
