@@ -200,7 +200,7 @@ export const TextInput = ({ name, onChange, defaultValue, style, item, ...props 
 							/>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -233,7 +233,7 @@ export const TextInput = ({ name, onChange, defaultValue, style, item, ...props 
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -350,7 +350,7 @@ export const EmailInput = ({ name, onChange, defaultValue, style, item, ...props
 							/>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -383,7 +383,7 @@ export const EmailInput = ({ name, onChange, defaultValue, style, item, ...props
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -558,7 +558,7 @@ export const PhoneNumber = ({ name, onChange, defaultValue = '', style, item, ..
 							/>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -591,7 +591,7 @@ export const PhoneNumber = ({ name, onChange, defaultValue = '', style, item, ..
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -814,7 +814,7 @@ export const DatePicker = ({ name, onChange, defaultValue, style, item, ...props
 							/>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -847,7 +847,7 @@ export const DatePicker = ({ name, onChange, defaultValue, style, item, ...props
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -953,7 +953,7 @@ export const NumberInput = ({ name, onChange, defaultValue, style, item, ...prop
 							/>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -986,7 +986,7 @@ export const NumberInput = ({ name, onChange, defaultValue, style, item, ...prop
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -1095,7 +1095,7 @@ export const TextArea = ({ name, onChange, defaultValue, style, item, ...props }
 							/>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -1128,7 +1128,7 @@ export const TextArea = ({ name, onChange, defaultValue, style, item, ...props }
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -1242,7 +1242,7 @@ export const Dropdown = ({ name, onChange, defaultValue, style, item, ...props }
 							</Form.Select>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -1275,7 +1275,7 @@ export const Dropdown = ({ name, onChange, defaultValue, style, item, ...props }
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -1427,7 +1427,7 @@ export class Signature extends React.Component {
 						</div>
 					)}
 
-					{this.props.item.help ? (<Form.Text muted className={this.props.item?.helpClassName}>{this.props.item.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text className={this.props.item?.helpClassName ?? 'text-muted'}>{this.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={this.props.name} />
 					{this.props.methods ? (<input {...this.props.methods.register(this.props.name)} {...props} type='hidden' />) : (<input {...props} type='hidden' />)}
 					{/* {this.props.methods ? (<input {...this.props.methods.register(`${this.props.name}_date`)} type='hidden' />) : (<input name={`${this.props.name}_date`} type='hidden' />)}
@@ -1569,7 +1569,7 @@ export const Tags = ({ name, onChange, defaultValue, style, item, ...props }) =>
 							/>
 						</>
 					)}
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -1602,7 +1602,7 @@ export const Tags = ({ name, onChange, defaultValue, style, item, ...props }) =>
 						<Controller control={methods.control} {...controllerProps} />
 					</>
 				)}
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -1649,7 +1649,7 @@ export class Checkboxes extends React.Component {
 				<ComponentHeader {...this.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...this.props} htmlFor={name} />
-					{this.props.item.help ? (<div><Form.Text muted className={this.props.item?.helpClassName}>{this.props.item.help}</Form.Text></div>) : null}
+					{this.props.item.help ? (<div><Form.Text className={this.props.item?.helpClassName ?? 'text-muted'}>{this.props.item.help}</Form.Text></div>) : null}
 					{this.props.item.options.map((option) => {
 						const props = {};
 						props.name = `option_${option.key}`;
@@ -1749,7 +1749,7 @@ export class Checkbox extends React.Component {
 							</div>
 						</div>
 					</ToggleButton>
-					{this.props.item.help ? (<Form.Text muted className={this.props.item?.helpClassName}>{this.props.item.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text className={this.props.item?.helpClassName ?? 'text-muted'}>{this.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={props.name} />
 				</Form.Group>
 			</div>
@@ -1787,7 +1787,7 @@ export class RadioButtons extends React.Component {
 				<ComponentHeader {...self.props} />
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...self.props} />
-					{self.props.item.help ? (<div><Form.Text muted className={self.props.item?.helpClassName}>{self.props.item.help}</Form.Text></div>) : null}
+					{self.props.item.help ? (<div><Form.Text className={self.props.item?.helpClassName ?? 'text-muted'}>{self.props.item.help}</Form.Text></div>) : null}
 					{self.props.item.options.map((option) => {
 						// console.log('option', option);
 						return (
@@ -1917,7 +1917,7 @@ export const Rating = ({ name, onChange, value, style, item, ...props }) => {
 						id={name + '-' + ID.uuid()}
 						{...inputProps}
 					/>
-					{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -1941,7 +1941,7 @@ export const Rating = ({ name, onChange, value, style, item, ...props }) => {
 			<Form.Group className="form-group mb-3">
 				<ComponentLabel item={item} className={item?.labelClassName} htmlFor={name} />
 				<Controller control={methods.control} {...controllerProps} />
-				{item?.help ? (<Form.Text muted className={item?.helpClassName}>{item?.help}</Form.Text>) : null}
+				{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item?.help}</Form.Text>) : null}
 				<ComponentErrorMessage name={name} />
 			</Form.Group>
 		</div>
@@ -2093,7 +2093,7 @@ export class Camera extends React.Component {
 							)}
 						</div>
 					)}
-					{this.props.item.help ? (<Form.Text muted className={this.props.item?.helpClassName}>{this.props.item.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text className={this.props.item?.helpClassName ?? 'text-muted'}>{this.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={this.props.name} />
 				</Form.Group>
 			</div>
@@ -2221,7 +2221,7 @@ export class FileUpload extends React.Component {
 							)}
 						</div>
 					)}
-					{this.props.item.help ? (<Form.Text muted className={this.props.item?.helpClassName}>{this.props.item.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text className={this.props.item?.helpClassName ?? 'text-muted'}>{this.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={this.props.name} />
 				</Form.Group>
 			</div>
@@ -2306,7 +2306,7 @@ export class Range extends React.Component {
 					<datalist id={props.list}>
 						{_datalist}
 					</datalist>
-					{this.props.item.help ? (<Form.Text muted className={this.props.item?.helpClassName}>{this.props.item.help}</Form.Text>) : null}
+					{this.props.item.help ? (<Form.Text className={this.props.item?.helpClassName ?? 'text-muted'}>{this.props.item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
