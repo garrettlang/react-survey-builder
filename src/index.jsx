@@ -10,7 +10,7 @@ import store from './stores/store';
 import Registry from './stores/registry';
 import { Button, Col, Container, Nav, Navbar, Row } from 'react-bootstrap';
 
-const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [], saveAlways = false, toolbarItems = [], customToolbarItems = [], showDescription = false, surveyName = null, saveSurveyName = null, previewSurveyBlock = null, renderEditForm, variables, staticVariables, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, onPost, onLoad, url, saveUrl }) => {
+const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [], saveAlways = false, toolbarItems = [], customToolbarItems = [], showDescription = false, surveyName = null, saveSurveyName = null, previewSurveyBlock = null, renderEditForm, variables, staticVariables, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, helpClassName, onPost, onLoad, url, saveUrl }) => {
 	const [editMode, setEditMode] = React.useState(false);
 	const [editElement, setEditElement] = React.useState(null);
 
@@ -45,6 +45,7 @@ const ReactSurveyBuilder = ({ items = [], showCorrectColumn = false, files = [],
 							headerClassName={headerClassName} 
 							labelClassName={labelClassName} 
 							paragraphClassName={paragraphClassName} 
+							helpClassName={helpClassName}
 						/>
 					</Col>
 					<Col xs={3} className="overflow-hidden h-100">

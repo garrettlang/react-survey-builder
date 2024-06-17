@@ -39,6 +39,7 @@ const MultiColumnRowBase = ({ controls, item, items, editModeOn, getItemById, se
 									headerClassName={item?.headerClassName}
 									labelClassName={item?.labelClassName}
 									paragraphClassName={item?.paragraphClassName}
+									helpClassName={item?.helpClassName}
 									staticVariables={item?.staticVariables}
 								/>}
 						</div>

@@ -78,6 +78,7 @@ const FieldsetBase = ({ item, controls, items, editModeOn, getItemById, setAsChi
 								headerClassName={item?.headerClassName}
 								labelClassName={item?.labelClassName}
 								paragraphClassName={item?.paragraphClassName}
+                                helpClassName={item?.helpClassName}
 								staticVariables={item?.staticVariables}
                             />
                         )}

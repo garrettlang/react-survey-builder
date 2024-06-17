@@ -10,7 +10,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { isListNotEmpty, isObjectNotEmpty } from './utils/objectUtils';
 
-const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, staticVariables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, formId, print = false }) => {
+const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, staticVariables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, helpClassName, formId, print = false }) => {
 	//#region useForms
 
 	const methods = useForm({ mode: 'all', reValidateMode: 'onChange', criteriaMode: 'all', shouldFocusError: true, shouldUnregister: true });
@@ -164,7 +164,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 	const _collectFormData = ($dataItems, $formData) => {
 		const formData = [];
 		$dataItems.filter(i => i.static !== true).forEach((item) => {
-			const itemData = {
+			let itemData = {
 				id: item.id,
 				name: item.fieldName,
 				customName: item.customName || item.fieldName,
@@ -172,6 +172,11 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 				value: $formData[item.fieldName],
 				required: item.required || false
 			};
+
+			if (isListNotEmpty(item?.options)) {
+				itemData.options = item?.options.map(i => i.value);
+			}
+
 			if (itemData) {
 				formData.push(itemData);
 			}
@@ -270,7 +275,15 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		const Input = SurveyElements[item.element];
 
 		return (
-			<Input name={item.fieldName ?? item.name} key={`form_${item.id}`} item={item} defaultValue={_getDefaultValue(item)} onChange={handleChange} />
+			<Input
+				name={item.fieldName ?? item.name}
+				key={`form_${item.id}`}
+				item={item}
+				defaultValue={_getDefaultValue(item)}
+				onChange={handleChange}
+				labelClassName={labelClassName}
+				helpClassName={helpClassName}
+			/>
 		);
 	};
 
@@ -308,6 +321,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 						item={item}
 						className={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
 						checkboxButtonClassName={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
+						labelClassName={labelClassName}
+						helpClassName={helpClassName}
 					/>
 				)}
 			/>
@@ -338,8 +353,9 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 				key={`form_${item.id}`}
 				item={item}
 				headerClassName={headerClassName}
-				labelClassName={labelClassName}
 				paragraphClassName={paragraphClassName}
+				labelClassName={labelClassName}
+				helpClassName={helpClassName}
 			/>
 		);
 	};
@@ -469,6 +485,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 								name={name}
 								ref={c => inputs.current[item.fieldName] = c}
 								item={item}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>
@@ -498,6 +516,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 								item={item}
 								className={checkboxButtonClassName ?? null}
 								checkboxButtonClassName={checkboxButtonClassName ?? null}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>
@@ -533,6 +553,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 								ref={c => inputs.current[item.fieldName] = c}
 								isInvalid={invalid}
 								item={item}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>
@@ -560,6 +582,8 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 								ref={c => inputs.current[item.fieldName] = c}
 								isInvalid={invalid}
 								item={item}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>

@@ -146,6 +146,7 @@ export interface SurveyBuilderProps {
   headerClassName?: string;
   labelClassName?: string;
   paragraphClassName?: string;
+  helpClassName?: string;
 }
 
 export class ReactSurveyBuilder extends React.Component<SurveyBuilderProps> {}
@@ -188,6 +189,7 @@ export interface SurveyGeneratorProps {
   headerClassName?: string;
   labelClassName?: string;
   paragraphClassName?: string;
+  helpClassName?: string;
   formId?: string;
   methods?: Record<any, any>;
   print?: boolean;

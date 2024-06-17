@@ -65,6 +65,7 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 								headerClassName={item?.headerClassName}
 								labelClassName={item?.labelClassName}
 								paragraphClassName={item?.paragraphClassName}
+								helpClassName={item?.helpClassName}
 								staticVariables={item?.staticVariables}
 							/>
 						)}

@@ -7,7 +7,7 @@ import { isListNotEmpty, isObjectNotEmpty, removeRecord, updateRecord } from './
 
 const { PlaceHolder } = SortableFormElements;
 
-const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescription = false, files = [], renderEditForm, onLoad, onPost, className, editMode = false, setEditMode, editElement = null, setEditElement, variables = {}, staticVariables = {}, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, url, saveUrl, saveAlways = false, registry }) => {
+const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescription = false, files = [], renderEditForm, onLoad, onPost, className, editMode = false, setEditMode, editElement = null, setEditElement, variables = {}, staticVariables = {}, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, helpClassName, url, saveUrl, saveAlways = false, registry }) => {
 	const [items, setItems] = React.useState(isListNotEmpty(loadItems) ? [...loadItems] : []);
 	const [answerData, setAnswerData] = React.useState({});
 	const [seq, setSeq] = React.useState(0);
@@ -307,7 +307,7 @@ const Preview = ({ items: loadItems = [], showCorrectColumn = false, showDescrip
 			return null;
 		}
 
-		return <SortableFormElement id={item.id} name={item.fieldName ?? item.name} seq={seq} index={index} moveCard={moveCard} insertCard={insertCard} mutable={false} editModeOn={editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, staticVariables: staticVariables, checkboxButtonClassName: checkboxButtonClassName, headerClassName: headerClassName, labelClassName: labelClassName, paragraphClassName: paragraphClassName, mutable: false, readOnly: false, print: false }} getItemById={getItemById} setAsChild={setAsChild} removeChild={removeChild} _onDestroy={_onDestroy} />;
+		return <SortableFormElement id={item.id} name={item.fieldName ?? item.name} seq={seq} index={index} moveCard={moveCard} insertCard={insertCard} mutable={false} editModeOn={editModeOn} isDraggable={true} key={item.id} sortData={item.id} item={{ ...item, staticVariables: staticVariables, checkboxButtonClassName: checkboxButtonClassName, headerClassName: headerClassName, labelClassName: labelClassName, paragraphClassName: paragraphClassName, helpClassName: helpClassName, mutable: false, readOnly: false, print: false }} getItemById={getItemById} setAsChild={setAsChild} removeChild={removeChild} _onDestroy={_onDestroy} />;
 	};
 
 	const showEditForm = () => {

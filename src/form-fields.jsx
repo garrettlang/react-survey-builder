@@ -10,7 +10,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider } from "react-hook-form";
 import { isListNotEmpty, isObjectNotEmpty } from './utils/objectUtils';
 
-const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, staticVariables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, formId, methods, print = false }) => {
+const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, staticVariables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, helpClassName, formId, methods, print = false }) => {
 	//#region helper functions
 
 	const _convert = ($dataAnswers) => {
@@ -159,7 +159,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 	const _collectFormData = ($dataItems, $formData) => {
 		const formData = [];
 		$dataItems.filter(i => i.static !== true).forEach((item) => {
-			const itemData = {
+			let itemData = {
 				id: item.id,
 				name: item.fieldName,
 				customName: item.customName || item.fieldName,
@@ -167,6 +167,11 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 				value: $formData[item.fieldName],
 				required: item.required || false
 			};
+
+			if (isListNotEmpty(item?.options)) {
+				itemData.options = item?.options.map(i => i.value);
+			}
+
 			if (itemData) {
 				formData.push(itemData);
 			}
@@ -206,7 +211,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 		// Call submit function on change
 		const $data = _collectFormData(items, methods?.getValues() || []);
 		// console.log('handleChange', $data);
-		
+
 		if (onChange) {
 			onChange($data);
 		}
@@ -265,7 +270,15 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 		const Input = SurveyElements[item.element];
 
 		return (
-			<Input name={item.fieldName} key={`form_${item.id}`} item={item} defaultValue={_getDefaultValue(item)} onChange={handleChange} />
+			<Input
+				name={item.fieldName}
+				key={`form_${item.id}`}
+				item={item}
+				defaultValue={_getDefaultValue(item)}
+				onChange={handleChange}
+				labelClassName={labelClassName}
+				helpClassName={helpClassName}
+			/>
 		);
 	};
 
@@ -302,6 +315,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 						item={item}
 						className={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
 						checkboxButtonClassName={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
+						labelClassName={labelClassName}
+						helpClassName={helpClassName}
 					/>
 				)}
 			/>
@@ -333,6 +348,7 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 				item={item}
 				headerClassName={headerClassName}
 				labelClassName={labelClassName}
+				helpClassName={helpClassName}
 				paragraphClassName={paragraphClassName}
 			/>
 		);
@@ -463,6 +479,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 								name={name}
 								ref={c => inputs.current[item.fieldName] = c}
 								item={item}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>
@@ -492,6 +510,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 								item={item}
 								className={checkboxButtonClassName ?? null}
 								checkboxButtonClassName={checkboxButtonClassName ?? null}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>
@@ -527,6 +547,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 								ref={c => inputs.current[item.fieldName] = c}
 								isInvalid={invalid}
 								item={item}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>
@@ -554,6 +576,8 @@ const ReactSurveyFormFields = ({ validateForCorrectness = false, displayShort = 
 								ref={c => inputs.current[item.fieldName] = c}
 								isInvalid={invalid}
 								item={item}
+								labelClassName={labelClassName}
+								helpClassName={helpClassName}
 							/>
 						)}
 					/>
