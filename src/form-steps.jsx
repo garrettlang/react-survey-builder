@@ -254,7 +254,9 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 				key: `form_${$dataItem.id}`,
 				item: $dataItem,
 				defaultValue: _getDefaultValue($dataItem),
-				staticVariables: staticVariables
+				staticVariables: staticVariables,
+				labelClassName: labelClassName,
+				helpClassName: helpClassName
 			};
 		}
 
@@ -429,6 +431,8 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 		item.disabled = (readOnly || item.readOnly) ?? false;
 		item.mutable = true;
 		item.staticVariables = staticVariables;
+		item.labelClassName = labelClassName;
+		item.helpClassName = helpClassName;
 
 		switch (item.element) {
 			case 'RadioButtons':
