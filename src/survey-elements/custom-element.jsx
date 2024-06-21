@@ -32,7 +32,7 @@ const CustomElement = ({ item, defaultValue, style, ...props }) => {
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel className="form-label" item={item} {...props} htmlFor={inputProps.name} />
 					<Element id={inputProps.name} item={item} {...item.props} {...inputProps} />
-					{item?.help ? (<Form.Text muted>{item.help}</Form.Text>) : null}
+					{item?.help ? (<Form.Text className={item?.helpClassName ?? 'text-muted'}>{item.help}</Form.Text>) : null}
 					<ComponentErrorMessage name={inputProps.name} />
 				</Form.Group>
 			)}

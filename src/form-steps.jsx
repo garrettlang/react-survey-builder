@@ -401,7 +401,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 		}
 
 		if (item.required) {
-			fieldRules.required = `${item.label} is required`;
+			fieldRules.required = `Required Field`;
 		}
 
 		return fieldRules;

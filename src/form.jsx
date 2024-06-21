@@ -406,7 +406,7 @@ const ReactSurvey = ({ validateForCorrectness = false, displayShort = false, rea
 		}
 
 		if (item.required) {
-			fieldRules.required = `${item.label} is required`;
+			fieldRules.required = `Required Field`;
 		}
 
 		return fieldRules;
