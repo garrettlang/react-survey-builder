@@ -108,9 +108,10 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 	const thisCheckedAlternateForm = element.hasOwnProperty('alternateForm') ? element.alternateForm : false;
 	const thisCheckedHideLabel = element.hasOwnProperty('hideLabel') ? element.hideLabel : false;
 	const thisCheckedConditional = element.hasOwnProperty('conditional') ? element.conditional : false;
+	const thisCheckedHideNextStepButton = element.hasOwnProperty('hideNextStepButton') ? element.hideNextStepButton : false;
 
-	const canHaveAnswer = ['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'RadioButtons', 'Rating', 'Range'].indexOf(element.element) !== -1;
-	const canHaveOptionValue = ['Dropdown', 'Tags', 'Checkboxes', 'RadioButtons'].indexOf(element.element) !== -1;
+	const canHaveAnswer = ['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'ButtonList', 'Rating', 'Range'].indexOf(element.element) !== -1;
+	const canHaveOptionValue = ['Dropdown', 'Tags', 'Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element) !== -1;
 	const canHaveOptionCorrect = canHaveAnswer && canHaveOptionValue;
 
 	const thisFiles = isListNotEmpty(files) ? [...files] : [];
@@ -431,6 +432,13 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="conditionalFieldValue">Value(s) for Survey Block to Display the Conditional Step:</Form.Label>
 					<Form.Control type="text" id="conditionalFieldValue" defaultValue={element.conditionalFieldValue} onBlur={onUpdateElement} onChange={(e) => { editElementProp('conditionalFieldValue', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('hideNextStepButton') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold">Hide the Next Step/Submit Button for this Step (typically set true when the step has a Button List component):</Form.Label>
+					<Form.Check id="hideNextStepButton" label="Hide the Next Step/Submit Button for this Step" type="checkbox" checked={thisCheckedHideNextStepButton} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('hideNextStepButton', 'checked', e); }} />
 				</Form.Group>
 			}
 

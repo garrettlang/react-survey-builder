@@ -6,7 +6,7 @@ import { Fieldset } from './fieldset';
 import { Step } from './step';
 import CustomElement from './survey-elements/custom-element';
 
-const { Header, Paragraph, ContentBody, Label, LineBreak, TextInput, EmailInput, PhoneNumber, NumberInput, TextArea, Dropdown, Checkboxes, DatePicker, RadioButtons, Image, Rating, Tags, Signature, HyperLink, Download, Camera, Range, FileUpload, Checkbox } = BaseSurveyElements;
+const { Header, Paragraph, ContentBody, Label, LineBreak, TextInput, EmailInput, PhoneNumber, NumberInput, TextArea, Dropdown, Checkboxes, DatePicker, RadioButtons, ButtonList, Image, Rating, Tags, Signature, HyperLink, Download, Camera, Range, FileUpload, Checkbox } = BaseSurveyElements;
 
 const SortableFormElements = {};
 
@@ -26,6 +26,7 @@ SortableFormElements.Checkboxes = SortableElement(Checkboxes);
 SortableFormElements.Checkbox = SortableElement(Checkbox);
 SortableFormElements.DatePicker = SortableElement(DatePicker);
 SortableFormElements.RadioButtons = SortableElement(RadioButtons);
+SortableFormElements.ButtonList = SortableElement(ButtonList);
 SortableFormElements.Image = SortableElement(Image);
 SortableFormElements.Rating = SortableElement(Rating);
 SortableFormElements.Tags = SortableElement(Tags);

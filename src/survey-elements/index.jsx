@@ -1826,6 +1826,82 @@ export class RadioButtons extends React.Component {
 	}
 }
 
+export class ButtonList extends React.Component {
+	constructor(props) {
+		super(props);
+		this.options = {};
+	}
+
+	render() {
+		const self = this;
+		const name = self?.props?.name ?? self?.props?.item?.customName ?? self?.props?.item?.fieldName;
+
+		let baseClasses = 'SortableItem rfb-item';
+		if (this.props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+
+		if (this.props.item.print === true) {
+			return (
+				<div style={{ ...this.props.style }} className={baseClasses}>
+					<Form.Group className="form-group mb-3">
+						<ComponentLabel {...this.props} htmlFor={this.props.name} />
+						<div>{this.props.item.options.filter((option) => this.props.value === option.value).map((option) => option.text).join(', ')}</div>
+					</Form.Group>
+				</div>
+			);
+		}
+		// console.log('self.props', self.props);
+
+		return (
+			<div style={{ ...self.props.style }} className={baseClasses}>
+				<ComponentHeader {...self.props} />
+				<Form.Group className="form-group mb-3">
+					<ComponentLabel {...self.props} />
+					{self.props.item.help ? (<div><Form.Text className={self.props.item?.helpClassName ?? 'text-muted'}>{self.props.item.help}</Form.Text></div>) : null}
+					{self.props.item.options.map((option) => {
+						// console.log('option', option);
+						return (
+							<ToggleButton
+								label={option.text}
+								type="radio"
+								variant={self.props.checkboxButtonClassName ?? "outline-light"}
+								className="btn-survey-builder-checkbox w-100"
+								key={`preview_${option.key}`}
+								id={name + '-' + ID.uuid()}
+								inputRef={c => {
+									if (c && self.props.item.mutable) {
+										self.options[`child_ref_${option.key}`] = c;
+									}
+								}}
+								disabled={self?.props?.item?.disabled}
+								name={name}
+								value={option.value}
+								checked={self?.props?.value === option.value}
+								onChange={(e) => { 
+									if (self?.props?.onChange !== undefined) { 
+										console.log(e.target.value); 
+										self.props.onChange(e.target.value); 
+									} 
+									if (self?.props?.onSelect !== undefined) { 
+										console.log(e.target.value); 
+										self.props.onSelect(e.target.value); 
+									} 
+								}}
+							>
+								<div className={`d-flex align-items-center justify-content-start text-black text-survey-builder-checkbox`}>
+									<div className="text-start">
+										{<span dangerouslySetInnerHTML={{ __html: option.text }} />}
+									</div>
+								</div>
+							</ToggleButton>
+						);
+					})}
+					<ComponentErrorMessage name={name} />
+				</Form.Group>
+			</div>
+		);
+	}
+}
+
 export const Image = (props) => {
 	const style = (props.item.center) ? { textAlign: 'center' } : null;
 
@@ -2330,6 +2406,7 @@ SurveyElements.Checkboxes = Checkboxes;
 SurveyElements.Checkbox = Checkbox;
 SurveyElements.DatePicker = DatePicker;
 SurveyElements.RadioButtons = RadioButtons;
+SurveyElements.ButtonList = ButtonList;
 SurveyElements.Image = Image;
 SurveyElements.Rating = Rating;
 SurveyElements.Tags = Tags;

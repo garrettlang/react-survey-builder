@@ -6,7 +6,7 @@ import { Badge, Button, ButtonToolbar } from 'react-bootstrap';
 const HeaderBar = ({ item, editModeOn, onDestroy, setAsChild, index, isStep = false }) => {
 	return (
 		<ButtonToolbar className="d-flex toolbar-header align-items-center justify-content-between p-2">
-			<Badge bg="secondary">{item.text}{isStep ? ' ' + (Number(index) + 1) : ''}{isStep && item?.conditional === true ? ' (Conditional)' : ''}</Badge>
+			<Badge bg="secondary">{item.text}{isStep ? ' ' + (Number(index) + 1) + ': ' + item.label : ''}{isStep && item?.conditional === true ? ' (Conditional)' : ''}</Badge>
 			<div className="toolbar-header-buttons">
 				{item.element !== 'LineBreak' &&
 					<Button variant="default" className="is-isolated" onClick={(e) => { editModeOn(item, e); }}><FaEdit className="is-isolated" /></Button>

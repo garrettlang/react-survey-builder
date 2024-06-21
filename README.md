@@ -86,6 +86,7 @@ formMethod | string | Required | Verb used in the form submission.
 actionName | string | Optional | Defines form submit button text.  Defaults to "Submit"
 onSubmit | function | optional | Invoke when submit data, if exists will override form post.
 onChange | function | optional | Invoke when Change data. only on generator
+onSelect | function | optional | Invoke when ButtonList button is selected. only on generator
 onBlur | function | optional | Invoke when Blur data. only on generator
 items | array | Required | Question data retrieved from the database
 backAction | string | Optional | URL path to go back if needed.
@@ -164,6 +165,7 @@ Then navigate to http://localhost:8080/ in your browser and you should be able t
     items={form}
     toolbarItems={toolbarItems}
     onSubmit={handleSubmit}
+    onSelect={handleSelect}
     actionName="Set this to change the default submit button text"
     submitButton={<Button variant="primary" type="submit">Submit</Button>}
     backButton={<Button variant="secondary" onClick={backAction}>Back</Button>}

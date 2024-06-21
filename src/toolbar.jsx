@@ -7,6 +7,7 @@ import { PiFileHtml } from 'react-icons/pi';
 import ID from './UUID';
 import { GrSteps } from 'react-icons/gr';
 import { isListNotEmpty } from './utils/objectUtils';
+import { IoReorderTwo } from 'react-icons/io5';
 
 const _defaultItems = [
 	{
@@ -98,6 +99,17 @@ const _defaultItems = [
 		icon: FaRegDotCircle,
 		label: "Label",
 		fieldName: 'radiobuttons_',
+		canHaveHelp: true,
+		options: [],
+		answerType: 'STRING',
+		hideLabel: false
+	},
+	{
+		key: 'ButtonList',
+		name: "Radio Buttons",
+		icon: IoReorderTwo,
+		label: "Label",
+		fieldName: 'buttonlist_',
 		canHaveHelp: true,
 		options: [],
 		answerType: 'STRING',
@@ -335,6 +347,7 @@ const _defaultItems = [
 		conditionalFieldName: '',
 		conditionalFieldValue: '',
 		isContainer: true,
+		hideNextStepButton: false,
 	},
 ];
 
@@ -412,6 +425,11 @@ const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 					{ value: 'PLACE_HOLDER_OPTION_1', text: "Place holder option 1", key: `radiobuttons_option_${ID.uuid()}` },
 					{ value: 'PLACE_HOLDER_OPTION_2', text: "Place holder option 2", key: `radiobuttons_option_${ID.uuid()}` },
 					{ value: 'PLACE_HOLDER_OPTION_3', text: "Place holder option 3", key: `radiobuttons_option_${ID.uuid()}` },
+				];
+			case 'ButtonList':
+				return [
+					{ value: 'YES', text: "Yes", key: `buttonlist_option_${ID.uuid()}` },
+					{ value: 'NO', text: "No", key: `buttonlist_option_${ID.uuid()}` },
 				];
 			default:
 				return [];
@@ -494,7 +512,7 @@ const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 		if (item.canPopulateFromApi) { elementOptions.canPopulateFromApi = item.canPopulateFromApi ?? false; }
 
 		if (item.rows) { elementOptions.rows = item.rows; }
-		
+
 		if (item.className) {
 			elementOptions.className = item.className;
 		}
@@ -503,6 +521,7 @@ const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 			elementOptions.conditional = item.conditional;
 			elementOptions.conditionalFieldName = item.conditionalFieldName;
 			elementOptions.conditionalFieldValue = item.conditionalFieldValue;
+			elementOptions.hideNextStepButton = item.hideNextStepButton;
 		}
 
 		if (element === 'Image') {

@@ -95,6 +95,7 @@ const cleanUpSurveyItems = (items = []) => {
 		if (item.conditional !== undefined && item.conditional !== null) { dataItem.conditional = item.conditional; }
 		if (item.conditionalFieldName !== undefined && item.conditionalFieldName !== null) { dataItem.conditionalFieldName = item.conditionalFieldName; }
 		if (item.conditionalFieldValue !== undefined && item.conditionalFieldValue !== null) { dataItem.conditionalFieldValue = item.conditionalFieldValue; }
+		if (item.hideNextStepButton !== undefined && item.hideNextStepButton !== null) { dataItem.hideNextStepButton = item.hideNextStepButton; }
 
 		if (item.groupName !== undefined && item.groupName !== null) { dataItem.groupName = item.groupName; }
 		if (item.required !== undefined && item.required !== null) { dataItem.required = item.required; }

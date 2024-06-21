@@ -10,7 +10,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Controller, FormProvider } from "react-hook-form";
 import { addRecordToBottom, isListNotEmpty, isObjectNotEmpty, updateRecord } from './utils/objectUtils';
 
-const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, items, activeStep, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, staticVariables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, helpClassName, formId, methods, print = false }) => {
+const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = false, readOnly = false, downloadPath, answers, onSubmit, onChange, onSelect, items, activeStep, submitButton = false, backButton = false, backAction = null, hideActions = false, hideLabels = false, variables, staticVariables, buttonClassName, checkboxButtonClassName, headerClassName, labelClassName, paragraphClassName, helpClassName, formId, methods, print = false }) => {
 	//#region helper functions
 
 	const _convert = ($dataAnswers) => {
@@ -216,6 +216,19 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 		if (onChange) {
 			onChange($data);
 		}
+
+		setFormAnswers($data);
+	};
+
+	const handleSelect = (event) => {
+		// Call submit function on select
+		const $data = _collectFormData(items, methods?.getValues() || []);
+		// console.log('handleSelect', $data);
+
+		if (onSelect) {
+			onSelect($data);
+		}
+
 		setFormAnswers($data);
 	};
 
@@ -310,16 +323,22 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 				}) => (
 					<Input
 						onBlur={onBlur}
-						onChange={(e) => { onChange(e); handleChange(e); }}
+						onChange={(e) => {
+							onChange(e);
+							if (item.element !== 'ButtonList') {
+								handleChange(e);
+							}
+						}}
 						value={value}
 						name={name}
 						ref={c => inputs.current[item.fieldName] = c}
 						isInvalid={invalid}
 						item={item}
-						className={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
-						checkboxButtonClassName={(item.element === 'RadioButtons' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
+						className={(item.element === 'RadioButtons' || item.element === 'ButtonList' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
+						checkboxButtonClassName={(item.element === 'RadioButtons' || item.element === 'ButtonList' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
 						labelClassName={labelClassName}
 						helpClassName={helpClassName}
+						onSelect={item.element === 'ButtonList' ? handleSelect : undefined}
 					/>
 				)}
 			/>
@@ -436,6 +455,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 
 		switch (item.element) {
 			case 'RadioButtons':
+			case 'ButtonList':
 			case 'Range':
 			case 'Checkbox':
 				return getInputElement(item);

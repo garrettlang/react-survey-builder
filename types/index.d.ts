@@ -46,6 +46,7 @@ type BaseElement = {
   conditional?: boolean;
   conditionalFieldName?: string;
   conditionalFieldValue?: string;
+  hideNextStepButton?: boolean;
   rows?: number;
 };
 export type StaticElement = {
@@ -167,6 +168,7 @@ export interface SurveyGeneratorProps {
   onBlur?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   onSubmit?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   onChange?: (info: SurveyGeneratorOnSubmitParams[]) => void;
+  onSelect?: (info: SurveyGeneratorOnSubmitParams[]) => void;
   items: any[];
   backAction?: string;
   backName?: string;
