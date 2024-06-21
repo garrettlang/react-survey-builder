@@ -106,7 +106,7 @@ const _defaultItems = [
 	},
 	{
 		key: 'ButtonList',
-		name: "Radio Buttons",
+		name: "Button List",
 		icon: IoReorderTwo,
 		label: "Label",
 		fieldName: 'buttonlist_',
