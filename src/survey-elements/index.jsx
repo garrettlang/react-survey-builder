@@ -20,9 +20,26 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { IMask, IMaskInput } from 'react-imask';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import ID from '../UUID';
-import { isBooleanTrue, replaceInText } from '../utils/objectUtils';
+import { isBooleanFalse, isBooleanTrue, isNotNullOrUndefined, replaceInText } from '../utils/objectUtils';
 
 const SurveyElements = {};
+
+const IconComponent = ({ iconImportString, ...props }) => {
+	const [Icon, setIcon] = React.useState(null);
+
+	React.useEffect(() => {
+		// iconImportString - i.e. 'react-icons/fa/FaBeer'
+		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
+			let iconStringParts = iconImportString.split('/');
+			let iconName = iconStringParts[2];
+			if (isNotNullOrUndefined(iconName)) {
+				import(iconImportString).then(module => setIcon(module[iconName]));
+			}
+		}
+	}, [iconImportString]);
+
+	return <>{Icon && <Icon {...props} />}</>;
+};
 
 export const Header = (props) => {
 	let classNames = 'static';
@@ -1650,39 +1667,58 @@ export class Checkboxes extends React.Component {
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...this.props} htmlFor={name} />
 					{this.props.item.help ? (<div><Form.Text className={this.props.item?.helpClassName ?? 'text-muted'}>{this.props.item.help}</Form.Text></div>) : null}
-					{this.props.item.options.map((option) => {
-						const props = {};
-						props.name = `option_${option.key}`;
-						props.value = option.value;
-						props.checked = self.props.value ? self.props.value.indexOf(option.value) > -1 : false;
-						//props.inline = self.props.item.inline ?? false;
-						if (self.props.item.disabled) { props.disabled = 'disabled'; }
+					<Row className="g-3">
+						{this.props.item.options.map((option, index) => {
+							const props = {};
+							props.name = `option_${option.key}`;
+							props.value = option.value;
+							props.checked = self.props.value ? self.props.value.indexOf(option.value) > -1 : false;
+							//props.inline = self.props.item.inline ?? false;
+							if (self.props.item.disabled) { props.disabled = 'disabled'; }
 
-						return (
-							<ToggleButton
-								type="checkbox"
-								variant={this.props.checkboxButtonClassName ?? "outline-light"}
-								className="btn-survey-builder-checkbox w-100"
-								key={`preview_${option.key}`}
-								id={name + '-' + ID.uuid()}
-								inputRef={c => {
-									if (c && self.props.item.mutable) {
-										self.options[`child_ref_${option.key}`] = c;
-									}
-								}}
-								onChange={(e) => { self.onCheckboxChange(option.value, e); }}
-								{...props}
-							>
-								<div className={`d-flex align-items-center justify-content-start text-black text-survey-builder-checkbox`}>
-									{(props.checked !== true) && <RiCheckboxBlankLine size={"40px"} className="me-3 flex-shrink-0" />}
-									{(props.checked === true) && <RiCheckboxFill size={"40px"} className="me-3 flex-shrink-0" />}
-									<div className="text-start">
-										{option.text}
-									</div>
-								</div>
-							</ToggleButton>
-						);
-					})}
+							return (
+								<Col key={`container_${name}_${option.value}`} xs={12}>
+									<ToggleButton
+										type="checkbox"
+										label={option.text}
+										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
+										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
+										key={`preview_${option.key}`}
+										id={name + '-' + ID.uuid()}
+										inputRef={c => {
+											if (c && self.props.item.mutable) {
+												self.options[`child_ref_${option.key}`] = c;
+											}
+										}}
+										onChange={(e) => { self.onCheckboxChange(option.value, e); }}
+										{...props}
+									>
+										<div className={`d-flex flex-row align-items-center justify-content-between`}>
+											<div className={`w-100 d-flex align-items-center justify-content-start text-survey-builder-checkbox`}>
+												{isBooleanFalse(props.checked) && <RiCheckboxBlankLine size={30} className={`me-3 flex-shrink-0 text-${self.props?.item?.unselectedColor}`} />}
+												{isBooleanTrue(props.checked) && <RiCheckboxFill size={30} className={`me-3 flex-shrink-0 text-${self.props?.item?.selectedColor}`} />}
+												<div className="d-flex flex-column">
+													<div className={`text-${self.props?.item?.textColor} ${self.props?.item?.fieldLabelClassName}`}>
+														{option.text}
+													</div>
+													{isNotNullOrUndefined(option.description) &&
+														<div className={`${self.props?.item?.fieldDescriptionClassName}`}>
+															{option.description}
+														</div>
+													}
+												</div>
+											</div>
+											{option.icon &&
+												<div className="text-center me-2">
+													<IconComponent iconImportString={option.icon} size={50} />
+												</div>
+											}
+										</div>
+									</ToggleButton>
+								</Col>
+							);
+						})}
+					</Row>
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -1735,8 +1771,8 @@ export class Checkbox extends React.Component {
 					<ComponentLabel className="form-label" {...this.props} />
 					<ToggleButton
 						type="checkbox"
-						variant={this.props.checkboxButtonClassName ?? "outline-light"}
-						className="btn-survey-builder-checkbox w-100"
+						variant={this.props?.item?.bgColor ?? this.props?.checkboxButtonClassName ?? "outline-light"}
+						className={`btn-survey-builder-checkbox w-100 ${self.props?.item?.className}`}
 						value={props.name}
 						id={props.name + '-' + ID.uuid()}
 						{...props}
@@ -1744,7 +1780,7 @@ export class Checkbox extends React.Component {
 						<div className={`d-flex align-items-center justify-content-between text-black text-survey-builder-checkbox`}>
 							{(props.checked !== true) && <RiCheckboxBlankLine size={"40px"} className="me-3 flex-shrink-0" />}
 							{(props.checked === true) && <RiCheckboxFill size={"40px"} className="me-3 flex-shrink-0" />}
-							<div className="text-start">
+							<div className={`text-start text-${self?.props?.item?.textColor}`}>
 								{<span dangerouslySetInnerHTML={{ __html: this.props.item.boxLabel }} />}
 							</div>
 						</div>
@@ -1788,45 +1824,103 @@ export class RadioButtons extends React.Component {
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...self.props} />
 					{self.props.item.help ? (<div><Form.Text className={self.props.item?.helpClassName ?? 'text-muted'}>{self.props.item.help}</Form.Text></div>) : null}
-					{self.props.item.options.map((option) => {
-						// console.log('option', option);
-						return (
-							<ToggleButton
-								label={option.text}
-								type="radio"
-								variant={self.props.checkboxButtonClassName ?? "outline-light"}
-								className="btn-survey-builder-checkbox w-100"
-								key={`preview_${option.key}`}
-								id={name + '-' + ID.uuid()}
-								inputRef={c => {
-									if (c && self.props.item.mutable) {
-										self.options[`child_ref_${option.key}`] = c;
-									}
-								}}
-								disabled={self?.props?.item?.disabled}
-								name={name}
-								value={option.value}
-								checked={self?.props?.value === option.value}
-								onChange={(e) => { 
-									// console.log('onChange', e.target.value);
-									if (self?.props?.onChange !== undefined) {  
-										self.props.onChange(e.target.value); 
-									} 
-									if (isBooleanTrue(self?.props?.item?.submitOnSelection) && self?.props?.onSelect !== undefined) { 
-										self.props.onSelect(e.target.value); 
-									} 
-								}}
-							>
-								<div className={`d-flex align-items-center justify-content-start text-black text-survey-builder-checkbox`}>
-									{(self?.props?.value !== option.value) && <IoRadioButtonOff size={"40px"} className="me-3 flex-shrink-0" />}
-									{(self?.props?.value === option.value) && <IoRadioButtonOn size={"40px"} className="me-3 flex-shrink-0" />}
-									<div className="text-start">
-										{<span dangerouslySetInnerHTML={{ __html: option.text }} />}
-									</div>
-								</div>
-							</ToggleButton>
-						);
-					})}
+					<Row className="g-3">
+						{self.props.item.options.map((option, index) => {
+							// console.log('option', option);
+							let checked = self?.props?.value === option.value;
+							let horizontal = isBooleanTrue(self.props?.item?.inline);
+							return (
+								<Col key={`container_${name}_${option.value}`} xs={horizontal ? 6 : 12}>
+									<ToggleButton
+										label={option.text}
+										type="radio"
+										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
+										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
+										key={`preview_${option.key}`}
+										id={name + '-' + ID.uuid()}
+										inputRef={c => {
+											if (c && self.props.item.mutable) {
+												self.options[`child_ref_${option.key}`] = c;
+											}
+										}}
+										disabled={self?.props?.item?.disabled}
+										name={name}
+										value={option.value}
+										checked={self?.props?.value === option.value}
+										onChange={(e) => {
+											// console.log('onChange', e.target.value);
+											if (self?.props?.onChange !== undefined) {
+												self.props.onChange(e.target.value);
+											}
+											if (isBooleanTrue(self?.props?.item?.submitOnSelection) && self?.props?.onSelect !== undefined) {
+												self.props.onSelect(e.target.value);
+											}
+										}}
+									>
+										{isBooleanTrue(horizontal) ? (
+											<>
+												{option.icon &&
+													<div className="text-center">
+														<IconComponent iconImportString={option.icon} size={80} />
+													</div>
+												}
+												{option.image &&
+													<div className="text-center mx-auto d-block" style={{ height: 100, width: 100 }}>
+														<ImageComponent src={option.image} alt={option.text} style={{ height: 100 }} className="mx-auto d-block" loading="lazy" />
+													</div>
+												}
+												<div className={`d-flex flex-row align-items-center justify-content-between`}>
+													<div className={`w-100 d-flex align-items-center justify-content-center text-survey-builder-checkbox`}>
+														<div className="d-flex flex-column">
+															<div className={`text-${self?.props?.item?.textColor} ${self?.props?.item?.fieldLabelClassName} text-center`}>
+																{option.text}
+															</div>
+															{isNotNullOrUndefined(option.description) &&
+																<div className={`${self?.props?.item?.fieldDescriptionClassName}`}>
+																	{option.description}
+																</div>
+															}
+															<div>
+																{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanFalse(checked) && <IoRadioButtonOff size={30} className={`flex-shrink-0 text-${self?.props?.item?.unselectedColor}`} />}
+																{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanTrue(checked) && <IoRadioButtonOn size={30} className={`flex-shrink-0 text-${self?.props?.item?.selectedColor}`} />}
+															</div>
+														</div>
+													</div>
+												</div>
+											</>
+										) : (
+											<div className={`d-flex flex-row align-items-center justify-content-between`}>
+												<div className={`w-100 d-flex align-items-center justify-content-start text-survey-builder-checkbox`}>
+													{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanFalse(checked) && <IoRadioButtonOff size={30} className={`me-3 flex-shrink-0 text-${self?.props?.item?.unselectedColor}`} />}
+													{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanTrue(checked) && <IoRadioButtonOn size={30} className={`me-3 flex-shrink-0 text-${self?.props?.item?.selectedColor}`} />}
+													<div className="d-flex flex-column">
+														<div className={`text-${self?.props?.item?.textColor} ${self?.props?.item?.fieldLabelClassName}`}>
+															{option.text}
+														</div>
+														{isNotNullOrUndefined(option.description) &&
+															<div className={`${self?.props?.item?.fieldDescriptionClassName}`}>
+																{option.description}
+															</div>
+														}
+													</div>
+												</div>
+												{option.icon &&
+													<div className="text-center me-2">
+														<IconComponent iconImportString={option.icon} size={50} />
+													</div>
+												}
+												{option.image &&
+													<div className="text-center me-2" style={{ height: 40, width: 40 }}>
+														<ImageComponent src={option.image} alt={option.label} style={{ height: 40 }} className="mx-auto d-block" loading="lazy" />
+													</div>
+												}
+											</div>
+										)}
+									</ToggleButton>
+								</Col>
+							);
+						})}
+					</Row>
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -1865,43 +1959,103 @@ export class ButtonList extends React.Component {
 				<Form.Group className="form-group mb-3">
 					<ComponentLabel {...self.props} />
 					{self.props.item.help ? (<div><Form.Text className={self.props.item?.helpClassName ?? 'text-muted'}>{self.props.item.help}</Form.Text></div>) : null}
-					{self.props.item.options.map((option) => {
-						// console.log('option', option);
-						return (
-							<ToggleButton
-								label={option.text}
-								type="radio"
-								variant={self.props.checkboxButtonClassName ?? "outline-light"}
-								className="btn-survey-builder-checkbox w-100"
-								key={`preview_${option.key}`}
-								id={name + '-' + ID.uuid()}
-								inputRef={c => {
-									if (c && self.props.item.mutable) {
-										self.options[`child_ref_${option.key}`] = c;
-									}
-								}}
-								disabled={self?.props?.item?.disabled}
-								name={name}
-								value={option.value}
-								checked={self?.props?.value === option.value}
-								onChange={(e) => { 
-									// console.log('onChange', e.target.value);
-									if (self?.props?.onChange !== undefined) {  
-										self.props.onChange(e.target.value); 
-									} 
-									if (isBooleanTrue(self?.props?.item?.submitOnSelection) && self?.props?.onSelect !== undefined) { 
-										self.props.onSelect(e.target.value); 
-									} 
-								}}
-							>
-								<div className={`d-flex align-items-center justify-content-start text-black text-survey-builder-checkbox`}>
-									<div className="text-start">
-										{<span dangerouslySetInnerHTML={{ __html: option.text }} />}
-									</div>
-								</div>
-							</ToggleButton>
-						);
-					})}
+					<Row className="g-3">
+						{self.props.item.options.map((option, index) => {
+							// console.log('option', option);
+							let checked = self?.props?.value === option.value;
+							let horizontal = isBooleanTrue(self.props?.item?.inline);
+							return (
+								<Col key={`container_${name}_${option.value}`} xs={horizontal ? 6 : 12}>
+									<ToggleButton
+										label={option.text}
+										type="radio"
+										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
+										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
+										key={`preview_${option.key}`}
+										id={name + '-' + ID.uuid()}
+										inputRef={c => {
+											if (c && self.props.item.mutable) {
+												self.options[`child_ref_${option.key}`] = c;
+											}
+										}}
+										disabled={self?.props?.item?.disabled}
+										name={name}
+										value={option.value}
+										checked={self?.props?.value === option.value}
+										onChange={(e) => {
+											// console.log('onChange', e.target.value);
+											if (self?.props?.onChange !== undefined) {
+												self.props.onChange(e.target.value);
+											}
+											if (isBooleanTrue(self?.props?.item?.submitOnSelection) && self?.props?.onSelect !== undefined) {
+												self.props.onSelect(e.target.value);
+											}
+										}}
+									>
+										{isBooleanTrue(horizontal) ? (
+											<>
+												{option.icon &&
+													<div className="text-center">
+														<IconComponent iconImportString={option.icon} size={80} />
+													</div>
+												}
+												{option.image &&
+													<div className="text-center mx-auto d-block" style={{ height: 100, width: 100 }}>
+														<ImageComponent src={option.image} alt={option.text} style={{ height: 100 }} className="mx-auto d-block" loading="lazy" />
+													</div>
+												}
+												<div className={`d-flex flex-row align-items-center justify-content-between`}>
+													<div className={`w-100 d-flex align-items-center justify-content-center text-survey-builder-checkbox`}>
+														<div className="d-flex flex-column">
+															<div className={`text-${self?.props?.item?.textColor} ${self?.props?.item?.fieldLabelClassName} text-center`}>
+																{option.text}
+															</div>
+															{isNotNullOrUndefined(option.description) &&
+																<div className={`${self?.props?.item?.fieldDescriptionClassName}`}>
+																	{option.description}
+																</div>
+															}
+															<div>
+																{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanFalse(checked) && <IoRadioButtonOff size={30} className={`flex-shrink-0 text-${self?.props?.item?.unselectedColor}`} />}
+																{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanTrue(checked) && <IoRadioButtonOn size={30} className={`flex-shrink-0 text-${self?.props?.item?.selectedColor}`} />}
+															</div>
+														</div>
+													</div>
+												</div>
+											</>
+										) : (
+											<div className={`d-flex flex-row align-items-center justify-content-between`}>
+												<div className={`w-100 d-flex align-items-center justify-content-start text-survey-builder-checkbox`}>
+													{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanFalse(checked) && <IoRadioButtonOff size={30} className={`me-3 flex-shrink-0 text-${self?.props?.item?.unselectedColor}`} />}
+													{isBooleanTrue(self?.props?.item?.showRadio) && isBooleanTrue(checked) && <IoRadioButtonOn size={30} className={`me-3 flex-shrink-0 text-${self?.props?.item?.selectedColor}`} />}
+													<div className="d-flex flex-column">
+														<div className={`text-${self?.props?.item?.textColor} ${self?.props?.item?.fieldLabelClassName}`}>
+															{option.text}
+														</div>
+														{isNotNullOrUndefined(option.description) &&
+															<div className={`${self?.props?.item?.fieldDescriptionClassName}`}>
+																{option.description}
+															</div>
+														}
+													</div>
+												</div>
+												{option.icon &&
+													<div className="text-center me-2">
+														<IconComponent iconImportString={option.icon} size={50} />
+													</div>
+												}
+												{option.image &&
+													<div className="text-center me-2" style={{ height: 40, width: 40 }}>
+														<ImageComponent src={option.image} alt={option.label} style={{ height: 40 }} className="mx-auto d-block" loading="lazy" />
+													</div>
+												}
+											</div>
+										)}
+									</ToggleButton>
+								</Col>
+							);
+						})}
+					</Row>
 					<ComponentErrorMessage name={name} />
 				</Form.Group>
 			</div>
@@ -2048,17 +2202,17 @@ export const HyperLink = (props) => {
 };
 
 export const Download = (props) => {
-		let baseClasses = 'SortableItem rfb-item';
-		if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
+	let baseClasses = 'SortableItem rfb-item';
+	if (props.item.pageBreakBefore) { baseClasses += ' alwaysbreak'; }
 
-		return (
-			<div style={{ ...props.style }} className={baseClasses}>
-				<ComponentHeader {...props} />
-				<Form.Group className="form-group mb-3">
-					<a href={`${props.downloadPath}?id=${props.item.filePath}`}>{props.item.content}</a>
-				</Form.Group>
-			</div>
-		);
+	return (
+		<div style={{ ...props.style }} className={baseClasses}>
+			<ComponentHeader {...props} />
+			<Form.Group className="form-group mb-3">
+				<a href={`${props.downloadPath}?id=${props.item.filePath}`}>{props.item.content}</a>
+			</Form.Group>
+		</div>
+	);
 };
 
 export class Camera extends React.Component {

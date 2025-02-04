@@ -4,30 +4,30 @@ import * as React from 'react';
 type BaseElement = {
   id: string;
   element:
-    | "Header Text"
-    | "Label"
-    | "Paragraph"
-    | "Static Content"
-    | "Line Break"
-    | "Dropdown"
-    | "Tags"
-    | "Checkboxes"
-    | "Multiple Choice"
-    | "Text Input"
-    | "Number Input"
-    | "Multi-line Input"
-    | "Two Column Row"
-    | "Three Column Row"
-    | "Multi Column Row"
-    | "Image"
-    | "Rating"
-    | "Date"
-    | "Signature"
-    | "Web site"
-    | "Fieldset"
-    | "File Attachment"
-    | "Range"
-    | "Camera";
+  | "Header Text"
+  | "Label"
+  | "Paragraph"
+  | "Static Content"
+  | "Line Break"
+  | "Dropdown"
+  | "Tags"
+  | "Checkboxes"
+  | "Multiple Choice"
+  | "Text Input"
+  | "Number Input"
+  | "Multi-line Input"
+  | "Two Column Row"
+  | "Three Column Row"
+  | "Multi Column Row"
+  | "Image"
+  | "Rating"
+  | "Date"
+  | "Signature"
+  | "Web site"
+  | "Fieldset"
+  | "File Attachment"
+  | "Range"
+  | "Camera";
   canHaveLabelLocation?: boolean;
   labelLocation?: string;
   canHaveHelp?: boolean;
@@ -48,6 +48,16 @@ type BaseElement = {
   conditionalFieldValue?: string;
   hideNextStepButton?: boolean;
   rows?: number;
+  showRadio?: boolean;
+  bgColor?: string;
+  textColor?: string;
+  className?: string;
+  fieldLabelClassName?: string;
+  fieldDescriptionClassName?: string;
+  selectedClassName?: string;
+  unselectedClassName?: string;
+  selectedColor?: string;
+  unselectedColor?: string;
 };
 export type StaticElement = {
   bold: boolean;
@@ -65,6 +75,9 @@ export type Option = {
   label?: string;
   text: string;
   value: string;
+  icon?: string;
+  image?: string;
+  description?: string;
 };
 export type SelectableElement = {
   options: Option[];
@@ -150,7 +163,7 @@ export interface SurveyBuilderProps {
   helpClassName?: string;
 }
 
-export class ReactSurveyBuilder extends React.Component<SurveyBuilderProps> {}
+export class ReactSurveyBuilder extends React.Component<SurveyBuilderProps> { }
 
 export interface SurveyGeneratorOnSubmitParams {
   id: number;
@@ -197,7 +210,7 @@ export interface SurveyGeneratorProps {
   print?: boolean;
 }
 
-export class ReactSurveyGenerator extends React.Component<SurveyGeneratorProps> {}
+export class ReactSurveyGenerator extends React.Component<SurveyGeneratorProps> { }
 
 export type ActionType = "load" | "updateOrder" | "delete";
 

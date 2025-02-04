@@ -79,7 +79,18 @@ const _defaultItems = [
 		canHaveHelp: true,
 		options: [],
 		answerType: 'ARRAY',
-		hideLabel: false
+		hideLabel: false,
+		canHaveDisplayHorizontal: true,
+		bgColor: 'light', 
+		textColor: 'black', 
+		className: "p-2 shadow-none rounded-3 text-black border border-2 w-100", 
+		fieldLabelClassName: "text-start text-black fs-3", 
+		fieldDescriptionClassName: "text-start text-muted fs-6", 
+		selectedClassName: "", 
+		unselectedClassName: "", 
+		unselectedColor: "black", 
+		selectedColor: "black",
+		inline: false
 	},
 	{
 		key: 'Checkbox',
@@ -91,7 +102,10 @@ const _defaultItems = [
 		boxLabel: 'Pick me',
 		answerType: 'BOOLEAN',
 		canHideLabel: true,
-		hideLabel: true
+		hideLabel: true,
+		bgColor: 'light', 
+		textColor: 'black', 
+		className: "p-2 shadow-none rounded-3 text-black border border-2 w-100", 
 	},
 	{
 		key: 'RadioButtons',
@@ -103,7 +117,19 @@ const _defaultItems = [
 		options: [],
 		answerType: 'STRING',
 		hideLabel: false,
-		submitOnSelection: false
+		submitOnSelection: false,
+		canHaveDisplayHorizontal: true,
+		bgColor: 'light', 
+		textColor: 'black', 
+		className: "p-2 shadow-none rounded-3 text-black border border-2 w-100", 
+		fieldLabelClassName: "text-start text-black fs-3", 
+		fieldDescriptionClassName: "text-start text-muted fs-6", 
+		selectedClassName: "", 
+		unselectedClassName: "", 
+		unselectedColor: "black", 
+		selectedColor: "black",
+		showRadio: true,
+		inline: false
 	},
 	{
 		key: 'ButtonList',
@@ -115,7 +141,18 @@ const _defaultItems = [
 		options: [],
 		answerType: 'STRING',
 		hideLabel: false,
-		submitOnSelection: true
+		submitOnSelection: true,
+		bgColor: 'light', 
+		textColor: 'black', 
+		className: "p-2 shadow-none rounded-3 text-black border border-2 w-100", 
+		fieldLabelClassName: "text-start text-black fs-3", 
+		fieldDescriptionClassName: "text-start text-muted fs-6", 
+		selectedClassName: "", 
+		unselectedClassName: "", 
+		unselectedColor: "black", 
+		selectedColor: "black",
+		showRadio: false,
+		inline: false
 	},
 	{
 		key: 'TextInput',
@@ -561,6 +598,20 @@ const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 		if (element === 'ButtonList' || element === 'RadioButtons') {
 			elementOptions.submitOnSelection = item.submitOnSelection ?? false;
 		}
+
+		if (element === 'RadioButtons') {
+			elementOptions.showRadio = item.showRadio ?? true;
+		}
+
+		if (item.bgColor) { elementOptions.bgColor = item.bgColor; }
+		if (item.textColor) { elementOptions.textColor = item.textColor; }
+		if (item.className) { elementOptions.className = item.className; }
+		if (item.fieldLabelClassName) { elementOptions.fieldLabelClassName = item.fieldLabelClassName; }
+		if (item.fieldDescriptionClassName) { elementOptions.fieldDescriptionClassName = item.fieldDescriptionClassName; }
+		if (item.selectedClassName) { elementOptions.selectedClassName = item.selectedClassName; }
+		if (item.unselectedClassName) { elementOptions.unselectedClassName = item.unselectedClassName; }
+		if (item.selectedColor) { elementOptions.selectedColor = item.selectedColor; }
+		if (item.unselectedColor) { elementOptions.unselectedColor = item.unselectedColor; }
 
 		if (item.defaultValue) { elementOptions.defaultValue = item.defaultValue; }
 		if (item.fieldName) { elementOptions.fieldName = item.fieldName + ID.uuid(); }

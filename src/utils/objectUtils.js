@@ -13,6 +13,14 @@ export const isListNotEmpty = (list) => {
     return isArrayLikeObject(list) && list !== undefined && list !== null && list.length > 0;
 };
 
+export const isNotNullOrUndefined = (obj) => {
+    if (obj !== undefined && obj !== null) {
+        return true;
+    }
+
+    return false;
+};
+
 export const isObjectNotEmpty = (obj) => {
     if (obj !== undefined && obj !== null && !isEmpty(obj)) {
         return true;

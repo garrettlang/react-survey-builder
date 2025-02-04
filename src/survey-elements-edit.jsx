@@ -110,10 +110,14 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 	const thisCheckedConditional = element.hasOwnProperty('conditional') ? element.conditional : false;
 	const thisCheckedHideNextStepButton = element.hasOwnProperty('hideNextStepButton') ? element.hideNextStepButton : false;
 	const thisCheckedSubmitOnSelection = element.hasOwnProperty('submitOnSelection') ? element.submitOnSelection : false;
+	const thisCheckedShowRadio = element.hasOwnProperty('showRadio') ? element.showRadio : false;
 
 	const canHaveAnswer = ['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'ButtonList', 'Rating', 'Range'].indexOf(element.element) !== -1;
 	const canHaveOptionValue = ['Dropdown', 'Tags', 'Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element) !== -1;
 	const canHaveOptionCorrect = canHaveAnswer && canHaveOptionValue;
+	const canHaveIcon = ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element) !== -1;
+	const canHaveImage = ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element) !== -1;
+	const canHaveDescription = ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element) !== -1;
 
 	const thisFiles = isListNotEmpty(files) ? [...files] : [];
 	if (thisFiles.length < 1 || (thisFiles.length > 0 && thisFiles[0].id !== '')) {
@@ -401,7 +405,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				</Form.Group>
 			}
 
-			{(element.hasOwnProperty('hideLabel') || ['Dropdown','Tags','Checkboxes','Checkbox','RadioButtons','ButtonList','TextInput','EmailInput','PhoneNumber','DatePicker','TextArea','NumberInput','Rating','Range','Signature','Camera','FileUpload'].includes(element.element)) &&
+			{(element.hasOwnProperty('hideLabel') || ['Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'RadioButtons', 'ButtonList', 'TextInput', 'EmailInput', 'PhoneNumber', 'DatePicker', 'TextArea', 'NumberInput', 'Rating', 'Range', 'Signature', 'Camera', 'FileUpload'].includes(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Hide Label:</Form.Label>
 					<Form.Check id="hide-label" label="Hide Label" type="checkbox" checked={thisCheckedHideLabel} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('hideLabel', 'checked', e); }} />
@@ -450,6 +454,76 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				</Form.Group>
 			}
 
+			{(element.element === 'RadioButtons') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold">Show Radio by Default:</Form.Label>
+					<Form.Check id="showRadio" label="Show Radio by Default:" type="checkbox" checked={thisCheckedShowRadio} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('showRadio', 'checked', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('bgColor') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="bgColor">Background Color:</Form.Label>
+					<Form.Control type="text" id="bgColor" defaultValue={element.bgColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('bgColor', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('textColor') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="textColor">Text Color:</Form.Label>
+					<Form.Control type="text" id="textColor" defaultValue={element.textColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('textColor', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('className') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="className">ClassName:</Form.Label>
+					<Form.Control type="text" id="className" defaultValue={element.className} onBlur={onUpdateElement} onChange={(e) => { editElementProp('className', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('fieldLabelClassName') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="fieldLabelClassName">Label ClassName:</Form.Label>
+					<Form.Control type="text" id="fieldLabelClassName" defaultValue={element.fieldLabelClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('fieldLabelClassName', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('fieldDescriptionClassName') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="fieldDescriptionClassName">Description ClassName:</Form.Label>
+					<Form.Control type="text" id="fieldDescriptionClassName" defaultValue={element.fieldDescriptionClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('fieldDescriptionClassName', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('selectedClassName') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="selectedClassName">Selected ClassName:</Form.Label>
+					<Form.Control type="text" id="selectedClassName" defaultValue={element.selectedClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('selectedClassName', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('unselectedClassName') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="unselectedClassName">Unselected ClassName:</Form.Label>
+					<Form.Control type="text" id="unselectedClassName" defaultValue={element.unselectedClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('unselectedClassName', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('selectedColor') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="selectedColor">Selected Color:</Form.Label>
+					<Form.Control type="text" id="selectedColor" defaultValue={element.selectedColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('selectedColor', 'value', e); }} />
+				</Form.Group>
+			}
+
+			{element.hasOwnProperty('unselectedColor') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold" htmlFor="unselectedColor">Unselected Color:</Form.Label>
+					<Form.Control type="text" id="unselectedColor" defaultValue={element.unselectedColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('unselectedColor', 'value', e); }} />
+				</Form.Group>
+			}
+
 			{element.hasOwnProperty('help') &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="help">Help instructions/details that will show up beneath the input field:</Form.Label>
@@ -490,6 +564,9 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 					showCorrectColumn={showCorrectColumn}
 					canHaveOptionCorrect={canHaveOptionCorrect}
 					canHaveOptionValue={canHaveOptionValue}
+					canHaveIcon={canHaveIcon}
+					canHaveImage={canHaveImage}
+					canHaveDescription={canHaveDescription}
 					updateElement={updateElement}
 					element={element}
 					setElement={setElement}

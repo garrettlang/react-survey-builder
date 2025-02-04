@@ -98,6 +98,17 @@ const cleanUpSurveyItems = (items = []) => {
 		if (item.hideNextStepButton !== undefined && item.hideNextStepButton !== null) { dataItem.hideNextStepButton = item.hideNextStepButton; }
 		if (item.submitOnSelection !== undefined && item.submitOnSelection !== null) { dataItem.submitOnSelection = item.submitOnSelection; }
 
+		if (item.showRadio !== undefined && item.showRadio !== null) { dataItem.showRadio = item.showRadio; }
+		if (item.bgColor !== undefined && item.bgColor !== null) { dataItem.bgColor = item.bgColor; }
+		if (item.textColor !== undefined && item.textColor !== null) { dataItem.textColor = item.textColor; }
+		if (item.className !== undefined && item.className !== null) { dataItem.className = item.className; }
+		if (item.fieldLabelClassName !== undefined && item.fieldLabelClassName !== null) { dataItem.fieldLabelClassName = item.fieldLabelClassName; }
+		if (item.fieldDescriptionClassName !== undefined && item.fieldDescriptionClassName !== null) { dataItem.fieldDescriptionClassName = item.fieldDescriptionClassName; }
+		if (item.selectedClassName !== undefined && item.selectedClassName !== null) { dataItem.selectedClassName = item.selectedClassName; }
+		if (item.unselectedClassName !== undefined && item.unselectedClassName !== null) { dataItem.unselectedClassName = item.unselectedClassName; }
+		if (item.selectedColor !== undefined && item.selectedColor !== null) { dataItem.selectedColor = item.selectedColor; }
+		if (item.unselectedColor !== undefined && item.unselectedColor !== null) { dataItem.unselectedColor = item.unselectedColor; }
+
 		if (item.groupName !== undefined && item.groupName !== null) { dataItem.groupName = item.groupName; }
 		if (item.required !== undefined && item.required !== null) { dataItem.required = item.required; }
 		if (item.description !== undefined && item.description !== null) { dataItem.description = item.description; }
