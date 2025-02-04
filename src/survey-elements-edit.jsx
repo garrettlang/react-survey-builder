@@ -109,6 +109,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 	const thisCheckedHideLabel = element.hasOwnProperty('hideLabel') ? element.hideLabel : false;
 	const thisCheckedConditional = element.hasOwnProperty('conditional') ? element.conditional : false;
 	const thisCheckedHideNextStepButton = element.hasOwnProperty('hideNextStepButton') ? element.hideNextStepButton : false;
+	const thisCheckedSubmitOnSelection = element.hasOwnProperty('submitOnSelection') ? element.submitOnSelection : false;
 
 	const canHaveAnswer = ['NumberInput', 'EmailInput', 'TextInput', 'PhoneNumber', 'TextArea', 'DatePicker', 'Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'ButtonList', 'Rating', 'Range'].indexOf(element.element) !== -1;
 	const canHaveOptionValue = ['Dropdown', 'Tags', 'Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element) !== -1;
@@ -400,7 +401,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('hideLabel') &&
+			{(element.hasOwnProperty('hideLabel') || ['Dropdown','Tags','Checkboxes','Checkbox','RadioButtons','ButtonList','TextInput','EmailInput','PhoneNumber','DatePicker','TextArea','NumberInput','Rating','Range','Signature','Camera','FileUpload'].includes(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Hide Label:</Form.Label>
 					<Form.Check id="hide-label" label="Hide Label" type="checkbox" checked={thisCheckedHideLabel} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('hideLabel', 'checked', e); }} />
@@ -416,29 +417,36 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('conditional') &&
+			{element.element === 'Step' &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Step is Conditional and Display is Dependent on Answers to another Survey Block:</Form.Label>
 					<Form.Check id="conditional" label="Conditional" type="checkbox" checked={thisCheckedConditional} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('conditional', 'checked', e); }} />
 				</Form.Group>
 			}
-			{element.hasOwnProperty('conditionalFieldName') &&
+			{element.element === 'Step' &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="conditionalFieldName">Field Name for the Dependent Survey Block:</Form.Label>
 					<Form.Control type="text" id="conditionalFieldName" defaultValue={element.conditionalFieldName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('conditionalFieldName', 'value', e); }} />
 				</Form.Group>
 			}
-			{element.hasOwnProperty('conditionalFieldValue') &&
+			{element.element === 'Step' &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="conditionalFieldValue">Value(s) for Survey Block to Display the Conditional Step:</Form.Label>
 					<Form.Control type="text" id="conditionalFieldValue" defaultValue={element.conditionalFieldValue} onBlur={onUpdateElement} onChange={(e) => { editElementProp('conditionalFieldValue', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('hideNextStepButton') &&
+			{element.element === 'Step' &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold">Hide the Next Step/Submit Button for this Step (typically set true when the step has a Button List component):</Form.Label>
 					<Form.Check id="hideNextStepButton" label="Hide the Next Step/Submit Button for this Step" type="checkbox" checked={thisCheckedHideNextStepButton} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('hideNextStepButton', 'checked', e); }} />
+				</Form.Group>
+			}
+
+			{(element.element === 'ButtonList' || element.element === 'RadioButtons') &&
+				<Form.Group className="form-group mb-5">
+					<Form.Label className="fw-bold">Submit form on option selection:</Form.Label>
+					<Form.Check id="submitOnSelection" label="Submit form on option selection:" type="checkbox" checked={thisCheckedSubmitOnSelection} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('submitOnSelection', 'checked', e); }} />
 				</Form.Group>
 			}
 

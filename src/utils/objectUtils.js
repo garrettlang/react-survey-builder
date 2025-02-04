@@ -21,6 +21,50 @@ export const isObjectNotEmpty = (obj) => {
     return false;
 };
 
+export const isTrueLike = (value) => {
+    if (value !== undefined && value !== null) {
+        if (typeof value === 'boolean' && value === true) {
+            return true;
+        } else if (typeof value === 'string' && (value === 'true' || value === 'True' || value === '1' || value === 'Yes' || value === 'yes' || value === 'YES')) {
+            return true;
+        } else if (typeof value === 'number' && value === 1) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+export const isFalseLike = (value) => {
+    if (value !== undefined && value !== null) {
+        if (typeof value === 'boolean' && value === false) {
+            return true;
+        } else if (typeof value === 'string' && (value === 'false' || value === 'False' || value === '0' || value === 'No' || value === 'no' || value === 'NO')) {
+            return true;
+        } else if (typeof value === 'number' && value === 0) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
+export const isBooleanTrue = (value) => {
+    if (value !== undefined && value !== null && isTrueLike(value)) {
+        return true;
+    }
+
+    return false;
+};
+
+export const isBooleanFalse = (value) => {
+    if (value !== undefined && value !== null && isFalseLike(value)) {
+        return true;
+    }
+
+    return false;
+};
+
 export const updateObject = (oldObject, updatedValues) => {
     return {
         ...oldObject,

@@ -102,7 +102,8 @@ const _defaultItems = [
 		canHaveHelp: true,
 		options: [],
 		answerType: 'STRING',
-		hideLabel: false
+		hideLabel: false,
+		submitOnSelection: false
 	},
 	{
 		key: 'ButtonList',
@@ -113,7 +114,8 @@ const _defaultItems = [
 		canHaveHelp: true,
 		options: [],
 		answerType: 'STRING',
-		hideLabel: false
+		hideLabel: false,
+		submitOnSelection: true
 	},
 	{
 		key: 'TextInput',
@@ -554,6 +556,10 @@ const Toolbar = ({ toolbarTop, items = [], customItems = [] }) => {
 
 		if (element === 'MultiColumnRow') {
 			elementOptions.colCount = item.colCount;
+		}
+
+		if (element === 'ButtonList' || element === 'RadioButtons') {
+			elementOptions.submitOnSelection = item.submitOnSelection ?? false;
 		}
 
 		if (item.defaultValue) { elementOptions.defaultValue = item.defaultValue; }

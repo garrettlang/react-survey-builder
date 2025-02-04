@@ -226,7 +226,9 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 		// console.log('handleSelect', $data);
 
 		if (onSelect) {
-			onSelect($data);
+			onSelect({
+				answers: $data
+			});
 		}
 
 		setFormAnswers($data);
@@ -325,9 +327,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 						onBlur={onBlur}
 						onChange={(e) => {
 							onChange(e);
-							if (item.element !== 'ButtonList') {
-								handleChange(e);
-							}
+							handleChange(e);
 						}}
 						value={value}
 						name={name}
@@ -338,7 +338,7 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 						checkboxButtonClassName={(item.element === 'RadioButtons' || item.element === 'ButtonList' || item.element === 'Checkbox') ? (checkboxButtonClassName ?? null) : null}
 						labelClassName={labelClassName}
 						helpClassName={helpClassName}
-						onSelect={item.element === 'ButtonList' ? handleSelect : undefined}
+						onSelect={(item.element === 'ButtonList' || item.element === 'RadioButtons') ? handleSelect : undefined}
 					/>
 				)}
 			/>

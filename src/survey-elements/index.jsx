@@ -20,7 +20,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { IMask, IMaskInput } from 'react-imask';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import ID from '../UUID';
-import { replaceInText } from '../utils/objectUtils';
+import { isBooleanTrue, replaceInText } from '../utils/objectUtils';
 
 const SurveyElements = {};
 
@@ -1807,7 +1807,15 @@ export class RadioButtons extends React.Component {
 								name={name}
 								value={option.value}
 								checked={self?.props?.value === option.value}
-								onChange={(e) => { if (self?.props?.onChange !== undefined) { console.log(e.target.value); self.props.onChange(e.target.value); } }}
+								onChange={(e) => { 
+									// console.log('onChange', e.target.value);
+									if (self?.props?.onChange !== undefined) {  
+										self.props.onChange(e.target.value); 
+									} 
+									if (isBooleanTrue(self?.props?.item?.submitOnSelection) && self?.props?.onSelect !== undefined) { 
+										self.props.onSelect(e.target.value); 
+									} 
+								}}
 							>
 								<div className={`d-flex align-items-center justify-content-start text-black text-survey-builder-checkbox`}>
 									{(self?.props?.value !== option.value) && <IoRadioButtonOff size={"40px"} className="me-3 flex-shrink-0" />}
@@ -1877,12 +1885,11 @@ export class ButtonList extends React.Component {
 								value={option.value}
 								checked={self?.props?.value === option.value}
 								onChange={(e) => { 
-									if (self?.props?.onChange !== undefined) { 
-										console.log(e.target.value); 
+									// console.log('onChange', e.target.value);
+									if (self?.props?.onChange !== undefined) {  
 										self.props.onChange(e.target.value); 
 									} 
-									if (self?.props?.onSelect !== undefined) { 
-										console.log(e.target.value); 
+									if (isBooleanTrue(self?.props?.item?.submitOnSelection) && self?.props?.onSelect !== undefined) { 
 										self.props.onSelect(e.target.value); 
 									} 
 								}}
