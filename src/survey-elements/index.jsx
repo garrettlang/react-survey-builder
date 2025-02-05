@@ -1682,7 +1682,7 @@ export class Checkboxes extends React.Component {
 										type="checkbox"
 										label={option.text}
 										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
-										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
+										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(props.checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
 										key={`preview_${option.key}`}
 										id={name + '-' + ID.uuid()}
 										inputRef={c => {
