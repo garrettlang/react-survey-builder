@@ -461,63 +461,63 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('bgColor') &&
+			{(element.hasOwnProperty('bgColor') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="bgColor">Background Color:</Form.Label>
 					<Form.Control type="text" id="bgColor" defaultValue={element.bgColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('bgColor', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('textColor') &&
+			{(element.hasOwnProperty('textColor') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="textColor">Text Color:</Form.Label>
 					<Form.Control type="text" id="textColor" defaultValue={element.textColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('textColor', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('className') &&
+			{(element.hasOwnProperty('className') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="className">ClassName:</Form.Label>
 					<Form.Control type="text" id="className" defaultValue={element.className} onBlur={onUpdateElement} onChange={(e) => { editElementProp('className', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('fieldLabelClassName') &&
+			{(element.hasOwnProperty('fieldLabelClassName') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="fieldLabelClassName">Label ClassName:</Form.Label>
 					<Form.Control type="text" id="fieldLabelClassName" defaultValue={element.fieldLabelClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('fieldLabelClassName', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('fieldDescriptionClassName') &&
+			{(element.hasOwnProperty('fieldDescriptionClassName') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="fieldDescriptionClassName">Description ClassName:</Form.Label>
 					<Form.Control type="text" id="fieldDescriptionClassName" defaultValue={element.fieldDescriptionClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('fieldDescriptionClassName', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('selectedClassName') &&
+			{(element.hasOwnProperty('selectedClassName') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="selectedClassName">Selected ClassName:</Form.Label>
 					<Form.Control type="text" id="selectedClassName" defaultValue={element.selectedClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('selectedClassName', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('unselectedClassName') &&
+			{(element.hasOwnProperty('unselectedClassName') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="unselectedClassName">Unselected ClassName:</Form.Label>
 					<Form.Control type="text" id="unselectedClassName" defaultValue={element.unselectedClassName} onBlur={onUpdateElement} onChange={(e) => { editElementProp('unselectedClassName', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('selectedColor') &&
+			{(element.hasOwnProperty('selectedColor') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="selectedColor">Selected Color:</Form.Label>
 					<Form.Control type="text" id="selectedColor" defaultValue={element.selectedColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('selectedColor', 'value', e); }} />
 				</Form.Group>
 			}
 
-			{element.hasOwnProperty('unselectedColor') &&
+			{(element.hasOwnProperty('unselectedColor') || ['Checkboxes', 'RadioButtons', 'ButtonList'].indexOf(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Label className="fw-bold" htmlFor="unselectedColor">Unselected Color:</Form.Label>
 					<Form.Control type="text" id="unselectedColor" defaultValue={element.unselectedColor} onBlur={onUpdateElement} onChange={(e) => { editElementProp('unselectedColor', 'value', e); }} />
