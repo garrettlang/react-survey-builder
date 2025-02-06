@@ -1,7 +1,7 @@
 // eslint-disable-next-line max-classes-per-file
 import fetch from 'isomorphic-fetch';
 import { saveAs } from 'file-saver';
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import SignaturePad from 'react-signature-canvas';
 import RangeSlider from 'react-bootstrap-range-slider';
 import StarRating from './star-rating';
@@ -25,20 +25,156 @@ import { isBooleanFalse, isBooleanTrue, isNotNullOrUndefined, replaceInText } fr
 const SurveyElements = {};
 
 const IconComponent = ({ iconImportString, ...props }) => {
-	const [Icon, setIcon] = React.useState(null);
-
-	React.useEffect(() => {
-		// iconImportString - i.e. 'react-icons/fa/FaBeer'
+	try {
+		//const [Icon, setIcon] = React.useState(null);
 		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
-			let iconStringParts = iconImportString.split('/');
-			let iconName = iconStringParts[2];
-			if (isNotNullOrUndefined(iconName)) {
-				import(iconImportString).then(module => setIcon(module[iconName]));
-			}
-		}
-	}, [iconImportString]);
+			//const Icon = lazy(() => import(iconImportString));
+			// let iconStringParts = iconImportString.split('/');
+			// 			let IconName = iconStringParts[2];
+			console.log(iconImportString);
+			const [library, iconPath = 'fa', iconName = 'FaCircle'] = iconImportString.split('/');
+			const Icon = lazy(async () => {
+				console.log(iconPath);
 
-	return <>{Icon && <Icon {...props} />}</>;
+				let module = null;
+				if (library && iconPath && iconName) {
+					switch (iconPath) {
+						case 'ai':
+							module = await import(`react-icons/ai`);
+							break;
+						case 'bs':
+							module = await import(`react-icons/bs`);
+							break;
+						case 'bi':
+							module = await import(`react-icons/bi`);
+							break;
+						case 'ci':
+							module = await import(`react-icons/ci`);
+							break;
+						case 'cg':
+							module = await import(`react-icons/cg`);
+							break;
+						case 'di':
+							module = await import(`react-icons/di`);
+							break;
+						case 'fi':
+							module = await import(`react-icons/fi`);
+							break;
+						case 'fc':
+							module = await import(`react-icons/fc`);
+							break;
+						case 'fa':
+							module = await import(`react-icons/fa`);
+							break;
+						case 'fa6':
+							module = await import(`react-icons/fa6`);
+							break;
+						case 'gi':
+							module = await import(`react-icons/gi`);
+							break;
+						case 'go':
+							module = await import(`react-icons/go`);
+							break;
+						case 'gr':
+							module = await import(`react-icons/gr`);
+							break;
+						case 'hi':
+							module = await import(`react-icons/hi`);
+							break;
+						case 'hi2':
+							module = await import(`react-icons/hi2`);
+							break;
+						case 'im':
+							module = await import(`react-icons/im`);
+							break;
+						case 'lia':
+							module = await import(`react-icons/lia`);
+							break;
+						case 'io':
+							module = await import(`react-icons/io`);
+							break;
+						case 'io5':
+							module = await import(`react-icons/io5`);
+							break;
+						case 'lu':
+							module = await import(`react-icons/lu`);
+							break;
+						case 'md':
+							module = await import(`react-icons/md`);
+							break;
+						case 'pi':
+							module = await import(`react-icons/pi`);
+							break;
+						case 'rx':
+							module = await import(`react-icons/rx`);
+							break;
+						case 'ri':
+							module = await import(`react-icons/ri`);
+							break;
+						case 'si':
+							module = await import(`react-icons/si`);
+							break;
+						case 'sl':
+							module = await import(`react-icons/sl`);
+							break;
+						case 'tb':
+							module = await import(`react-icons/tb`);
+							break;
+						case 'tfi':
+							module = await import(`react-icons/tfi`);
+							break;
+						case 'ti':
+							module = await import(`react-icons/ti`);
+							break;
+						case 'vsc':
+							module = await import(`react-icons/vsc`);
+							break;
+						case 'wi':
+							module = await import(`react-icons/wi`);
+							break;
+						default:
+							module = await import(`react-icons/fa`);
+					}
+					return module.hasOwnProperty(iconName) ? { default: module[iconName] } : { default: () => {} };
+				}
+				return { default: () => {} };
+			});
+
+			//const IconComponent = Icons[iconImportString];
+
+			return (
+				<Suspense fallback={<></>}>
+					{Icon && <Icon {...props} />}
+				</Suspense>
+			);
+
+
+			// React.useEffect(() => {
+			// 	try {
+			// 		// iconImportString - i.e. 'react-icons/fa/FaBeer'
+			// 		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
+			// 			let iconStringParts = iconImportString.split('/');
+			// 			let iconName = iconStringParts[2];
+			// 			if (isNotNullOrUndefined(iconName)) {
+			// 				import(iconImportString).then(module => setIcon(module[iconName]));
+			// 			}
+			// 		}
+			// 	} catch (err) {
+			// 		console.log(err);
+			// 	}
+			// }, [iconImportString]);
+
+			// return (
+			// 	<Suspense fallback={null}>
+			// 		{Icon && <Icon {...props} />}
+			// 	</Suspense>
+			// );
+		}
+	} catch (err) {
+		console.log(err);
+	}
+
+	return null;
 };
 
 export const Header = (props) => {
@@ -1677,13 +1813,13 @@ export class Checkboxes extends React.Component {
 							if (self.props.item.disabled) { props.disabled = 'disabled'; }
 
 							return (
-								<Col key={`container_${name}_${option.value}`} xs={12}>
+								<Col key={`container_${name}_${option.value}` + ID.uuid()} xs={12}>
 									<ToggleButton
 										type="checkbox"
 										label={option.text}
 										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
 										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(props.checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
-										key={`preview_${option.key}`}
+										key={`preview_${option.key}` + ID.uuid()}
 										id={name + '-' + ID.uuid()}
 										inputRef={c => {
 											if (c && self.props.item.mutable) {
@@ -1830,13 +1966,13 @@ export class RadioButtons extends React.Component {
 							let checked = self?.props?.value === option.value;
 							let horizontal = isBooleanTrue(self.props?.item?.inline);
 							return (
-								<Col key={`container_${name}_${option.value}`} xs={horizontal ? 6 : 12}>
+								<Col key={`container_${name}_${option.value}` + ID.uuid()} xs={horizontal ? 6 : 12}>
 									<ToggleButton
 										label={option.text}
 										type="radio"
 										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
 										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
-										key={`preview_${option.key}`}
+										key={`preview_${option.key}` + ID.uuid()}
 										id={name + '-' + ID.uuid()}
 										inputRef={c => {
 											if (c && self.props.item.mutable) {
@@ -1965,13 +2101,13 @@ export class ButtonList extends React.Component {
 							let checked = self?.props?.value === option.value;
 							let horizontal = isBooleanTrue(self.props?.item?.inline);
 							return (
-								<Col key={`container_${name}_${option.value}`} xs={horizontal ? 6 : 12}>
+								<Col key={`container_${name}_${option.value}` + ID.uuid()} xs={horizontal ? 6 : 12}>
 									<ToggleButton
 										label={option.text}
 										type="radio"
 										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
 										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
-										key={`preview_${option.key}`}
+										key={`preview_${option.key}` + ID.uuid()}
 										id={name + '-' + ID.uuid()}
 										inputRef={c => {
 											if (c && self.props.item.mutable) {

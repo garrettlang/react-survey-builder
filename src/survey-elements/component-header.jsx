@@ -1,7 +1,7 @@
 import React from 'react';
 import HeaderBar from './header-bar';
 
-const ComponentHeader = ({ item, isFieldSet = false, isStep = false, index, editModeOn, setAsChild, _onDestroy, onEdit }) => {
+const ComponentHeader = ({ item, isFieldSet = false, isStep = false, index, editModeOn, setAsChild, _onDestroy, onEdit, toggleCollapse, collapsed }) => {
 	if (item?.mutable) { return null; }
 
 	return (
@@ -18,6 +18,8 @@ const ComponentHeader = ({ item, isFieldSet = false, isStep = false, index, edit
 				onEdit={onEdit}
 				static={item?.static}
 				required={item?.required}
+				toggleCollapse={toggleCollapse} 
+				collapsed={collapsed}
 			/>
 		</div>
 	);

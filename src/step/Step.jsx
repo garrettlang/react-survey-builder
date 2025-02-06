@@ -17,6 +17,7 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 
 	// const [hidden, setHidden] = React.useState(item?.conditional ?? false);
 	const [childItemIds, setChildItemIds] = React.useState(isObjectNotEmpty(item) && isListNotEmpty(item?.childItems) ? [...item?.childItems] : [null]);
+	const [collapsed, setCollapsed] = React.useState(false);
 
 	const onDropSuccess = (droppedIndex) => {
 		// let updatedItem = isObjectNotEmpty(item) ? { ...item } : {};
@@ -30,6 +31,8 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 		// }
 	};
 
+	const toggleCollapse = () => { setCollapsed(!!!collapsed); };
+
 	React.useEffect(() => {
 		if (isObjectNotEmpty(item) && isListNotEmpty(item?.childItems)) {
 			setChildItemIds([...item?.childItems, null]);
@@ -40,8 +43,8 @@ const StepBase = ({ item, controls, items, answers, editModeOn, getItemById, set
 
 	return (
 		<div style={{ ...style }} className={baseClasses}>
-			<ComponentHeader item={item} index={index} editModeOn={editModeOn} setAsChild={setAsChild} isStep={true} {...otherProps} />
-			<div className={'d-grid w-100'}>
+			<ComponentHeader item={item} index={index} editModeOn={editModeOn} setAsChild={setAsChild} isStep={true} toggleCollapse={toggleCollapse} collapsed={collapsed} {...otherProps} />
+			<div className={`w-100 ${collapsed ? 'd-none' : 'd-grid'}`}>
 				{/* <Row> */}
 				{childItemIds?.map((childItemId, childItemIndex) => (
 					<div key={`${childItemIndex}_${childItemId || "_"}`}>

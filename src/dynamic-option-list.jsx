@@ -94,44 +94,52 @@ const DynamicOptionList = ({ dirty, setDirty, element, setElement, updateElement
 			<ul>
 				<li>
 					<Row>
-						<Col sm={props.canHaveIcon && props.canHaveImage ? 4 : 6}><b>Options</b></Col>
-						{props.canHaveIcon &&
-							<Col sm={2}><b>Icon ClassName</b></Col>}
-						{props.canHaveImage &&
-							<Col sm={2}><b>Image URL</b></Col>}
-						{props.canHaveOptionValue &&
-							<Col sm={props.canHaveIcon && props.canHaveImage ? 2 : 4}><b>Value</b></Col>}
-						{props.canHaveOptionValue && props.canHaveOptionCorrect &&
-							<Col sm={2}><b>Correct</b></Col>}
+						<Col sm={4}><b>Options</b></Col>
+						<Col sm={2}><b>Image</b></Col>
+						<Col sm={3}><b>Value</b></Col>
+						<Col sm={1}><b>Correct</b></Col>
+						<Col sm={2}></Col>
 					</Row>
 				</li>
 				{element.options.map((option, index) => {
 					return (
 						<li className="clearfix" key={`edit_${option.key}`}>
 							<Row>
-								<Col sm={props.canHaveIcon && props.canHaveImage ? 3 : 4}>
+								<Col sm={4}>
+									<Form.Label>Label/Text</Form.Label>
 									<Form.Control tabIndex={index + 1} style={{ width: '100%' }} type="text" name={`text_${index}`} placeholder="Option text" value={option.text} onBlur={updateOption} onChange={(e) => { editOption(index, e); }} />
 									{props.canHaveDescription &&
-										<Form.Control style={{ width: '100%' }} type="text" name={`description_${index}`} value={option.description} onChange={(e) => { editDescription(index, e); }} />
+										<>
+											<Form.Label>Description</Form.Label>
+											<Form.Control style={{ width: '100%' }} type="text" name={`description_${index}`} value={option.description} onChange={(e) => { editDescription(index, e); }} />
+										</>
 									}
 								</Col>
-								{props.canHaveIcon &&
-									<Col sm={1}>
-										<Form.Control type="text" name={`icon_${index}`} value={option.icon} onChange={(e) => { editIcon(index, e); }} />
-									</Col>}
-								{props.canHaveImage &&
-									<Col sm={1}>
-										<Form.Control type="text" name={`image_${index}`} value={option.image} onChange={(e) => { editImage(index, e); }} />
-									</Col>}
-								{props.canHaveOptionValue &&
-									<Col sm={props.canHaveIcon && props.canHaveImage ? 3 : 4}>
-										<Form.Control type="text" name={`value_${index}`} value={option.value} onChange={(e) => { editValue(index, e); }} />
-									</Col>}
-								{props.canHaveOptionValue && props.canHaveOptionCorrect &&
-									<Col sm={1}>
-										<Form.Check type="checkbox" value="1" onChange={(e) => { editOptionCorrect(index, e); }} checked={option.hasOwnProperty('correct')} />
-									</Col>}
+								<Col sm={2}>
+									{props.canHaveIcon &&
+										<>
+											<Form.Label>React-Icon Module</Form.Label>
+											<Form.Control type="text" name={`icon_${index}`} value={option.icon} onBlur={(e) => { editIcon(index, e); }} onChange={(e) => { editIcon(index, e); }} />
+										</>
+									}
+									{props.canHaveImage &&
+										<>
+											<Form.Label>Image URL</Form.Label>
+											<Form.Control type="text" name={`image_${index}`} value={option.image} onChange={(e) => { editImage(index, e); }} />
+										</>
+									}
+								</Col>
 								<Col sm={3}>
+									{props.canHaveOptionValue &&
+										<Form.Control type="text" name={`value_${index}`} value={option.value} onChange={(e) => { editValue(index, e); }} />
+									}
+								</Col>
+								<Col sm={1}>
+									{props.canHaveOptionValue && props.canHaveOptionCorrect &&
+										<Form.Check type="checkbox" value="1" onChange={(e) => { editOptionCorrect(index, e); }} checked={option.hasOwnProperty('correct')} />
+									}
+								</Col>
+								<Col sm={2}>
 									<div className="dynamic-options-actions-buttons">
 										<Button variant="success" onClick={() => { addOption(index); }}><FaPlusCircle /></Button>
 										{index > 0
