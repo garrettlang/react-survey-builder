@@ -106,6 +106,12 @@ const _defaultItems = [
 		bgColor: 'light', 
 		textColor: 'black', 
 		className: "p-2 shadow-none rounded-3 text-black border border-2 w-100", 
+		fieldLabelClassName: "text-start text-black fs-3", 
+		fieldDescriptionClassName: "text-start text-muted fs-6", 
+		selectedClassName: "border-black", 
+		unselectedClassName: "border-light", 
+		unselectedColor: "black", 
+		selectedColor: "black",
 	},
 	{
 		key: 'RadioButtons',
