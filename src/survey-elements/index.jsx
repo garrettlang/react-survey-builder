@@ -26,16 +26,9 @@ const SurveyElements = {};
 
 const IconComponent = ({ iconImportString, ...props }) => {
 	try {
-		//const [Icon, setIcon] = React.useState(null);
 		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
-			//const Icon = lazy(() => import(iconImportString));
-			// let iconStringParts = iconImportString.split('/');
-			// 			let IconName = iconStringParts[2];
-			console.log(iconImportString);
 			const [library, iconPath = 'fa', iconName = 'FaCircle'] = iconImportString.split('/');
 			const Icon = lazy(async () => {
-				console.log(iconPath);
-
 				let module = null;
 				if (library && iconPath && iconName) {
 					switch (iconPath) {
@@ -140,35 +133,11 @@ const IconComponent = ({ iconImportString, ...props }) => {
 				return { default: () => {} };
 			});
 
-			//const IconComponent = Icons[iconImportString];
-
 			return (
 				<Suspense fallback={<></>}>
 					{Icon && <Icon {...props} />}
 				</Suspense>
 			);
-
-
-			// React.useEffect(() => {
-			// 	try {
-			// 		// iconImportString - i.e. 'react-icons/fa/FaBeer'
-			// 		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
-			// 			let iconStringParts = iconImportString.split('/');
-			// 			let iconName = iconStringParts[2];
-			// 			if (isNotNullOrUndefined(iconName)) {
-			// 				import(iconImportString).then(module => setIcon(module[iconName]));
-			// 			}
-			// 		}
-			// 	} catch (err) {
-			// 		console.log(err);
-			// 	}
-			// }, [iconImportString]);
-
-			// return (
-			// 	<Suspense fallback={null}>
-			// 		{Icon && <Icon {...props} />}
-			// 	</Suspense>
-			// );
 		}
 	} catch (err) {
 		console.log(err);
