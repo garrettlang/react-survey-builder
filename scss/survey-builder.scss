@@ -254,7 +254,7 @@
 				}
 
 				.toolbar-header {
-					opacity: 0; // visible
+					opacity: 1; // 0 = hidden, 1 = visible
 					z-index: 100;
 					// position: relative;
 
