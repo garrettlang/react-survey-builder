@@ -1815,7 +1815,7 @@ export class Checkboxes extends React.Component {
 											</div>
 											{option.icon &&
 												<div className="text-center me-2">
-													<IconComponent iconImportString={option.icon} size={50} />
+													<IconComponent iconImportString={option.icon} size={50} key={`icon_${name}_${option.value}`} />
 												</div>
 											}
 										</div>
@@ -1966,7 +1966,7 @@ export class RadioButtons extends React.Component {
 											<>
 												{option.icon &&
 													<div className="text-center">
-														<IconComponent iconImportString={option.icon} size={80} />
+														<IconComponent iconImportString={option.icon} size={80} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
@@ -2011,7 +2011,7 @@ export class RadioButtons extends React.Component {
 												</div>
 												{option.icon &&
 													<div className="text-center me-2">
-														<IconComponent iconImportString={option.icon} size={50} />
+														<IconComponent iconImportString={option.icon} size={50} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
@@ -2101,7 +2101,7 @@ export class ButtonList extends React.Component {
 											<>
 												{option.icon &&
 													<div className="text-center">
-														<IconComponent iconImportString={option.icon} size={80} />
+														<IconComponent iconImportString={option.icon} size={80} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
@@ -2146,7 +2146,7 @@ export class ButtonList extends React.Component {
 												</div>
 												{option.icon &&
 													<div className="text-center me-2">
-														<IconComponent iconImportString={option.icon} size={50} />
+														<IconComponent iconImportString={option.icon} size={50} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
