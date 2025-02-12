@@ -166,7 +166,8 @@ const ReactSurveyFormSteps = ({ validateForCorrectness = false, displayShort = f
 				customName: item.customName || item.fieldName,
 				label: item.label !== null && item.label !== undefined && item.label !== '' ? item.label.trim() : '',
 				value: $formData[item.fieldName],
-				required: item.required || false
+				required: item.required || false,
+				reportForm: item.reportForm || false
 			};
 
 			if (isListNotEmpty(item?.options)) {

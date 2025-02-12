@@ -99,6 +99,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 	const thisRequiredChecked = element.hasOwnProperty('required') ? element.required : false;
 	const thisDefaultChecked = element.hasOwnProperty('defaultChecked') ? element.defaultChecked : false;
 	const thisReadOnly = element.hasOwnProperty('readOnly') ? element.readOnly : false;
+	const thisReportForm = element.hasOwnProperty('reportForm') ? element.reportForm : false;
 	const thisDefaultToday = element.hasOwnProperty('defaultToday') ? element.defaultToday : false;
 	const thisCheckedInline = element.hasOwnProperty('inline') ? element.inline : false;
 	const thisCheckedBold = element.hasOwnProperty('bold') ? element.bold : false;
@@ -206,6 +207,12 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 					}
 
 
+				</Form.Group>
+			}
+
+			{(canHaveAnswer || canHaveOptionValue) &&
+				<Form.Group className="form-group mb-5">
+					<Form.Check id="reportForm" label="Include in Report" type="checkbox" checked={thisReportForm} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('reportForm', 'checked', e); }} />
 				</Form.Group>
 			}
 

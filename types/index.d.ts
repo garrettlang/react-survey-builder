@@ -58,6 +58,7 @@ type BaseElement = {
   unselectedClassName?: string;
   selectedColor?: string;
   unselectedColor?: string;
+  reportForm?: boolean;
 };
 export type StaticElement = {
   bold: boolean;

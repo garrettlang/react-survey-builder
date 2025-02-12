@@ -21,130 +21,131 @@ import { IMask, IMaskInput } from 'react-imask';
 import { isValidPhoneNumber } from 'libphonenumber-js';
 import ID from '../UUID';
 import { isBooleanFalse, isBooleanTrue, isNotNullOrUndefined, replaceInText } from '../utils/objectUtils';
+import { Icon } from "@iconify/react";
 
 const SurveyElements = {};
 
-const IconComponent = ({ iconImportString, ...props }) => {
-	try {
-		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
-			const [library, iconPath = 'fa', iconName = 'FaCircle'] = iconImportString.split('/');
-			const Icon = lazy(async () => {
-				let module = null;
-				if (library && iconPath && iconName) {
-					switch (iconPath) {
-						case 'ai':
-							module = await import(`react-icons/ai`);
-							break;
-						case 'bs':
-							module = await import(`react-icons/bs`);
-							break;
-						case 'bi':
-							module = await import(`react-icons/bi`);
-							break;
-						case 'ci':
-							module = await import(`react-icons/ci`);
-							break;
-						case 'cg':
-							module = await import(`react-icons/cg`);
-							break;
-						case 'di':
-							module = await import(`react-icons/di`);
-							break;
-						case 'fi':
-							module = await import(`react-icons/fi`);
-							break;
-						case 'fc':
-							module = await import(`react-icons/fc`);
-							break;
-						case 'fa':
-							module = await import(`react-icons/fa`);
-							break;
-						case 'fa6':
-							module = await import(`react-icons/fa6`);
-							break;
-						case 'gi':
-							module = await import(`react-icons/gi`);
-							break;
-						case 'go':
-							module = await import(`react-icons/go`);
-							break;
-						case 'gr':
-							module = await import(`react-icons/gr`);
-							break;
-						case 'hi':
-							module = await import(`react-icons/hi`);
-							break;
-						case 'hi2':
-							module = await import(`react-icons/hi2`);
-							break;
-						case 'im':
-							module = await import(`react-icons/im`);
-							break;
-						case 'lia':
-							module = await import(`react-icons/lia`);
-							break;
-						case 'io':
-							module = await import(`react-icons/io`);
-							break;
-						case 'io5':
-							module = await import(`react-icons/io5`);
-							break;
-						case 'lu':
-							module = await import(`react-icons/lu`);
-							break;
-						case 'md':
-							module = await import(`react-icons/md`);
-							break;
-						case 'pi':
-							module = await import(`react-icons/pi`);
-							break;
-						case 'rx':
-							module = await import(`react-icons/rx`);
-							break;
-						case 'ri':
-							module = await import(`react-icons/ri`);
-							break;
-						case 'si':
-							module = await import(`react-icons/si`);
-							break;
-						case 'sl':
-							module = await import(`react-icons/sl`);
-							break;
-						case 'tb':
-							module = await import(`react-icons/tb`);
-							break;
-						case 'tfi':
-							module = await import(`react-icons/tfi`);
-							break;
-						case 'ti':
-							module = await import(`react-icons/ti`);
-							break;
-						case 'vsc':
-							module = await import(`react-icons/vsc`);
-							break;
-						case 'wi':
-							module = await import(`react-icons/wi`);
-							break;
-						default:
-							module = await import(`react-icons/fa`);
-					}
-					return module.hasOwnProperty(iconName) ? { default: module[iconName] } : { default: () => {} };
-				}
-				return { default: () => {} };
-			});
+// const IconComponent = ({ iconImportString, ...props }) => {
+// 	try {
+// 		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
+// 			const [library, iconPath = 'fa', iconName = 'FaCircle'] = iconImportString.split('/');
+// 			const Icon = lazy(async () => {
+// 				let module = null;
+// 				if (library && iconPath && iconName) {
+// 					switch (iconPath) {
+// 						case 'ai':
+// 							module = await import(`react-icons/ai`);
+// 							break;
+// 						case 'bs':
+// 							module = await import(`react-icons/bs`);
+// 							break;
+// 						case 'bi':
+// 							module = await import(`react-icons/bi`);
+// 							break;
+// 						case 'ci':
+// 							module = await import(`react-icons/ci`);
+// 							break;
+// 						case 'cg':
+// 							module = await import(`react-icons/cg`);
+// 							break;
+// 						case 'di':
+// 							module = await import(`react-icons/di`);
+// 							break;
+// 						case 'fi':
+// 							module = await import(`react-icons/fi`);
+// 							break;
+// 						case 'fc':
+// 							module = await import(`react-icons/fc`);
+// 							break;
+// 						case 'fa':
+// 							module = await import(`react-icons/fa`);
+// 							break;
+// 						case 'fa6':
+// 							module = await import(`react-icons/fa6`);
+// 							break;
+// 						case 'gi':
+// 							module = await import(`react-icons/gi`);
+// 							break;
+// 						case 'go':
+// 							module = await import(`react-icons/go`);
+// 							break;
+// 						case 'gr':
+// 							module = await import(`react-icons/gr`);
+// 							break;
+// 						case 'hi':
+// 							module = await import(`react-icons/hi`);
+// 							break;
+// 						case 'hi2':
+// 							module = await import(`react-icons/hi2`);
+// 							break;
+// 						case 'im':
+// 							module = await import(`react-icons/im`);
+// 							break;
+// 						case 'lia':
+// 							module = await import(`react-icons/lia`);
+// 							break;
+// 						case 'io':
+// 							module = await import(`react-icons/io`);
+// 							break;
+// 						case 'io5':
+// 							module = await import(`react-icons/io5`);
+// 							break;
+// 						case 'lu':
+// 							module = await import(`react-icons/lu`);
+// 							break;
+// 						case 'md':
+// 							module = await import(`react-icons/md`);
+// 							break;
+// 						case 'pi':
+// 							module = await import(`react-icons/pi`);
+// 							break;
+// 						case 'rx':
+// 							module = await import(`react-icons/rx`);
+// 							break;
+// 						case 'ri':
+// 							module = await import(`react-icons/ri`);
+// 							break;
+// 						case 'si':
+// 							module = await import(`react-icons/si`);
+// 							break;
+// 						case 'sl':
+// 							module = await import(`react-icons/sl`);
+// 							break;
+// 						case 'tb':
+// 							module = await import(`react-icons/tb`);
+// 							break;
+// 						case 'tfi':
+// 							module = await import(`react-icons/tfi`);
+// 							break;
+// 						case 'ti':
+// 							module = await import(`react-icons/ti`);
+// 							break;
+// 						case 'vsc':
+// 							module = await import(`react-icons/vsc`);
+// 							break;
+// 						case 'wi':
+// 							module = await import(`react-icons/wi`);
+// 							break;
+// 						default:
+// 							module = await import(`react-icons/fa`);
+// 					}
+// 					return module.hasOwnProperty(iconName) ? { default: module[iconName] } : { default: () => {} };
+// 				}
+// 				return { default: () => {} };
+// 			});
 
-			return (
-				<Suspense fallback={<></>}>
-					{Icon && <Icon {...props} />}
-				</Suspense>
-			);
-		}
-	} catch (err) {
-		console.log(err);
-	}
+// 			return (
+// 				<Suspense fallback={<></>}>
+// 					{Icon && <Icon {...props} />}
+// 				</Suspense>
+// 			);
+// 		}
+// 	} catch (err) {
+// 		console.log(err);
+// 	}
 
-	return null;
-};
+// 	return null;
+// };
 
 export const Header = (props) => {
 	let classNames = 'static';
@@ -1815,7 +1816,7 @@ export class Checkboxes extends React.Component {
 											</div>
 											{option.icon &&
 												<div className="text-center me-2">
-													<IconComponent iconImportString={option.icon} size={50} key={`icon_${name}_${option.value}`} />
+													<Icon icon={option.icon} style={{ fontSize: 50 }} key={`icon_${name}_${option.value}`} />
 												</div>
 											}
 										</div>
@@ -1966,7 +1967,7 @@ export class RadioButtons extends React.Component {
 											<>
 												{option.icon &&
 													<div className="text-center">
-														<IconComponent iconImportString={option.icon} size={80} key={`icon_${name}_${option.value}`} />
+														<Icon icon={option.icon} style={{ fontSize: 80 }} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
@@ -2011,7 +2012,7 @@ export class RadioButtons extends React.Component {
 												</div>
 												{option.icon &&
 													<div className="text-center me-2">
-														<IconComponent iconImportString={option.icon} size={50} key={`icon_${name}_${option.value}`} />
+														<Icon icon={option.icon} style={{ fontSize: 50 }} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
@@ -2101,7 +2102,7 @@ export class ButtonList extends React.Component {
 											<>
 												{option.icon &&
 													<div className="text-center">
-														<IconComponent iconImportString={option.icon} size={80} key={`icon_${name}_${option.value}`} />
+														<Icon icon={option.icon} style={{ fontSize: 80 }} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
@@ -2146,7 +2147,7 @@ export class ButtonList extends React.Component {
 												</div>
 												{option.icon &&
 													<div className="text-center me-2">
-														<IconComponent iconImportString={option.icon} size={50} key={`icon_${name}_${option.value}`} />
+														<Icon icon={option.icon} style={{ fontSize: 50 }} key={`icon_${name}_${option.value}`} />
 													</div>
 												}
 												{option.image &&
