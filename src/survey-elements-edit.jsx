@@ -210,7 +210,7 @@ const SurveyElementsEdit = ({ element, setElement, files = [], showCorrectColumn
 				</Form.Group>
 			}
 
-			{(canHaveAnswer || canHaveOptionValue) &&
+			{(element.hasOwnProperty('hideLabel') || ['Dropdown', 'Tags', 'Checkboxes', 'Checkbox', 'RadioButtons', 'ButtonList', 'TextInput', 'EmailInput', 'PhoneNumber', 'DatePicker', 'TextArea', 'NumberInput', 'Rating', 'Range', 'Signature', 'Camera', 'FileUpload'].includes(element.element)) &&
 				<Form.Group className="form-group mb-5">
 					<Form.Check id="reportForm" label="Include in Report" type="checkbox" checked={thisReportForm} value={true} onBlur={onUpdateElement} onChange={(e) => { editElementProp('reportForm', 'checked', e); }} />
 				</Form.Group>
