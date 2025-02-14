@@ -25,128 +25,6 @@ import { Icon } from "@iconify/react";
 
 const SurveyElements = {};
 
-// const IconComponent = ({ iconImportString, ...props }) => {
-// 	try {
-// 		if (isNotNullOrUndefined(iconImportString) && iconImportString !== '') {
-// 			const [library, iconPath = 'fa', iconName = 'FaCircle'] = iconImportString.split('/');
-// 			const Icon = lazy(async () => {
-// 				let module = null;
-// 				if (library && iconPath && iconName) {
-// 					switch (iconPath) {
-// 						case 'ai':
-// 							module = await import(`react-icons/ai`);
-// 							break;
-// 						case 'bs':
-// 							module = await import(`react-icons/bs`);
-// 							break;
-// 						case 'bi':
-// 							module = await import(`react-icons/bi`);
-// 							break;
-// 						case 'ci':
-// 							module = await import(`react-icons/ci`);
-// 							break;
-// 						case 'cg':
-// 							module = await import(`react-icons/cg`);
-// 							break;
-// 						case 'di':
-// 							module = await import(`react-icons/di`);
-// 							break;
-// 						case 'fi':
-// 							module = await import(`react-icons/fi`);
-// 							break;
-// 						case 'fc':
-// 							module = await import(`react-icons/fc`);
-// 							break;
-// 						case 'fa':
-// 							module = await import(`react-icons/fa`);
-// 							break;
-// 						case 'fa6':
-// 							module = await import(`react-icons/fa6`);
-// 							break;
-// 						case 'gi':
-// 							module = await import(`react-icons/gi`);
-// 							break;
-// 						case 'go':
-// 							module = await import(`react-icons/go`);
-// 							break;
-// 						case 'gr':
-// 							module = await import(`react-icons/gr`);
-// 							break;
-// 						case 'hi':
-// 							module = await import(`react-icons/hi`);
-// 							break;
-// 						case 'hi2':
-// 							module = await import(`react-icons/hi2`);
-// 							break;
-// 						case 'im':
-// 							module = await import(`react-icons/im`);
-// 							break;
-// 						case 'lia':
-// 							module = await import(`react-icons/lia`);
-// 							break;
-// 						case 'io':
-// 							module = await import(`react-icons/io`);
-// 							break;
-// 						case 'io5':
-// 							module = await import(`react-icons/io5`);
-// 							break;
-// 						case 'lu':
-// 							module = await import(`react-icons/lu`);
-// 							break;
-// 						case 'md':
-// 							module = await import(`react-icons/md`);
-// 							break;
-// 						case 'pi':
-// 							module = await import(`react-icons/pi`);
-// 							break;
-// 						case 'rx':
-// 							module = await import(`react-icons/rx`);
-// 							break;
-// 						case 'ri':
-// 							module = await import(`react-icons/ri`);
-// 							break;
-// 						case 'si':
-// 							module = await import(`react-icons/si`);
-// 							break;
-// 						case 'sl':
-// 							module = await import(`react-icons/sl`);
-// 							break;
-// 						case 'tb':
-// 							module = await import(`react-icons/tb`);
-// 							break;
-// 						case 'tfi':
-// 							module = await import(`react-icons/tfi`);
-// 							break;
-// 						case 'ti':
-// 							module = await import(`react-icons/ti`);
-// 							break;
-// 						case 'vsc':
-// 							module = await import(`react-icons/vsc`);
-// 							break;
-// 						case 'wi':
-// 							module = await import(`react-icons/wi`);
-// 							break;
-// 						default:
-// 							module = await import(`react-icons/fa`);
-// 					}
-// 					return module.hasOwnProperty(iconName) ? { default: module[iconName] } : { default: () => {} };
-// 				}
-// 				return { default: () => {} };
-// 			});
-
-// 			return (
-// 				<Suspense fallback={<></>}>
-// 					{Icon && <Icon {...props} />}
-// 				</Suspense>
-// 			);
-// 		}
-// 	} catch (err) {
-// 		console.log(err);
-// 	}
-
-// 	return null;
-// };
-
 export const Header = (props) => {
 	let classNames = 'static';
 	if (props.item.bold) { classNames += ' bold'; }
@@ -1783,14 +1661,14 @@ export class Checkboxes extends React.Component {
 							if (self.props.item.disabled) { props.disabled = 'disabled'; }
 
 							return (
-								<Col key={`container_${name}_${option.value}` + ID.uuid()} xs={12}>
+								<Col key={`container_${name}_${option.value}_${index}`} xs={12}>
 									<ToggleButton
 										type="checkbox"
 										label={option.text}
 										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
 										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(props.checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
-										key={`preview_${option.key}` + ID.uuid()}
-										id={name + '-' + ID.uuid()}
+										key={`preview_${name}_${option.value}_${index}_${option.key}`}
+										id={`${name}_${option.value}_${index}_${option.key}` + '-' + ID.uuid()}
 										inputRef={c => {
 											if (c && self.props.item.mutable) {
 												self.options[`child_ref_${option.key}`] = c;
@@ -1936,14 +1814,14 @@ export class RadioButtons extends React.Component {
 							let checked = self?.props?.value === option.value;
 							let horizontal = isBooleanTrue(self.props?.item?.inline);
 							return (
-								<Col key={`container_${name}_${option.value}` + ID.uuid()} xs={horizontal ? 6 : 12}>
+								<Col key={`container_${name}_${option.value}_${index}`} xs={horizontal ? 6 : 12}>
 									<ToggleButton
 										label={option.text}
 										type="radio"
 										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
 										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
-										key={`preview_${option.key}` + ID.uuid()}
-										id={name + '-' + ID.uuid()}
+										key={`preview_${name}_${option.value}_${index}_${option.key}`}
+										id={`${name}_${option.value}_${index}_${option.key}` + '-' + ID.uuid()}
 										inputRef={c => {
 											if (c && self.props.item.mutable) {
 												self.options[`child_ref_${option.key}`] = c;
@@ -2071,14 +1949,14 @@ export class ButtonList extends React.Component {
 							let checked = self?.props?.value === option.value;
 							let horizontal = isBooleanTrue(self.props?.item?.inline);
 							return (
-								<Col key={`container_${name}_${option.value}` + ID.uuid()} xs={horizontal ? 6 : 12}>
+								<Col key={`container_${name}_${option.value}_${index}`} xs={horizontal ? 6 : 12}>
 									<ToggleButton
 										label={option.text}
 										type="radio"
 										variant={self.props?.item?.bgColor ?? self.props?.checkboxButtonClassName ?? "outline-light"}
 										className={`btn-survey-builder-checkbox ${self.props?.item?.className} ${isBooleanTrue(checked) ? self.props?.item?.selectedClassName : self.props?.item?.unselectedClassName}`}
-										key={`preview_${option.key}` + ID.uuid()}
-										id={name + '-' + ID.uuid()}
+										key={`preview_${name}_${option.value}_${index}_${option.key}`}
+										id={`${name}_${option.value}_${index}_${option.key}` + '-' + ID.uuid()}
 										inputRef={c => {
 											if (c && self.props.item.mutable) {
 												self.options[`child_ref_${option.key}`] = c;
